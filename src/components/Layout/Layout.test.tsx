@@ -1,14 +1,22 @@
-import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { Layout } from './Layout';
+import { MemoryRouter } from 'react-router-dom';
 
 describe('Layout', () => {
-  it('renders children within the main content area', () => {
+  it('renders children and bottom navigation', () => {
     render(
-      <Layout>
-        <div data-testid="child">Test Content</div>
-      </Layout>
+      <MemoryRouter>
+        <Layout>
+          <div data-testid="test-child">Child Content</div>
+        </Layout>
+      </MemoryRouter>
     );
-    expect(screen.getByTestId('child')).toBeInTheDocument();
+
+    expect(screen.getByTestId('test-child')).toBeInTheDocument();
+    expect(screen.getByText('Planilha')).toBeInTheDocument();
+    expect(screen.getByText('Saldos')).toBeInTheDocument();
+    expect(screen.getByText('Desempenho')).toBeInTheDocument();
+    expect(screen.getByText('Diário')).toBeInTheDocument();
   });
 });
