@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Grid, Wallet, Activity, Calculator } from 'lucide-react';
+import { Grid, Activity, PlusCircle, Tag, Menu } from 'lucide-react';
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -11,23 +11,27 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       
       <nav className="bottom-nav">
         <NavLink to="/" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
-          <Grid size={20} />
-          <span>Planilha</span>
-        </NavLink>
-        
-        <NavLink to="/balances" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
-          <Wallet size={20} />
+          <Grid size={24} />
           <span>Saldos</span>
         </NavLink>
-
+        
         <NavLink to="/performance" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
-          <Activity size={20} />
-          <span>Desempenho</span>
+          <Activity size={24} />
+          <span>Totais</span>
         </NavLink>
 
-        <NavLink to="/daily-calculation" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
-          <Calculator size={20} />
-          <span>Diário</span>
+        <NavLink to="/add" className={({ isActive }) => `bottom-nav-item fab ${isActive ? 'active' : ''}`}>
+          <PlusCircle size={32} />
+        </NavLink>
+
+        <NavLink to="/category" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
+          <Tag size={24} />
+          <span>Tags</span>
+        </NavLink>
+
+        <NavLink to="/menu" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
+          <Menu size={24} />
+          <span>Menu</span>
         </NavLink>
       </nav>
     </div>
