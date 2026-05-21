@@ -53,6 +53,18 @@ This project uses `npm` (or your preferred Node.js package manager) for scriptin
 - The app is used for personal finance management, allowing users to track their income and expenses, as well as set budgets and financial goals.
 - This app should be a local-first app, meaning that all the data should be stored locally on the user's device.
 
+## Pages & Routing Structure
+- **Root Page (`/`)**: Must have a "sheet visualization" with the following data:
+  - Diário (Calculated with the previsão de diário)
+  - Cartão (Credit Card)
+  - Saídas (Recurring expenses)
+  - Entradas (Earnings)
+  - Economias (Savings)
+- **Specific Data Pages**: There should be a specific page for each of the 5 data points above, navigated via a dropdown.
+- **Performance Page (`/performance`)**: Shows performance and overall metrics.
+- **Balance Page (`/balances`)**: Shows balances across accounts.
+- **Daily Calculation Page (`/daily-calculation`)**: Page specifically to calculate the 'diário' (daily budget).
+
 ## UI
 - The app should have a modern and clean UI, with a focus on user experience.
 - The UI should be responsive and work on all devices.

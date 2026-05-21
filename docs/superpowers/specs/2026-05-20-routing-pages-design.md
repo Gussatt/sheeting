@@ -1,29 +1,53 @@
 # Sheeting Routing & Pages Design
 
 ## Goal
-Establish the application routing and page skeletons for the "Sheeting" personal finance web application, enabling parallel development of UI components and domain logic. This builds upon the foundational layout to provide a complete, navigable shell.
+Establish the application routing and page skeletons for the "Sheeting" personal finance web application, incorporating the specific page functions and navigation elements requested by the user.
 
 ## Architecture
-- **Router:** `react-router-dom` for declarative client-side routing.
-- **Provider Placement:** `BrowserRouter` will wrap the application at the root level (`main.tsx` or `App.tsx`).
-- **Layout Integration:** The router will render page components inside the main content area of the `Layout` component. The `Layout` component's sidebar will be updated to use `NavLink` elements for navigation.
+- **Router:** `react-router-dom` using `<BrowserRouter>`.
+- **Layout Integration:** The `Layout` component will provide a bottom navigation bar for mobile-first interaction and a top app bar that might house the global dropdown navigation.
 
 ## Route Structure
-The application will feature the following core routes, mapping to the key features of the application:
-1.  **`/` (Dashboard):** The home screen providing an overview of finances, summary widgets, and recent activity.
-2.  **`/transactions`:** A dedicated view for listing, filtering, and managing all income and expense records.
-3.  **`/budgets`:** A view to create, monitor, and manage spending limits for different categories.
-4.  **`/goals`:** A view for tracking long-term savings goals and their current progress.
-5.  **`/settings`:** Application configuration, tag management, theme toggles, and data export/import capabilities.
+Based on the required features:
+
+1.  **`/` (Root / Sheet Visualization):** The main dashboard displaying a sheet-like visualization combining:
+    *   Diário (Daily budget based on 'previsão de diário')
+    *   Cartão (Credit Card expenses)
+    *   Saídas (Recurring expenses/outflows)
+    *   Entradas (Earnings/inflows)
+    *   Economias (Savings)
+    *   *Navigation:* A dropdown will be available (in the header or top of the page) to navigate to specific detailed pages for each of these 5 categories.
+
+2.  **Specific Category Pages (accessible via Dropdown):**
+    *   `/category/diario`
+    *   `/category/cartao`
+    *   `/category/saidas`
+    *   `/category/entradas`
+    *   `/category/economias`
+
+3.  **`/performance` (Totais/Performance):** A page showing performance metrics, money saved, cost of living, and average daily cost (as seen in IMG_7083).
+
+4.  **`/balances` (Saldos):** A page showing current account balances (e.g., Wallet, Nubank) (as seen in IMG_7081).
+
+5.  **`/daily-calculation` (Calculo de diário):** A page to calculate and set the daily budget limits based on categories (as seen in IMG_7085).
+
+6.  **Bottom Navigation Bar (Global):**
+    We will map the primary routes to the bottom navigation for quick access, likely:
+    - Sheet/Home (`/`)
+    - Balances (`/balances`)
+    - New Transaction (`+` button)
+    - Performance (`/performance`)
+    - Daily Calculation (`/daily-calculation`)
 
 ## Page Skeletons
-For each route, a dedicated React component (e.g., `src/pages/Dashboard/Dashboard.tsx`) will be created. 
-- Each skeleton will contain a distinct header identifying the page.
-- Each skeleton will render a small set of static mock data (e.g., an array of 2-3 hardcoded transactions or budgets) displayed in a basic structural format (lists or simple tables). This proves the routing works and provides immediate visual context before the actual UI components and Dexie database are integrated.
+For each route, a dedicated React component will be created.
+- Each skeleton will contain a distinct header.
+- The Root page will feature the dropdown component to switch between the specific views (Diário, Cartão, etc.).
 
 ## Testing Strategy
-- Unit tests for the routing setup will verify that navigating to a specific path renders the correct page component.
-- The `Layout` component tests will be updated to mock or provide a `MemoryRouter` context since it will now use `NavLink` components.
+- Unit tests for the routing setup to verify correct components render for paths.
+- Layout tests to verify the bottom navigation and dropdown structure.
 
 ## Dependencies
-- `react-router-dom` (requires installation)
+- `react-router-dom`
+- `lucide-react` (for icons)
