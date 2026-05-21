@@ -1,7 +1,7 @@
 // src/utils/budgetCalc.test.ts
 import { describe, it, expect } from 'vitest';
 import { calculateDailyBudget } from './budgetCalc';
-import { BudgetCategory } from '../db/db';
+import type { BudgetCategory } from '../db/db';
 
 describe('calculateDailyBudget', () => {
   it('sums categories and divides by days', () => {

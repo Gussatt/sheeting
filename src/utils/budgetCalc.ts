@@ -1,5 +1,5 @@
 // src/utils/budgetCalc.ts
-import { BudgetCategory } from '../db/db';
+import type { BudgetCategory } from '../db/db';
 
 export const calculateDailyBudget = (categories: BudgetCategory[], days: number) => {
   const total = categories.reduce((sum, cat) => sum + cat.monthlyAmount, 0);
