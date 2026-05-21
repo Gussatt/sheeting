@@ -4,6 +4,11 @@
   --color-primary: #f97316; /* logo_laranja from assets */
   --color-surface: #f3f4f6;
   --color-border: #e5e7eb;
+  --status-green: #96D87D;
+  --status-light-green: #95FDB8;
+  --status-yellow: #FCE9B5;
+  --status-pink: #F8BEBF;
+  --status-red: #F26D70;
 }
 
 @media (prefers-color-scheme: dark) {
