@@ -1,0 +1,65 @@
+package s;
+
+import android.app.AppOpsManager;
+import android.content.Context;
+import android.os.Binder;
+import android.os.Build;
+
+/* JADX INFO: renamed from: s.a, reason: case insensitive filesystem */
+/* JADX INFO: loaded from: classes.dex */
+public abstract class AbstractC1514a {
+
+    /* JADX INFO: renamed from: s.a$a, reason: collision with other inner class name */
+    public static class C0168a {
+        public static <T> T a(Context context, Class<T> cls) {
+            return (T) context.getSystemService(cls);
+        }
+
+        public static int b(AppOpsManager appOpsManager, String str, String str2) {
+            return appOpsManager.noteProxyOp(str, str2);
+        }
+
+        public static int c(AppOpsManager appOpsManager, String str, String str2) {
+            return appOpsManager.noteProxyOpNoThrow(str, str2);
+        }
+
+        public static String d(String str) {
+            return AppOpsManager.permissionToOp(str);
+        }
+    }
+
+    /* JADX INFO: renamed from: s.a$b */
+    public static class b {
+        public static int a(AppOpsManager appOpsManager, String str, int i4, String str2) {
+            if (appOpsManager == null) {
+                return 1;
+            }
+            return appOpsManager.checkOpNoThrow(str, i4, str2);
+        }
+
+        public static String b(Context context) {
+            return context.getOpPackageName();
+        }
+
+        public static AppOpsManager c(Context context) {
+            return (AppOpsManager) context.getSystemService(AppOpsManager.class);
+        }
+    }
+
+    public static int a(Context context, int i4, String str, String str2) {
+        if (Build.VERSION.SDK_INT < 29) {
+            return b(context, str, str2);
+        }
+        AppOpsManager appOpsManagerC = b.c(context);
+        int iA = b.a(appOpsManagerC, str, Binder.getCallingUid(), str2);
+        return iA != 0 ? iA : b.a(appOpsManagerC, str, i4, b.b(context));
+    }
+
+    public static int b(Context context, String str, String str2) {
+        return C0168a.c((AppOpsManager) C0168a.a(context, AppOpsManager.class), str, str2);
+    }
+
+    public static String c(String str) {
+        return C0168a.d(str);
+    }
+}
