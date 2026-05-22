@@ -2,6 +2,7 @@ import { useSQL } from '../db/db';
 import type { Tag, Transaction } from '../db/db';
 import { Search, Edit2, Share2 } from 'lucide-react';
 import { startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { TagTrapezoid } from '../components/Ledger/TagTrapezoid';
 
 export const Tags = () => {
   const now = new Date();
@@ -55,12 +56,7 @@ export const Tags = () => {
         {tags.map(tag => (
           <div key={tag.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid var(--color-border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ 
-                width: '16px', 
-                height: '16px', 
-                backgroundColor: tag.color || 'var(--color-text-secondary)', 
-                clipPath: 'polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%)' 
-              }} />
+              <TagTrapezoid color={tag.color || 'var(--color-text-secondary)'} />
               <span style={{ fontWeight: '500' }}>{tag.name}</span>
             </div>
             <span style={{ fontWeight: 'bold' }}>
