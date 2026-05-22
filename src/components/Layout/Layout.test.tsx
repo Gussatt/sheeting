@@ -14,9 +14,9 @@ describe('Layout', () => {
     );
 
     expect(screen.getByTestId('test-child')).toBeInTheDocument();
-    expect(screen.getByText('Planilha')).toBeInTheDocument();
     expect(screen.getByText('Saldos')).toBeInTheDocument();
-    expect(screen.getByText('Desempenho')).toBeInTheDocument();
-    expect(screen.getByText('Diário')).toBeInTheDocument();
+    expect(screen.getByText('Totais')).toBeInTheDocument();
+    expect(screen.getByText('Tags')).toBeInTheDocument();
+    expect(screen.getByText('Menu')).toBeInTheDocument();
   });
 });

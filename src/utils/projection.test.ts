@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateProjection } from './projection';
-import { Transaction } from '../db/db';
+import type { Transaction } from '../db/db';
 
 describe('calculateProjection', () => {
   it('projects balance correctly with daily allowance and recurring items', () => {

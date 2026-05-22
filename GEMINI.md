@@ -1,86 +1,57 @@
 # Project Overview: Sheeting
 
-**Sheeting** is a web-based application built for "cloning sheet finances." 
-
-Notably, the project contains a `jadx_asset` directory with decompiled Android app resources (from an app called "App do Breno"). It'll be a scaffold to create a clone of it, not copying the code, but the features.
+**Sheeting** is a local-first web application designed to provide financial predictability through daily budget tracking and multi-month projections. It is a high-fidelity clone of the "App do Breno" design.
 
 ## Tech Stack
-- **Framework:** React 19
-- **Language:** TypeScript
-- **Bundler:** Vite
-- **Styling:** CSS (Standard)
-- **Linter:** ESLint (Flat Config)
+- **Framework:** React 19 + Vite
+- **Language:** TypeScript (Strict: `verbatimModuleSyntax`, `noUnusedLocals`)
+- **Database:** Dexie.js (IndexedDB)
+- **Styling:** Mobile-first Standard CSS + CSS Variables
+- **PWA:** vite-plugin-pwa (standalone mode)
+- **Icons:** Lucide React
+- **Dates:** date-fns
 
 ## Building and Running
+- **Start Dev Server:** `npm run dev`
+- **Build:** `npm run build` (Generates production build + PWA assets)
+- **Preview:** `npm run preview`
+- **Lint:** `npm run lint`
+- **Test:** `npm test` (Uses Vitest)
 
-This project uses `npm` (or your preferred Node.js package manager) for scripting and dependency management.
+## Engineering Mandates
 
-- **Start Development Server:**
-  ```bash
-  npm run dev
-  ```
-  *(Starts the Vite dev server with Hot Module Replacement)*
+### 1. Local-First & PWA
+- All financial data MUST stay on the user's device.
+- Maintain PWA compatibility (offline access, standalone display).
+- Use `db.ts` (Dexie) for all persistence.
+- Use `useLiveQuery` from `dexie-react-hooks` for reactive UI.
 
-- **Build for Production:**
-  ```bash
-  npm run build
-  ```
-  *(Runs the TypeScript compiler `tsc -b` and then Vite build)*
+### 2. High-Fidelity Styling
+- **Theme:** Default to the high-fidelity Dark Mode palette.
+- **Colors:** Use the standardized status color variables strictly:
+  - `--status-green`: #27AE60
+  - `--status-yellow`: #F1C40F
+  - `--status-red`: #E74C3C
+  - `--status-pink`: #E91E63
+  - `--status-purple`: #9B59B6
+  - `--status-light-green`: #2ECC71
+- **Layout:** Follow the mobile-first bottom-nav pattern (70px height).
+- **Navigation:** Central FAB (+) must be styled as a white circular button.
 
-- **Preview Production Build:**
-  ```bash
-  npm run preview
-  ```
-  *(Serves the built application locally for testing)*
+### 3. Logic & CRUD
+- **Add/Edit:** Use the `TransactionForm` component for both operations.
+- **Projections:** Use the `calculateProjection` utility for all forecasting.
+- **Aggregation:** Ledger view must support grouped transaction types in the "Todas" view.
 
-- **Linting:**
-  ```bash
-  npm run lint
-  ```
-  *(Runs ESLint across the codebase)*
+### 4. Development Standards
+- **Types:** Use `import type` for all TypeScript interfaces.
+- **Testing:** Maintain >90% coverage for logic and UI components.
+- **References:** Always refer to `assets/` screenshots for design decisions.
 
-## Development Conventions
+## Features Reference
+See [FEATURES.md](./FEATURES.md) for a detailed breakdown of implemented modules.
 
-- **Component Structure:** Components are written as functional components using React Hooks (`useState`, etc.).
-- **File Extensions:** Use `.tsx` for React components and `.ts` for standard TypeScript logic.
-- **Entry Point:** The application entry point is `src/main.tsx` and the main component is `src/App.tsx`.
-- **Linting & Code Quality:** ESLint is configured to enforce recommended JavaScript and TypeScript rules, as well as React Hook dependencies (`eslint-plugin-react-hooks`) and Fast Refresh compatibility (`eslint-plugin-react-refresh`).
-- **Assets:** Static assets like images and SVGs are stored in the `src/assets/` directory (for bundled assets) or the `public/` directory (for static serving).
-- **Reference Material:** The `jadx_asset/` directory contains read-only reference files. When implementing features, check these files to understand the original app's data structures or configurations (e.g., Firebase, Measurement APIs), but keep the web implementation strictly within the `src/` directory using modern web standards.
-
-## Business model
-- The original app acts as a sheet app that allows predictability for your finances.
-- The app is used for personal finance management, allowing users to track their income and expenses, as well as set budgets and financial goals.
-- This app should be a local-first app, meaning that all the data should be stored locally on the user's device.
-
-## Pages & Routing Structure
-- **Root Page (`/`)**: Must have a "sheet visualization" with the following data:
-  - Diário (Calculated with the previsão de diário)
-  - Cartão (Credit Card)
-  - Saídas (Recurring expenses)
-  - Entradas (Earnings)
-  - Economias (Savings)
-- **Specific Data Pages**: There should be a specific page for each of the 5 data points above, navigated via a dropdown.
-- **Performance Page (`/performance`)**: Shows performance and overall metrics.
-- **Balance Page (`/balances`)**: Shows balances across accounts.
-- **Daily Calculation Page (`/daily-calculation`)**: Page specifically to calculate the 'diário' (daily budget).
-
-## UI
-- The app should have a modern and clean UI, with a focus on user experience.
-- The UI should be responsive and work on all devices.
-- The UI should be easy to navigate and understand.
-
-## Features
-- The app should have all the features of the original app, including:
-    - Income and expense tracking
-    - Budget management
-    - Financial goal setting
-    - Data visualization
-    - Future income prediction
-    - Recurring transactions
-    - Savings and debts tracking
-    - Sheet cells colors rules based on values
-
-## Code Style
-
-- Use functional components with hooks for state management.
+## Memory & Context
+Internal implementation details and historical context are maintained in the private memory directory: `/home/gussatt/.gemini/tmp/sheeting/memory/`.
+- `MEMORY.md`: Main index.
+- `features.md`: Original asset analysis.

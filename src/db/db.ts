@@ -1,11 +1,14 @@
-// src/db/db.ts
-import Dexie, { type Table } from 'dexie';
+import { PGlite } from '@electric-sql/pglite';
+import { live } from '@electric-sql/pglite/live';
+import { useState, useEffect } from 'react';
+// @ts-ignore - Vite raw import
+import schemaSql from './schema.sql?raw';
 
 export interface Transaction {
   id: string;
   amount: number;
   type: 'income' | 'expense' | 'daily' | 'savings' | 'credit';
-  date: Date;
+  date: Date | string;
   tagId: string;
   isRecurring: boolean;
   recurringFrequency?: 'weekly' | 'monthly' | 'yearly';
@@ -28,7 +31,6 @@ export interface Tag {
 }
 
 const toCamel = (str: string) => str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
-const toSnake = (str: string) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
 export function mapKeys<T>(obj: any, mapper: (s: string) => string): T {
   if (Array.isArray(obj)) return obj.map(v => mapKeys(v, mapper)) as any;
@@ -41,26 +43,69 @@ export function mapKeys<T>(obj: any, mapper: (s: string) => string): T {
   return obj;
 }
 
-console.log('Initializing SheetingDB...');
-export class SheetingDB extends Dexie {
-  transactions!: Table<Transaction>;
-  budgetCategories!: Table<BudgetCategory>;
-  tags!: Table<Tag>;
+class SheetingDB {
+  private pg: PGlite | null = null;
+  private initPromise: Promise<void> | null = null;
+  private dataDir: string = 'idb://sheeting-db';
 
-  constructor() {
-    super('SheetingDB');
-    try {
-      this.version(2).stores({
-        transactions: 'id, type, date, tagId, isRecurring',
-        budgetCategories: 'id, userId',
-        tags: 'id, userId'
+  setDataDir(dir: string) {
+    this.dataDir = dir;
+    this.pg = null;
+    this.initPromise = null;
+  }
+
+  async init() {
+    if (this.initPromise) return this.initPromise;
+    this.initPromise = (async () => {
+      console.log(`Initializing PGLite with dataDir: ${this.dataDir}...`);
+      this.pg = await PGlite.create({
+        dataDir: this.dataDir === 'memory' ? undefined : this.dataDir,
+        extensions: { live }
       });
-      console.log('SheetingDB schema defined');
-    } catch (e) {
-      console.error('Error defining SheetingDB schema:', e);
-    }
+      console.log('PGLite instance created, applying schema...');
+      await this.pg.exec(schemaSql);
+      console.log('Schema applied successfully.');
+    })();
+    return this.initPromise;
+  }
+
+  async query<T>(sql: string, params?: any[]): Promise<T[]> {
+    await this.init();
+    const res = await this.pg!.query(sql, params);
+    return mapKeys<T[]>(res.rows, toCamel);
+  }
+
+  async exec(sql: string, params?: any[]): Promise<void> {
+    await this.init();
+    await this.pg!.query(sql, params);
+  }
+
+  get instance() {
+    return this.pg;
   }
 }
 
 export const db = new SheetingDB();
-console.log('SheetingDB instance created');
+
+export function useSQL<T>(query: string, params?: any[]): T[] {
+  const [results, setResults] = useState<T[]>([]);
+  const paramsStr = JSON.stringify(params);
+
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+
+    (async () => {
+      await db.init();
+      const ret = await (db.instance as any).live.query(query, params || [], (res: any) => {
+        setResults(mapKeys<T[]>(res.rows, toCamel));
+      });
+      unsub = ret.unsubscribe;
+    })();
+
+    return () => {
+      if (unsub) unsub();
+    };
+  }, [query, paramsStr]);
+
+  return results;
+}

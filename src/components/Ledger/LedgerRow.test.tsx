@@ -1,23 +1,80 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { LedgerRow } from './LedgerRow';
+import { MemoryRouter } from 'react-router-dom';
+import type { Transaction } from '../../db/db';
 
 describe('LedgerRow', () => {
-  it('renders green background for positive balance >= 100', () => {
-    render(<LedgerRow day={1} type="income" total={100} balance={1500} isCheckedIn={true} />);
-    const row = screen.getByTestId('ledger-row');
-    expect(row.style.backgroundColor).toBe('var(--status-green)');
+  const mockTransactions: Transaction[] = [
+    { id: '1', type: 'income', amount: 1000, date: new Date(), description: 'test', tagId: '', isRecurring: false },
+    { id: '2', type: 'expense', amount: 200, date: new Date(), description: 'test', tagId: '', isRecurring: false }
+  ];
+
+  it('renders all 5 cells when filter is "all"', () => {
+    render(
+      <MemoryRouter>
+        <LedgerRow 
+          date={new Date('2026-05-01T12:00:00')} 
+          transactions={mockTransactions} 
+          balance={800} 
+          isCheckedIn={true} 
+          filter="all"
+          onCellClick={vi.fn()}
+          onCellLongPress={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('R$ 1.000,00')).toBeInTheDocument();
+    expect(screen.getByText('R$ 200,00')).toBeInTheDocument();
+    expect(screen.getAllByText('R$ 0,00')).toHaveLength(3);
   });
 
-  it('renders yellow background for balance between 0 and 100', () => {
-    render(<LedgerRow day={3} type="expense" total={10} balance={50} isCheckedIn={false} />);
-    const row = screen.getByTestId('ledger-row');
-    expect(row.style.backgroundColor).toBe('var(--status-yellow)');
-  });
+  it('applies correct background color to balance', () => {
+    const { rerender } = render(
+      <MemoryRouter>
+        <LedgerRow 
+          date={new Date('2026-05-01T12:00:00')} 
+          transactions={[]} 
+          balance={600} 
+          isCheckedIn={false} 
+          filter="all"
+          onCellClick={vi.fn()}
+          onCellLongPress={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+    let row = screen.getByTestId('ledger-row');
+    let balanceCell = row.lastChild as HTMLElement;
+    expect(balanceCell.style.backgroundColor).toContain('var(--status-green)');
 
-  it('renders red background for negative balance', () => {
-    render(<LedgerRow day={2} type="expense" total={50} balance={-100} isCheckedIn={false} />);
-    const row = screen.getByTestId('ledger-row');
-    expect(row.style.backgroundColor).toBe('var(--status-red)');
+    rerender(
+      <MemoryRouter>
+        <LedgerRow 
+          date={new Date('2026-05-01T12:00:00')} 
+          transactions={[]} 
+          balance={300} 
+          isCheckedIn={false} 
+          filter="all"
+          onCellClick={vi.fn()}
+          onCellLongPress={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+    expect(balanceCell.style.backgroundColor).toContain('var(--status-yellow)');
+
+    rerender(
+      <MemoryRouter>
+        <LedgerRow 
+          date={new Date('2026-05-01T12:00:00')} 
+          transactions={[]} 
+          balance={50} 
+          isCheckedIn={false} 
+          filter="all"
+          onCellClick={vi.fn()}
+          onCellLongPress={vi.fn()}
+        />
+      </MemoryRouter>
+    );
+    expect(balanceCell.style.backgroundColor).toContain('var(--status-red)');
   });
 });

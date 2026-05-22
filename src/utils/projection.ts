@@ -1,4 +1,4 @@
-import { Transaction } from '../db/db';
+import type { Transaction } from '../db/db';
 import { addDays, format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
 
 export interface DayProjection {
