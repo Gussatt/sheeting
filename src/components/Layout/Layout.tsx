@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutGrid, Activity, PlusCircle, Tag, Menu } from 'lucide-react';
+import { LayoutGrid, Calculator, PlusCircle, Tag, Menu } from 'lucide-react';
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -16,7 +16,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
         </NavLink>
         
         <NavLink to="/performance" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
-          <Activity size={24} />
+          <Calculator size={24} />
           <span>Totais</span>
         </NavLink>
 

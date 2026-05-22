@@ -5,6 +5,7 @@ import { SheetView } from './pages/SheetView';
 import { CategoryDetail } from './pages/CategoryDetail';
 import { Balances } from './pages/Balances';
 import { Performance } from './pages/Performance';
+import { Horizonte } from './pages/Horizonte';
 import { DailyCalculation } from './pages/DailyCalculation';
 import { AddTransaction } from './pages/AddTransaction';
 import { Tags } from './pages/Tags';
@@ -67,6 +68,14 @@ const AnimatedRoutes = () => {
           element={
             <motion.div custom={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }}>
               <Performance />
+            </motion.div>
+          } 
+        />
+        <Route 
+          path="/horizonte" 
+          element={
+            <motion.div custom={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }}>
+              <Horizonte />
             </motion.div>
           } 
         />

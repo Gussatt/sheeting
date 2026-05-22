@@ -1,20 +1,12 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { useSQL, db, type Transaction, type BudgetCategory } from '../db/db';
+import { useSQL, db, type Transaction } from '../db/db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday } from 'date-fns';
 import { LedgerRow, type TransactionType } from '../components/Ledger/LedgerRow';
 import { FilterSheet } from '../components/Ledger/FilterSheet';
 import { TransactionListSheet } from '../components/Ledger/TransactionListSheet';
 import type { FilterType } from '../components/Ledger/FilterSheet';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, LayoutGrid } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { calculateDailyBudget } from '../utils/budgetCalc';
-import { calculateProjection } from '../utils/projection';
-
-const getStatusColor = (balance: number) => {
-  if (balance < 100) return 'var(--status-red)';
-  if (balance < 500) return 'var(--status-yellow)';
-  return 'var(--status-green)';
-};
 
 export const SheetView = () => {
   const navigate = useNavigate();
@@ -38,30 +30,9 @@ export const SheetView = () => {
     useMemo(() => [monthStart.toISOString(), monthEnd.toISOString()], [monthStart, monthEnd])
   );
 
-  const allTransactions = useSQL<Transaction>(`SELECT * FROM transactions`);
-  const categories = useSQL<BudgetCategory>(`SELECT * FROM budget_categories`);
-
   const statuses = useSQL<{ date: string, isChecked: boolean }>(
     `SELECT * FROM daily_status`
   );
-
-  const projectionDots = useMemo(() => {
-    if (!allTransactions.length && !categories.length) return Array(9).fill('var(--status-yellow)');
-    
-    const today = new Date();
-    const currentBalance = allTransactions
-      .filter(t => new Date(t.date) <= today)
-      .reduce((sum, t) => t.type === 'income' ? sum + Number(t.amount) : sum - Number(t.amount), 0);
-
-    const { daily: dailyPlanned } = calculateDailyBudget(categories, 30);
-    const projection = calculateProjection(today, currentBalance, dailyPlanned, allTransactions, 1);
-    
-    const projectedDays = projection[0]?.days || [];
-    return Array.from({ length: 9 }, (_, i) => {
-      const dayData = projectedDays[i];
-      return dayData ? getStatusColor(dayData.balance) : 'var(--status-yellow)';
-    });
-  }, [allTransactions, categories]);
 
   const dailyData = useMemo(() => {
     let currentBalance = 0;
@@ -175,14 +146,10 @@ export const SheetView = () => {
         </div>
 
         <button 
-          onClick={() => navigate('/performance')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+          onClick={() => navigate('/horizonte')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--status-pink)' }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3px', padding: '4px', borderRadius: '4px' }}>
-            {projectionDots.map((color, i) => (
-              <div key={i} style={{ width: '8px', height: '8px', backgroundColor: color, borderRadius: '2px' }} />
-            ))}
-          </div>
+          <LayoutGrid size={32} />
         </button>
       </header>
 
