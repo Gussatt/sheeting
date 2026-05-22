@@ -1,8 +1,12 @@
 import React from 'react';
-import { ArrowDownLeft, ArrowUpRight, CirclePlay, Landmark, CreditCard, Check } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CirclePlay, Landmark, CreditCard } from 'lucide-react';
 import type { Transaction } from '../../db/db';
 import { useLongPress } from '../../hooks/useLongPress';
 import { isWeekend } from 'date-fns';
+
+import { useTheme } from '../../context/ThemeContext';
+import checkinIcon from '../../assets/checkin.svg';
+import checkinNightIcon from '../../assets/checkin_night.svg';
 
 export type TransactionType = 'income' | 'expense' | 'daily' | 'savings' | 'credit';
 
@@ -37,16 +41,25 @@ const LedgerCell: React.FC<CellProps> = ({ type, total, transactions, onClick, o
       style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '12px', 
-        height: '36px',
+        justifyContent: 'space-between',
+        height: '40px',
         cursor: 'pointer',
-        padding: '0 8px',
+        padding: '0 12px',
         opacity: total === 0 ? 0.3 : 1,
         transition: 'opacity 0.2s',
       }}
     >
-      <TypeIcon type={type} />
-      <span style={{ fontSize: '0.95rem', flex: 1, color: 'var(--color-text-primary)' }}>
+      <TypeIcon type={type} size={20} />
+      <span style={{ 
+        fontSize: '1rem', 
+        fontWeight: '500',
+        color: 'var(--color-text-primary)',
+        textAlign: 'right',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        flexShrink: 0
+      }}>
         R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
       </span>
     </div>
@@ -72,6 +85,8 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
   onCellClick,
   onCellLongPress
 }) => {
+  const { theme } = useTheme();
+
   const getBalanceBgColor = (bal: number) => {
     if (bal < 100) return 'var(--status-red)';
     if (bal < 500) return 'var(--status-yellow)';
@@ -87,8 +102,8 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
       data-testid="ledger-row" 
       style={{ 
         display: 'grid', 
-        gridTemplateColumns: '50px 1fr 100px', 
-        minHeight: '44px',
+        gridTemplateColumns: '50px 1fr 1fr', 
+        minHeight: '48px',
         borderBottom: '1px solid var(--color-border)',
         backgroundColor: isWeekendRow ? 'var(--color-weekend-bg)' : 'var(--color-bg)'
       }}
@@ -99,27 +114,29 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
         alignItems: 'center', 
         justifyContent: 'center', 
         position: 'relative',
-        fontSize: '1.1rem',
-        fontWeight: '500',
-        color: 'var(--color-text-primary)'
+        fontSize: '1.2rem',
+        fontWeight: '600',
+        color: 'var(--color-text-primary)',
+        borderRight: '1px solid var(--color-border)'
       }}>
         {date.getDate()}
         {isCheckedIn && (
-          <div style={{ 
-            position: 'absolute', 
-            top: '4px', 
-            right: '4px', 
-            background: 'var(--status-green)', 
-            borderRadius: '2px',
-            padding: '1px'
-          }}>
-            <Check size={8} color="white" strokeWidth={4} />
-          </div>
+          <img 
+            src={theme === 'dark' ? checkinNightIcon : checkinIcon} 
+            alt="checked"
+            style={{ 
+              position: 'absolute', 
+              top: '2px', 
+              right: '2px', 
+              width: '16px',
+              height: '16px'
+            }} 
+          />
         )}
       </div>
 
       {/* Data Column */}
-      <div style={{ display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
         {activeTypes.map((type, idx) => {
           const typeTransactions = transactions.filter(t => t.type === type);
           const total = typeTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
@@ -141,13 +158,15 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
       <div style={{ 
         backgroundColor: getBalanceBgColor(balance),
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: 'flex-start',
+        justifyContent: 'flex-end',
         color: 'white',
-        fontWeight: '600',
-        fontSize: '0.9rem',
-        padding: '0 8px',
-        textAlign: 'center'
+        fontWeight: '700',
+        fontSize: '1rem',
+        padding: '8px 12px',
+        textAlign: 'right',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden'
       }}>
         R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
       </div>
