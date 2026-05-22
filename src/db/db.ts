@@ -11,7 +11,9 @@ export interface Transaction {
   date: Date | string;
   tagId: string;
   isRecurring: boolean;
-  recurringFrequency?: 'weekly' | 'monthly' | 'yearly';
+  recurringFrequency?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  recurringIndefinite?: boolean;
+  recurringCount?: number;
   description: string;
   debtId?: string;
 }
@@ -27,7 +29,12 @@ export interface Tag {
   id: string;
   userId: string;
   name: string;
-  color?: string;
+  color: string;
+  calcSaldos: boolean;
+  calcPerformance: boolean;
+  calcEconomizado: boolean;
+  calcCustoVida: boolean;
+  calcDiarioMedio: boolean;
 }
 
 const toCamel = (str: string) => str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));

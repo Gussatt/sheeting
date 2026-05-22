@@ -8,7 +8,10 @@ CREATE TABLE IF NOT EXISTS transactions (
   date TIMESTAMP WITH TIME ZONE NOT NULL,
   description TEXT,
   tag_id TEXT,
-  is_recurring BOOLEAN DEFAULT FALSE
+  is_recurring BOOLEAN DEFAULT FALSE,
+  recurring_frequency TEXT,
+  recurring_indefinite BOOLEAN DEFAULT TRUE,
+  recurring_count INTEGER
 );
 
 -- Budget categories for daily allowance calculation
@@ -22,7 +25,12 @@ CREATE TABLE IF NOT EXISTS budget_categories (
 CREATE TABLE IF NOT EXISTS tags (
   id UUID PRIMARY KEY,
   name TEXT NOT NULL,
-  color TEXT
+  color TEXT,
+  calc_saldos BOOLEAN DEFAULT TRUE,
+  calc_performance BOOLEAN DEFAULT TRUE,
+  calc_economizado BOOLEAN DEFAULT TRUE,
+  calc_custo_vida BOOLEAN DEFAULT TRUE,
+  calc_diario_medio BOOLEAN DEFAULT TRUE
 );
 
 -- Configuration table for user settings and profile
