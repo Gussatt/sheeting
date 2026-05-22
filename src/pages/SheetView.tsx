@@ -5,8 +5,10 @@ import { LedgerRow, type TransactionType } from '../components/Ledger/LedgerRow'
 import { FilterSheet } from '../components/Ledger/FilterSheet';
 import { TransactionListSheet } from '../components/Ledger/TransactionListSheet';
 import type { FilterType } from '../components/Ledger/FilterSheet';
-import { ChevronLeft, ChevronRight, Calendar, LayoutGrid } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { StatusDots } from '../components/Ledger/StatusDots';
+import { useFilteredTransactions } from '../hooks/useFilteredTransactions';
 
 export const SheetView = () => {
   const navigate = useNavigate();
@@ -30,6 +32,8 @@ export const SheetView = () => {
     useMemo(() => [monthStart.toISOString(), monthEnd.toISOString()], [monthStart, monthEnd])
   );
 
+  const filteredTransactions = useFilteredTransactions(transactions, 'calcSaldos');
+
   const statuses = useSQL<{ date: string, isChecked: boolean }>(
     `SELECT * FROM daily_status`
   );
@@ -38,12 +42,13 @@ export const SheetView = () => {
     let currentBalance = 0;
     return daysInMonth.map((date) => {
       const dateStr = date.toISOString().split('T')[0];
-      const dayTransactions = transactions.filter(t => isSameDay(new Date(t.date), date));
+      const dayTransactions = filteredTransactions.filter(t => isSameDay(new Date(t.date), date));
       const status = statuses.find(s => s.date === dateStr);
       
       const dayTotalAll = dayTransactions.reduce((sum, t) => {
-        if (t.type === 'income') return sum + Number(t.amount);
-        return sum - Number(t.amount);
+        const amount = Number(t.amount);
+        if (t.type === 'income') return sum + amount;
+        return sum - amount;
       }, 0);
       currentBalance += dayTotalAll;
 
@@ -54,7 +59,7 @@ export const SheetView = () => {
         isChecked: status?.isChecked || false
       };
     });
-  }, [daysInMonth, transactions, statuses]);
+  }, [daysInMonth, filteredTransactions, statuses]);
 
   const handleCellClick = useCallback((type: TransactionType, date: Date) => {
     setSelectedDate(date);
@@ -94,7 +99,6 @@ export const SheetView = () => {
   const jumpToToday = () => {
     const now = new Date();
     setCurrentDate(now);
-    // Smooth scroll is handled in useEffect when currentDate matches today
   };
 
   useEffect(() => {
@@ -109,16 +113,16 @@ export const SheetView = () => {
   };
 
   return (
-    <div className="sheet-view" style={{ paddingBottom: '80px', marginTop: '-1rem' }}>
+    <div className="sheet-view" style={{ paddingBottom: '80px' }}>
       <header style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        padding: '1.25rem 0',
+        padding: '1rem 1.25rem',
         backgroundColor: 'var(--color-bg)',
         position: 'sticky',
         top: 0,
-        zIndex: 100,
+        zIndex: 101,
         borderBottom: '1px solid var(--color-border)'
       }}>
         <div 
@@ -147,48 +151,54 @@ export const SheetView = () => {
 
         <button 
           onClick={() => navigate('/horizonte')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--status-pink)' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
         >
-          <LayoutGrid size={32} />
+          <StatusDots />
         </button>
       </header>
 
       <div style={{ 
-        display: 'flex', 
+        display: 'grid', 
+        gridTemplateColumns: '50px 1fr 1fr',
         alignItems: 'center', 
-        padding: '1.5rem 0 1rem 0', 
+        padding: '0.75rem 0', 
         fontSize: '0.9rem', 
         color: 'var(--color-text-secondary)',
+        backgroundColor: 'var(--color-bg)',
         borderBottom: '1px solid var(--color-border)',
-        marginBottom: '4px',
-        gap: '0.5rem'
+        position: 'sticky',
+        top: '73px', 
+        zIndex: 100
       }}>
-        <span style={{ width: '50px', textAlign: 'center', fontWeight: '500' }}>Dia</span>
-        <button 
-          onClick={() => setIsFilterOpen(true)} 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem', 
-            background: 'var(--color-surface)', 
-            border: '1px solid var(--color-border)', 
-            padding: '8px 20px', 
-            borderRadius: '24px', 
-            color: 'var(--color-text-primary)',
-            cursor: 'pointer',
-            fontSize: '0.95rem',
-            fontWeight: '600',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}
-        >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2px', opacity: 0.8 }}>
-            {[...Array(4)].map((_, i) => <div key={i} style={{ width: '3px', height: '3px', backgroundColor: 'currentColor', borderRadius: '50%' }} />)}
-          </div>
-          {getFilterLabel(filter)}
-          <ChevronRight size={14} style={{ transform: 'rotate(90deg)', opacity: 0.6 }} />
-        </button>
-        <div style={{ flex: 1 }} />
-        <span style={{ width: '100px', textAlign: 'center', fontWeight: '500' }}>Saldos</span>
+        <span style={{ textAlign: 'center', fontWeight: '500' }}>Dia</span>
+        
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <button 
+            onClick={() => setIsFilterOpen(true)} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem', 
+              background: 'var(--color-surface)', 
+              border: '1px solid var(--color-border)', 
+              padding: '6px 16px', 
+              borderRadius: '24px', 
+              color: 'var(--color-text-primary)',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
+          >
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2px', opacity: 0.8 }}>
+              {[...Array(4)].map((_, i) => <div key={i} style={{ width: '3px', height: '3px', backgroundColor: 'currentColor', borderRadius: '50%' }} />)}
+            </div>
+            {getFilterLabel(filter)}
+            <ChevronRight size={14} style={{ transform: 'rotate(90deg)', opacity: 0.6 }} />
+          </button>
+        </div>
+
+        <span style={{ textAlign: 'right', fontWeight: '500', paddingRight: '12px' }}>Saldos</span>
       </div>
 
       <div className="ledger-list" style={{ display: 'flex', flexDirection: 'column' }}>

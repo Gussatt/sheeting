@@ -1,5 +1,4 @@
 import React from 'react';
-import { Trash2 } from 'lucide-react';
 
 interface Props {
   name: string;
@@ -9,18 +8,23 @@ interface Props {
 
 export const BudgetCategoryItem: React.FC<Props> = ({ name, amount, onDelete }) => {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', borderBottom: '1px solid var(--color-border)' }}>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <span style={{ fontWeight: '500' }}>{name}</span>
-        <span style={{ fontSize: '0.9rem', color: 'var(--color-text)', opacity: 0.7 }}>R$ {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-      </div>
-      <button 
-        onClick={onDelete} 
-        aria-label="delete"
-        style={{ background: 'none', border: 'none', color: 'var(--status-red)', cursor: 'pointer' }}
-      >
-        <Trash2 size={20} />
-      </button>
+    <div 
+      onClick={() => {
+        if (confirm(`Remover ${name}?`)) onDelete();
+      }}
+      style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        padding: '1.5rem 0', 
+        borderBottom: '1px solid #E0E0E0',
+        cursor: 'pointer'
+      }}
+    >
+      <span style={{ fontWeight: '600', fontSize: '1.1rem', color: '#1a1a1a' }}>{name}</span>
+      <span style={{ fontWeight: '500', fontSize: '1.1rem', color: '#1a1a1a' }}>
+        R$ {amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+      </span>
     </div>
   );
 };

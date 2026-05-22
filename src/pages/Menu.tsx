@@ -1,5 +1,5 @@
 import { useSQL, db } from '../db/db';
-import { User, Database, LogOut, ChevronRight, AlertTriangle, Moon, Sun } from 'lucide-react';
+import { User, Database, LogOut, ChevronRight, AlertTriangle, Moon, Sun, CirclePlay } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
@@ -80,6 +80,12 @@ export const Menu = () => {
         <SettingItem icon={User} label="Editar Perfil" value="Nome, sobrenome, e-mail" />
         
         <h2 style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem', marginTop: '2rem' }}>Configurações</h2>
+        <SettingItem 
+          icon={CirclePlay} 
+          label="Previsão de diário" 
+          onClick={() => navigate('/daily-calculation')}
+          color="var(--status-pink)"
+        />
         <SettingItem 
           icon={theme === 'dark' ? Moon : Sun} 
           label="Tema" 

@@ -6,6 +6,8 @@ import {
 import type { Transaction, Tag } from '../../db/db';
 import { format, startOfMonth, eachDayOfInterval, endOfMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { TagTrapezoid } from '../Ledger/TagTrapezoid';
+import { TagEditorModal } from './TagEditorModal';
 
 type TransactionType = 'income' | 'expense' | 'daily' | 'savings' | 'credit';
 
@@ -38,7 +40,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
     ...initialData
   });
 
-  const [activeModal, setActiveModal] = useState<'type' | 'date' | 'repeat' | 'tags' | 'until' | null>(null);
+  const [activeModal, setActiveModal] = useState<'type' | 'date' | 'repeat' | 'tags' | 'until' | 'create-tag' | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(new Date(formData.date || new Date()));
 
   useEffect(() => {
@@ -99,7 +101,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
   const ModalHeader = ({ title, onClose }: { title: string, onClose: () => void }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
       <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{title}</h3>
-      <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
+      <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}>
         <X size={24} />
       </button>
     </div>
@@ -258,7 +260,11 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             background: 'none', border: 'none', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', cursor: 'pointer'
           }}
         >
-          <Square size={24} color="var(--color-text-secondary)" />
+          {formData.tagId ? (
+            <TagTrapezoid color={tags.find(t => t.id === formData.tagId)?.color || 'var(--color-text-secondary)'} size={24} />
+          ) : (
+            <Square size={24} color="var(--color-text-secondary)" />
+          )}
           <span style={{ fontSize: '1.2rem', fontWeight: '500', flex: 1, textAlign: 'left' }}>{getTagName()}</span>
           <ChevronDown size={20} color="var(--color-text-secondary)" />
         </button>
@@ -289,7 +295,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
       </div>
 
       {/* MODALS */}
-      {activeModal && (
+      {activeModal && activeModal !== 'create-tag' && (
         <>
           <div className="overlay" onClick={() => setActiveModal(null)} />
           <div className="filter-sheet" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
@@ -308,12 +314,12 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                       style={{
                         display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', 
                         border: 'none', borderRadius: '12px', background: formData.type === opt.type ? 'var(--color-bg)' : 'transparent', 
-                        color: 'white', cursor: 'pointer', textAlign: 'left'
+                        color: 'var(--color-text-primary)', cursor: 'pointer', textAlign: 'left'
                       }}
                     >
                       <div style={{ 
                         width: '32px', height: '32px', borderRadius: '50%', backgroundColor: opt.color, 
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'white'
                       }}>
                         {opt.letter}
                       </div>
@@ -332,17 +338,17 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                     {format(calendarMonth, 'MMMM de yyyy', { locale: ptBR })}
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <button onClick={() => setCalendarMonth(subMonths(calendarMonth, 1))} style={{ background: 'none', border: 'none', color: 'white' }}>
+                    <button onClick={() => setCalendarMonth(subMonths(calendarMonth, 1))} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)' }}>
                       <ChevronDown size={20} style={{ transform: 'rotate(90deg)' }} />
                     </button>
-                    <button onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))} style={{ background: 'none', border: 'none', color: 'white' }}>
+                    <button onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)' }}>
                       <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
                     </button>
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center' }}>
                   {['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'].map(d => (
-                    <span key={d} style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' }}>{d}.</span>
+                    <span key={d} style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>{d}.</span>
                   ))}
                   {paddingDays.map((_, i) => <div key={`pad-${i}`} />)}
                   {days.map(d => (
@@ -354,7 +360,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                       }}
                       style={{
                         padding: '12px 0', border: 'none', background: isSameDay(d, formData.date || new Date()) ? 'var(--color-text-primary)' : 'transparent',
-                        color: isSameDay(d, formData.date || new Date()) ? 'black' : 'white', borderRadius: '50%', cursor: 'pointer', fontSize: '1.1rem',
+                        color: isSameDay(d, formData.date || new Date()) ? 'var(--color-bg)' : 'var(--color-text-primary)', borderRadius: '50%', cursor: 'pointer', fontSize: '1.1rem',
                         fontWeight: isSameDay(d, formData.date || new Date()) ? 'bold' : 'normal', position: 'relative'
                       }}
                     >
@@ -369,7 +375,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                   onClick={() => setActiveModal(null)}
                   style={{ 
                     width: '100%', padding: '1rem', marginTop: '2rem', borderRadius: '40px', border: 'none', 
-                    backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: '1.1rem' 
+                    backgroundColor: 'var(--color-text-primary)', color: 'var(--color-bg)', fontWeight: 'bold', fontSize: '1.1rem' 
                   }}
                 >
                   Salvar
@@ -400,7 +406,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                       }}
                       style={{
                         display: 'flex', alignItems: 'center', padding: '0.5rem 0', 
-                        border: 'none', background: 'transparent', color: 'white', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
+                        border: 'none', background: 'transparent', color: 'var(--color-text-primary)', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
                       }}
                     >
                       {opt.label}
@@ -421,7 +427,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                       setActiveModal(null);
                     }}
                     style={{
-                      display: 'flex', alignItems: 'center', border: 'none', background: 'transparent', color: 'white', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
+                      display: 'flex', alignItems: 'center', border: 'none', background: 'transparent', color: 'var(--color-text-primary)', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
                     }}
                   >
                     A perder de vista
@@ -432,7 +438,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                       setActiveModal(null);
                     }}
                     style={{
-                      display: 'flex', alignItems: 'center', border: 'none', background: 'transparent', color: 'white', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
+                      display: 'flex', alignItems: 'center', border: 'none', background: 'transparent', color: 'var(--color-text-primary)', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
                     }}
                   >
                     Definir número de vezes
@@ -447,22 +453,27 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                   <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>Tags</h3>
                   <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button style={{ background: 'none', border: 'none', color: 'white' }}><Plus size={24} /></button>
-                    <button onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', color: 'white' }}><X size={24} /></button>
+                    <button 
+                      onClick={() => setActiveModal('create-tag')}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}
+                    >
+                      <Plus size={24} />
+                    </button>
+                    <button onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)' }}><X size={24} /></button>
                   </div>
                 </div>
                 <div style={{ marginBottom: '1.5rem', position: 'relative' }}>
-                  <Pencil size={20} color="rgba(255,255,255,0.4)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                  <Pencil size={20} color="var(--color-text-secondary)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                   <input 
                     type="text" 
                     placeholder="Filtrar tags"
-                    style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '12px', border: 'none', background: 'var(--color-bg)', color: 'white', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '12px', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text-primary)', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <button
                     onClick={() => { setFormData({ ...formData, tagId: '' }); setActiveModal(null); }}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: 'none', background: formData.tagId === '' ? 'var(--color-bg)' : 'transparent', color: 'white', borderRadius: '12px' }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: 'none', background: formData.tagId === '' ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text-primary)', borderRadius: '12px' }}
                   >
                     <span>Sem Tag</span>
                     <input type="checkbox" checked={formData.tagId === ''} readOnly style={{ width: '20px', height: '20px' }} />
@@ -471,10 +482,10 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                     <button
                       key={tag.id}
                       onClick={() => { setFormData({ ...formData, tagId: tag.id }); setActiveModal(null); }}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: 'none', background: formData.tagId === tag.id ? 'var(--color-bg)' : 'transparent', color: 'white', borderRadius: '12px' }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: 'none', background: formData.tagId === tag.id ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text-primary)', borderRadius: '12px' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ width: '16px', height: '16px', borderRadius: '4px', backgroundColor: tag.color || 'var(--color-text-secondary)' }} />
+                        <TagTrapezoid color={tag.color} />
                         <span>{tag.name}</span>
                       </div>
                       <input type="checkbox" checked={formData.tagId === tag.id} readOnly style={{ width: '20px', height: '20px' }} />
@@ -485,7 +496,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                   onClick={() => setActiveModal(null)}
                   style={{ 
                     width: '100%', padding: '1rem', marginTop: '2rem', borderRadius: '40px', border: 'none', 
-                    backgroundColor: 'white', color: 'black', fontWeight: 'bold', fontSize: '1.1rem' 
+                    backgroundColor: 'var(--color-text-primary)', color: 'var(--color-bg)', fontWeight: 'bold', fontSize: '1.1rem' 
                   }}
                 >
                   Salvar
@@ -495,6 +506,12 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
           </div>
         </>
       )}
+
+      <TagEditorModal 
+        isOpen={activeModal === 'create-tag'}
+        onClose={() => setActiveModal('tags')}
+        onSave={() => {}}
+      />
     </div>
   );
 };

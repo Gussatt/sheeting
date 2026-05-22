@@ -23,11 +23,11 @@ export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance }) =>
     <div 
       style={{ 
         display: 'grid',
-        gridTemplateColumns: '35px 1fr',
-        height: '32px',
+        gridTemplateColumns: '1fr 1fr',
+        height: '36px',
         borderBottom: '1px solid var(--color-border)',
         width: '100%',
-        fontSize: '0.85rem'
+        fontSize: '0.9rem'
       }}
     >
       <div style={{ 
@@ -36,7 +36,8 @@ export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance }) =>
         justifyContent: 'center',
         backgroundColor: 'var(--color-bg)',
         color: 'var(--color-text-primary)',
-        borderRight: '1px solid var(--color-border)'
+        borderRight: '1px solid var(--color-border)',
+        fontWeight: '500'
       }}>
         {day}
       </div>
@@ -47,7 +48,7 @@ export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance }) =>
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          fontWeight: '500',
+          fontWeight: 'bold',
           color: 'var(--color-bg)' // Dark text on status colors
         }}
       >

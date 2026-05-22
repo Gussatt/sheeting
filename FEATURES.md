@@ -7,7 +7,7 @@ The main interface for day-to-day financial tracking.
 - **Dynamic Month Navigation:** Users can navigate between months using previous/next controls.
 - **Daily Aggregation:** Automatically sums all transactions (Incomes vs Expenses) for each day of the month.
 - **Running Balance:** Calculates a month-local running balance to show cumulative financial status.
-- **Type Filtering:** A "Mostrar" filter bottom sheet allows isolating specific transaction types (Entradas, Saídas, Diários, Economias, Cartão).
+- **Type Filtering:** A "Mostrar" filter bottom sheet allows isolating specific transaction types (Entradas, Saídas, Diários, Economias, Gastos com cartão).
 - **Status Coloring:** 
     - **Green:** Healthy balance (>= R$ 100,00).
     - **Yellow:** Warning/Low balance (0 <= balance < 100).

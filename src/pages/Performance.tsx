@@ -5,9 +5,11 @@ import { calculateDailyBudget } from '../utils/budgetCalc';
 import { startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
 import { 
   ArrowDownLeft, ArrowUpRight, CirclePlay, Landmark, CreditCard, 
-  ChevronLeft, ChevronRight, Calendar, LayoutGrid 
+  ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { StatusDots } from '../components/Ledger/StatusDots';
+import { useFilteredTransactions } from '../hooks/useFilteredTransactions';
 
 export const Performance = () => {
   const navigate = useNavigate();
@@ -23,22 +25,39 @@ export const Performance = () => {
     isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd })
   );
 
-  const getTotal = (type: string) => currentMonthTransactions
+  // Performance uses 'calcPerformance'
+  const perfTxs = useFilteredTransactions(currentMonthTransactions, 'calcPerformance');
+  // Custo de vida uses 'calcCustoVida'
+  const costTxs = useFilteredTransactions(currentMonthTransactions, 'calcCustoVida');
+  // Economizado uses 'calcEconomizado'
+  const savedTxs = useFilteredTransactions(currentMonthTransactions, 'calcEconomizado');
+  // Diario medio uses 'calcDiarioMedio'
+  const dailyTxs = useFilteredTransactions(currentMonthTransactions, 'calcDiarioMedio');
+
+  const getTotal = (txs: Transaction[], type: string) => txs
     .filter(t => t.type === type)
     .reduce((sum, t) => sum + Number(t.amount), 0);
 
-  const income = getTotal('income');
-  const expense = getTotal('expense');
-  const daily = getTotal('daily');
-  const savings = getTotal('savings');
-  const credit = getTotal('credit');
+  const income = getTotal(perfTxs, 'income');
+  const expense = getTotal(perfTxs, 'expense');
+  const daily = getTotal(perfTxs, 'daily');
+  const savings = getTotal(perfTxs, 'savings');
+  const credit = getTotal(perfTxs, 'credit');
 
   const performance = income - (expense + daily + savings + credit);
-  const costOfLiving = expense + daily + credit;
-  const savedPercent = income > 0 ? Math.round((savings / income) * 100) : 0;
+  
+  const costExpense = getTotal(costTxs, 'expense');
+  const costDaily = getTotal(costTxs, 'daily');
+  const costCredit = getTotal(costTxs, 'credit');
+  const costOfLiving = costExpense + costDaily + costCredit;
+
+  const savedIncome = getTotal(savedTxs, 'income');
+  const savedAmount = getTotal(savedTxs, 'savings');
+  const savedPercent = savedIncome > 0 ? Math.round((savedAmount / savedIncome) * 100) : 0;
   
   const dayOfMonth = currentDate.getMonth() === new Date().getMonth() ? new Date().getDate() : 30;
-  const avgDaily = dayOfMonth > 0 ? daily / dayOfMonth : 0;
+  const dailyAmount = getTotal(dailyTxs, 'daily');
+  const avgDaily = dayOfMonth > 0 ? dailyAmount / dayOfMonth : 0;
 
   const { daily: dailyPlanned } = calculateDailyBudget(categories, 30);
 
@@ -120,9 +139,9 @@ export const Performance = () => {
 
         <button 
           onClick={() => navigate('/horizonte')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--status-pink)' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
         >
-          <LayoutGrid size={32} />
+          <StatusDots />
         </button>
       </header>
 
@@ -158,7 +177,7 @@ export const Performance = () => {
             math={
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Landmark size={16} color="var(--status-light-green)"/>
-                <div style={{ width: '80px', height: '10px', background: 'var(--color-surface)', borderRadius: '5px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                <div style={{ width: '80px', height: '10px', background: 'var(--color-surface)', borderRadius: '50px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
                   <div style={{ width: `${savedPercent}%`, height: '100%', background: 'var(--status-light-green)' }} />
                 </div>
                 <ArrowDownLeft size={16} color="var(--status-green)"/>
@@ -169,7 +188,7 @@ export const Performance = () => {
           <MetricItem 
             label="Custo de vida"
             value={costOfLiving}
-            subvalue="Dentro da renda"
+            subvalue={costOfLiving > income ? "Acima da renda" : "Dentro da renda"}
             math={
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <ArrowUpRight size={16} color="var(--status-red)"/>

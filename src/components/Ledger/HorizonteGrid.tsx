@@ -41,7 +41,10 @@ export const HorizonteGrid: React.FC<Props> = ({ projections }) => {
               color: isCurrentMonth ? 'white' : 'black',
               fontWeight: 'bold',
               fontSize: '0.9rem',
-              borderBottom: '1px solid var(--color-border)'
+              borderBottom: '1px solid var(--color-border)',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10
             }}>
               {month.monthName}
             </header>

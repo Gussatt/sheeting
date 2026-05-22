@@ -1,13 +1,18 @@
+import { useState } from 'react';
 import { useSQL } from '../db/db';
 import type { Tag, Transaction } from '../db/db';
-import { Search, Edit2, Share2 } from 'lucide-react';
-import { startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { Search, PlusCircle, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
 import { TagTrapezoid } from '../components/Ledger/TagTrapezoid';
+import { TagEditorModal } from '../components/Forms/TagEditorModal';
 
 export const Tags = () => {
-  const now = new Date();
-  const monthStart = startOfMonth(now);
-  const monthEnd = endOfMonth(now);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTag, setSelectedTag] = useState<Tag | undefined>(undefined);
+  
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
 
   const tags = useSQL<Tag>('SELECT * FROM tags');
   const transactions = useSQL<Transaction>('SELECT * FROM transactions');
@@ -20,14 +25,56 @@ export const Tags = () => {
     .filter(t => t.tagId === tagId)
     .reduce((sum, t) => sum + Number(t.amount), 0);
 
+  const changeMonth = (offset: number) => {
+    const next = new Date(currentDate);
+    next.setMonth(currentDate.getMonth() + offset);
+    setCurrentDate(next);
+  };
+
+  const formatMonth = (date: Date) => {
+    const formatted = format(date, 'MMM/yy');
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  };
+
   return (
-    <div className="tags-page" style={{ padding: '0 1rem 80px 1rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 0' }}>
-        <h1 style={{ fontSize: '1.25rem', margin: 0 }}>Tags</h1>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><Edit2 size={20}/></button>
-          <button style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><Share2 size={20}/></button>
+    <div className="tags-page" style={{ padding: '0 1.25rem 80px 1.25rem' }}>
+      <header style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '1.25rem 0',
+        backgroundColor: 'var(--color-bg)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100
+      }}>
+        <div style={{ position: 'relative', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Calendar size={32} color="var(--color-primary)" />
+          <span style={{ 
+            position: 'absolute', 
+            top: '55%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)', 
+            fontSize: '0.75rem', 
+            fontWeight: 'bold',
+            color: 'white'
+          }}>
+            {new Date().getDate()}
+          </span>
         </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button onClick={() => changeMonth(-1)} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}><ChevronLeft size={24}/></button>
+          <span style={{ fontWeight: '700', fontSize: '1.4rem' }}>{formatMonth(currentDate)}</span>
+          <button onClick={() => changeMonth(1)} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}><ChevronRight size={24}/></button>
+        </div>
+
+        <button 
+          onClick={() => { setSelectedTag(undefined); setIsModalOpen(true); }}
+          style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}
+        >
+          <PlusCircle size={28} />
+        </button>
       </header>
 
       <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
@@ -38,10 +85,10 @@ export const Tags = () => {
           style={{ 
             width: '100%', 
             padding: '0.75rem 1rem 0.75rem 2.5rem', 
-            borderRadius: '8px', 
-            border: 'none', 
+            borderRadius: '12px', 
+            border: '1px solid var(--color-border)', 
             background: 'var(--color-surface)', 
-            color: 'white',
+            color: 'var(--color-text-primary)',
             boxSizing: 'border-box'
           }}
         />
@@ -54,17 +101,28 @@ export const Tags = () => {
           </p>
         )}
         {tags.map(tag => (
-          <div key={tag.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid var(--color-border)' }}>
+          <div 
+            key={tag.id} 
+            onClick={() => { setSelectedTag(tag); setIsModalOpen(true); }}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 0', borderBottom: '1px solid var(--color-border)', cursor: 'pointer' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <TagTrapezoid color={tag.color || 'var(--color-text-secondary)'} />
-              <span style={{ fontWeight: '500' }}>{tag.name}</span>
+              <TagTrapezoid color={tag.color} />
+              <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{tag.name}</span>
             </div>
-            <span style={{ fontWeight: 'bold' }}>
+            <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
               R$ {getTagTotal(tag.id).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </span>
           </div>
         ))}
       </div>
+
+      <TagEditorModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={() => {}}
+        tag={selectedTag}
+      />
     </div>
   );
 };

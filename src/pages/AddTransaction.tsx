@@ -44,28 +44,34 @@ export const AddTransaction = () => {
   }, [id, searchParams]);
 
   const handleSubmit = async (data: Partial<Transaction>) => {
-    if (!data.amount || !data.type) return;
+    if (!data.type) return;
 
+    const amount = Number(data.amount) || 0;
     const params = [
-      Number(data.amount),
+      amount,
       data.type,
       data.date instanceof Date ? data.date.toISOString() : data.date,
       data.description || '',
       data.tagId || null,
-      data.isRecurring || false
+      data.isRecurring || false,
+      data.recurringFrequency || null,
+      data.recurringIndefinite ?? true,
+      data.recurringCount || null
     ];
 
     if (id) {
       await db.exec(
         `UPDATE transactions 
-         SET amount = $1, type = $2, date = $3, description = $4, tag_id = $5, is_recurring = $6 
-         WHERE id = $7`,
+         SET amount = $1, type = $2, date = $3, description = $4, tag_id = $5, is_recurring = $6, 
+             recurring_frequency = $7, recurring_indefinite = $8, recurring_count = $9 
+         WHERE id = $10`,
         [...params, id]
       );
     } else {
       await db.exec(
-        `INSERT INTO transactions (id, amount, type, date, description, tag_id, is_recurring) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        `INSERT INTO transactions (id, amount, type, date, description, tag_id, is_recurring, 
+                                 recurring_frequency, recurring_indefinite, recurring_count) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
         [crypto.randomUUID(), ...params]
       );
     }

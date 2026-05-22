@@ -116,13 +116,17 @@ const AnimatedRoutes = () => {
   );
 };
 
+import { ThemeProvider } from './context/ThemeContext';
+
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-        <AnimatedRoutes />
-      </Layout>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Layout>
+          <AnimatedRoutes />
+        </Layout>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

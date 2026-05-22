@@ -31,14 +31,16 @@ export const calculateProjection = (
 
     daysInMonth.forEach((date) => {
       // 1. Subtract daily allowance
-      currentBalance -= dailyAllowance;
+      currentBalance -= Number(dailyAllowance);
 
       // 2. Add/Sub transactions for this day
       const daysTransactions = transactions.filter(t => isSameDay(new Date(t.date), date));
       daysTransactions.forEach(t => {
-        if (t.type === 'income') currentBalance += t.amount;
-        else if (t.type === 'expense') currentBalance -= t.amount;
-        // Other types like 'daily' are handled by the dailyAllowance parameter
+        const amount = Number(t.amount);
+        if (t.type === 'income') currentBalance += amount;
+        else if (t.type === 'expense' || t.type === 'daily' || t.type === 'savings' || t.type === 'credit') {
+          currentBalance -= amount;
+        }
       });
 
       dayProjections.push({

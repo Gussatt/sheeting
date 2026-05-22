@@ -5,6 +5,7 @@ import { HorizonteGrid } from '../components/Ledger/HorizonteGrid';
 import { calculateDailyBudget } from '../utils/budgetCalc';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus } from 'lucide-react';
+import { useFilteredTransactions } from '../hooks/useFilteredTransactions';
 
 export const Horizonte = () => {
   const navigate = useNavigate();
@@ -13,25 +14,34 @@ export const Horizonte = () => {
   const categories = useSQL<BudgetCategory>('SELECT * FROM budget_categories');
   const allTransactions = useSQL<Transaction>('SELECT * FROM transactions');
   
+  // Horizonte uses 'calcSaldos' for balance projection
+  const filteredTransactions = useFilteredTransactions(allTransactions, 'calcSaldos');
+
   // Calculate current actual balance to start projection
-  const currentBalance = allTransactions
+  const currentBalance = filteredTransactions
     .filter(t => new Date(t.date) <= now)
-    .reduce((sum, t) => t.type === 'income' ? sum + t.amount : sum - t.amount, 0);
+    .reduce((sum, t) => {
+      const amount = Number(t.amount);
+      return t.type === 'income' ? sum + amount : sum - amount;
+    }, 0);
 
   const { daily: dailyPlanned } = calculateDailyBudget(categories, 30);
   
   // Project 3 months as shown in screenshot
-  const projections = calculateProjection(now, currentBalance, dailyPlanned, allTransactions, 3);
+  const projections = calculateProjection(now, currentBalance, dailyPlanned, filteredTransactions, 3);
 
   return (
-    <div className="horizonte-page" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="horizonte-page" style={{ paddingBottom: '80px' }}>
       <header style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-between', 
-        padding: '1rem',
+        padding: '1rem 1.25rem',
         backgroundColor: 'var(--color-bg)',
-        borderBottom: '1px solid var(--color-border)'
+        borderBottom: '1px solid var(--color-border)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 101
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button 
@@ -50,9 +60,7 @@ export const Horizonte = () => {
         </button>
       </header>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        <HorizonteGrid projections={projections} />
-      </div>
+      <HorizonteGrid projections={projections} />
     </div>
   );
 };

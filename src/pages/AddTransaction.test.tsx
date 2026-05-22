@@ -26,6 +26,12 @@ vi.mock('lucide-react', () => ({
   X: () => <div />,
   LayoutGrid: () => <div />,
   ChevronDown: () => <div />,
+  Pencil: () => <div />,
+  Calendar: () => <div />,
+  RotateCw: () => <div />,
+  Square: () => <div />,
+  Plus: () => <div />,
+  Minus: () => <div />,
 }));
 
 describe('AddTransaction', () => {
@@ -57,11 +63,11 @@ describe('AddTransaction', () => {
 
     expect(screen.getByText('Nova Transação')).toBeInTheDocument();
 
-    fireEvent.change(screen.getByPlaceholderText('0,00'), { target: { value: '100.50' } });
-    fireEvent.change(screen.getByPlaceholderText('Ex: Almoço, Salário...'), { target: { value: 'Lunch' } });
+    fireEvent.change(screen.getByDisplayValue('0,00'), { target: { value: '10050' } });
+    fireEvent.change(screen.getByPlaceholderText('Descrição'), { target: { value: 'Lunch' } });
     
-    const form = screen.getByLabelText('transaction-form');
-    fireEvent.submit(form);
+    const submitButton = screen.getByText(/Adicionar saída/i);
+    fireEvent.click(submitButton);
 
     await waitFor(() => {
       expect(db.exec).toHaveBeenCalled();
@@ -94,13 +100,13 @@ describe('AddTransaction', () => {
       expect(screen.getByText('Editar Transação')).toBeInTheDocument();
     });
 
-    expect(screen.getByDisplayValue('50')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('50,00')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Refund')).toBeInTheDocument();
 
-    fireEvent.change(screen.getByPlaceholderText('0,00'), { target: { value: '60.00' } });
+    fireEvent.change(screen.getByDisplayValue('50,00'), { target: { value: '6000' } });
     
-    const form = screen.getByLabelText('transaction-form');
-    fireEvent.submit(form);
+    const submitButton = screen.getByText('Salvar');
+    fireEvent.click(submitButton);
 
     await waitFor(() => {
       expect(db.exec).toHaveBeenCalled();

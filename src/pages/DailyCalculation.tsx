@@ -4,7 +4,7 @@ import { db, useSQL } from '../db/db';
 import type { BudgetCategory } from '../db/db';
 import { calculateDailyBudget } from '../utils/budgetCalc';
 import { BudgetCategoryItem } from '../components/Budget/BudgetCategoryItem';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft, ChevronDown } from 'lucide-react';
 
 export const DailyCalculation = () => {
   const navigate = useNavigate();
@@ -14,16 +14,16 @@ export const DailyCalculation = () => {
   const { total, daily } = calculateDailyBudget(categories, days);
 
   const handleDelete = async (id: string) => {
-    if (id && confirm('Remover esta previsão?')) {
-      await db.exec('DELETE FROM budget_categories WHERE id = $1', [id]);
-    }
+    await db.exec('DELETE FROM budget_categories WHERE id = $1', [id]);
   };
 
   const handleAdd = async () => {
     const name = prompt('Nome da categoria:');
     const amountStr = prompt('Valor mensal:');
-    const amount = parseFloat(amountStr || '0');
-    if (name && !isNaN(amount)) {
+    if (!name || !amountStr) return;
+    
+    const amount = parseFloat(amountStr.replace(',', '.'));
+    if (!isNaN(amount)) {
       await db.exec(
         'INSERT INTO budget_categories (id, name, monthly_amount) VALUES ($1, $2, $3)',
         [crypto.randomUUID(), name, amount]
@@ -32,20 +32,34 @@ export const DailyCalculation = () => {
   };
 
   return (
-    <div className="daily-calc-container" style={{ padding: '0 1rem 160px 1rem' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
-            <ArrowLeft size={24} />
+    <div className="daily-calc-page" style={{ 
+      backgroundColor: '#f4f7fb', 
+      minHeight: '100vh', 
+      display: 'flex', 
+      flexDirection: 'column' 
+    }}>
+      <header style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '1rem 1.5rem',
+        backgroundColor: '#f4f7fb',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#1a1a1a', cursor: 'pointer', padding: 0 }}>
+            <ArrowLeft size={28} />
           </button>
-          <h1 style={{ fontSize: '1.25rem', margin: 0 }}>Previsão de diário</h1>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#1a1a1a', margin: 0 }}>Previsão de diário</h1>
         </div>
-        <button onClick={handleAdd} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
-          <Plus size={24} />
+        <button onClick={handleAdd} style={{ background: 'none', border: 'none', color: '#1a1a1a', cursor: 'pointer', padding: 0 }}>
+          <Plus size={32} />
         </button>
       </header>
 
-      <div className="category-list" style={{ display: 'flex', flexDirection: 'column' }}>
+      <div className="category-list" style={{ flex: 1, padding: '0 1.5rem' }}>
         {categories.map(cat => (
           <BudgetCategoryItem 
             key={cat.id} 
@@ -57,43 +71,43 @@ export const DailyCalculation = () => {
       </div>
 
       <footer style={{ 
-        position: 'fixed', 
-        bottom: '70px', 
-        left: 0, 
-        right: 0, 
-        background: 'var(--color-bg)', 
-        padding: '1.5rem', 
-        borderTop: '1px solid var(--color-border)',
-        maxWidth: '600px',
-        margin: '0 auto'
+        padding: '2rem 1.5rem 100px 1.5rem', 
+        backgroundColor: '#f4f7fb',
+        borderTop: '1px solid #E0E0E0'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Total mensal</span>
-          <span style={{ fontWeight: 'bold' }}>R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>Total mensal</span>
+          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
         </div>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Dividido por</span>
-          <select 
-            value={days} 
-            onChange={(e) => setDays(Number(e.target.value))} 
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              color: 'white', 
-              fontWeight: '500', 
-              fontSize: '1rem',
-              cursor: 'pointer'
-            }}
-          >
-            <option value={28}>28 dias</option>
-            <option value={30}>30 dias</option>
-            <option value={31}>31 dias</option>
-          </select>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>Dividido por</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <select 
+              value={days} 
+              onChange={(e) => setDays(Number(e.target.value))} 
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#1a1a1a', 
+                fontWeight: '600', 
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                textAlign: 'right',
+                appearance: 'none',
+                WebkitAppearance: 'none'
+              }}
+            >
+              <option value={28}>28 dias</option>
+              <option value={30}>30 dias</option>
+              <option value={31}>31 dias</option>
+            </select>
+            <ChevronDown size={18} color="#1a1a1a" />
+          </div>
         </div>
 
-        <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-          <span style={{ fontSize: '1.75rem', fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <span style={{ fontSize: '2.2rem', fontWeight: 'bold', color: '#1a1a1a' }}>
             R$ {daily.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </span>
         </div>
