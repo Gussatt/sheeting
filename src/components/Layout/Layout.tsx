@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutGrid, Calculator, PlusCircle, Tag, Menu } from 'lucide-react';
+import { LayoutGrid, Calculator, PlusCircle, Menu } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
+import tagsIcon from '../../assets/tags.svg';
+import tagsNightIcon from '../../assets/tags_night.svg';
+import { TransactionTypeModal } from '../Forms/TransactionTypeModal';
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { theme } = useTheme();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
   return (
     <div className="layout-container">
       <main className="layout-main">
@@ -20,13 +27,29 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <span>Totais</span>
         </NavLink>
 
-        <NavLink to="/add" className={({ isActive }) => `bottom-nav-item fab ${isActive ? 'active' : ''}`}>
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="bottom-nav-item fab"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
           <PlusCircle size={32} />
-        </NavLink>
+        </button>
 
         <NavLink to="/category" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
-          <Tag size={24} />
-          <span>Tags</span>
+          {({ isActive }) => (
+            <>
+              <img 
+                src={theme === 'dark' ? tagsNightIcon : tagsIcon} 
+                alt="tags" 
+                style={{ 
+                  width: '24px', 
+                  height: '24px',
+                  filter: isActive ? 'none' : 'grayscale(1) opacity(0.6)'
+                }} 
+              />
+              <span>Tags</span>
+            </>
+          )}
         </NavLink>
 
         <NavLink to="/menu" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
@@ -34,6 +57,8 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
           <span>Menu</span>
         </NavLink>
       </nav>
+
+      <TransactionTypeModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
     </div>
   );
 };

@@ -48,7 +48,8 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
       setFormData(prev => ({
         ...prev,
         ...initialData,
-        date: initialData.date ? new Date(initialData.date as any) : prev.date
+        date: initialData.date ? new Date(initialData.date as any) : prev.date,
+        amount: Number(initialData.amount) || 0
       }));
     }
   }, [initialData]);

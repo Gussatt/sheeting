@@ -33,7 +33,7 @@ export const DailyCalculation = () => {
 
   return (
     <div className="daily-calc-page" style={{ 
-      backgroundColor: '#f4f7fb', 
+      backgroundColor: 'var(--color-bg)', 
       minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column' 
@@ -43,18 +43,19 @@ export const DailyCalculation = () => {
         justifyContent: 'space-between', 
         alignItems: 'center', 
         padding: '1rem 1.5rem',
-        backgroundColor: '#f4f7fb',
+        backgroundColor: 'var(--color-bg)',
         position: 'sticky',
         top: 0,
-        zIndex: 10
+        zIndex: 10,
+        borderBottom: '1px solid var(--color-border)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#1a1a1a', cursor: 'pointer', padding: 0 }}>
+          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer', padding: 0 }}>
             <ArrowLeft size={28} />
           </button>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#1a1a1a', margin: 0 }}>Previsão de diário</h1>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: 'bold', color: 'var(--color-text-primary)', margin: 0 }}>Previsão de diário</h1>
         </div>
-        <button onClick={handleAdd} style={{ background: 'none', border: 'none', color: '#1a1a1a', cursor: 'pointer', padding: 0 }}>
+        <button onClick={handleAdd} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer', padding: 0 }}>
           <Plus size={32} />
         </button>
       </header>
@@ -72,16 +73,16 @@ export const DailyCalculation = () => {
 
       <footer style={{ 
         padding: '2rem 1.5rem 100px 1.5rem', 
-        backgroundColor: '#f4f7fb',
-        borderTop: '1px solid #E0E0E0'
+        backgroundColor: 'var(--color-bg)',
+        borderTop: '1px solid var(--color-border)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>Total mensal</span>
-          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--color-text-primary)' }}>Total mensal</span>
+          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--color-text-primary)' }}>R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
         </div>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: '#1a1a1a' }}>Dividido por</span>
+          <span style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--color-text-primary)' }}>Dividido por</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <select 
               value={days} 
@@ -89,7 +90,7 @@ export const DailyCalculation = () => {
               style={{ 
                 background: 'none', 
                 border: 'none', 
-                color: '#1a1a1a', 
+                color: 'var(--color-text-primary)', 
                 fontWeight: '600', 
                 fontSize: '1.2rem',
                 cursor: 'pointer',
@@ -102,12 +103,12 @@ export const DailyCalculation = () => {
               <option value={30}>30 dias</option>
               <option value={31}>31 dias</option>
             </select>
-            <ChevronDown size={18} color="#1a1a1a" />
+            <ChevronDown size={18} color="var(--color-text-primary)" />
           </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-          <span style={{ fontSize: '2.2rem', fontWeight: 'bold', color: '#1a1a1a' }}>
+          <span style={{ fontSize: '2.2rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>
             R$ {daily.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </span>
         </div>

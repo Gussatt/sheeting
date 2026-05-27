@@ -36,32 +36,42 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
   const handleSave = async () => {
     if (!name) return;
 
-    if (tag) {
-      await db.exec(
-        `UPDATE tags SET name = $1, color = $2, calc_saldos = $3, calc_performance = $4, 
-                calc_economizado = $5, calc_custo_vida = $6, calc_diario_medio = $7 
-         WHERE id = $8`,
-        [name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio, tag.id]
-      );
-    } else {
-      await db.exec(
-        `INSERT INTO tags (id, name, color, calc_saldos, calc_performance, calc_economizado, 
-                         calc_custo_vida, calc_diario_medio) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [crypto.randomUUID(), name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
-      );
+    try {
+      if (tag) {
+        await db.exec(
+          `UPDATE tags SET name = $1, color = $2, calc_saldos = $3, calc_performance = $4, 
+                  calc_economizado = $5, calc_custo_vida = $6, calc_diario_medio = $7 
+           WHERE id = $8`,
+          [name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio, tag.id]
+        );
+      } else {
+        await db.exec(
+          `INSERT INTO tags (id, name, color, calc_saldos, calc_performance, calc_economizado, 
+                           calc_custo_vida, calc_diario_medio) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [crypto.randomUUID(), name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
+        );
+      }
+      onSave();
+      onClose();
+    } catch (error) {
+      console.error('Failed to save tag:', error);
+      alert('Erro ao salvar tag.');
     }
-    onSave();
-    onClose();
   };
 
   const handleDelete = async () => {
     if (!tag) return;
     if (confirm(`Excluir a tag "${tag.name}"? As transações vinculadas ficarão sem tag.`)) {
-      await db.exec('DELETE FROM tags WHERE id = $1', [tag.id]);
-      await db.exec('UPDATE transactions SET tag_id = NULL WHERE tag_id = $1', [tag.id]);
-      onSave();
-      onClose();
+      try {
+        await db.exec('DELETE FROM tags WHERE id = $1', [tag.id]);
+        await db.exec('UPDATE transactions SET tag_id = NULL WHERE tag_id = $1', [tag.id]);
+        onSave();
+        onClose();
+      } catch (error) {
+        console.error('Failed to delete tag:', error);
+        alert('Erro ao excluir tag.');
+      }
     }
   };
 
@@ -70,11 +80,12 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
       onClick={() => onChange(!active)}
       style={{ 
         display: 'flex', 
-        backgroundColor: '#eee', 
+        backgroundColor: 'var(--color-surface)', 
         borderRadius: '20px', 
         padding: '4px', 
         width: '140px',
-        cursor: 'pointer' 
+        cursor: 'pointer',
+        border: '1px solid var(--color-border)'
       }}
     >
       <div style={{ 
@@ -83,9 +94,9 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
         textAlign: 'center', 
         fontSize: '0.85rem', 
         borderRadius: '16px', 
-        backgroundColor: !active ? 'white' : 'transparent',
+        backgroundColor: !active ? 'var(--color-bg)' : 'transparent',
         boxShadow: !active ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-        color: !active ? '#1a1a1a' : '#666',
+        color: !active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
         fontWeight: !active ? 'bold' : 'normal'
       }}>
         Ignorar
@@ -97,7 +108,7 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
         fontSize: '0.85rem', 
         borderRadius: '16px', 
         backgroundColor: active ? 'var(--color-primary)' : 'transparent',
-        color: active ? 'white' : '#666',
+        color: active ? 'white' : 'var(--color-text-secondary)',
         fontWeight: active ? 'bold' : 'normal'
       }}>
         Calcular
@@ -109,8 +120,8 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
     <div className="overlay" style={{ backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000 }}>
       <div className="filter-sheet" style={{ 
         height: '90vh', 
-        backgroundColor: 'white', 
-        color: '#1a1a1a', 
+        backgroundColor: 'var(--color-bg)', 
+        color: 'var(--color-text-primary)', 
         display: 'flex', 
         flexDirection: 'column',
         padding: 0
@@ -120,17 +131,17 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
           justifyContent: 'space-between', 
           alignItems: 'center', 
           padding: '1.25rem 1.5rem',
-          borderBottom: '1px solid #eee'
+          borderBottom: '1px solid var(--color-border)'
         }}>
           <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{tag ? 'Editar tag' : 'Criar tag'}</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#1a1a1a', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}>
             <X size={28} />
           </button>
         </header>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
           <div style={{ marginBottom: '2rem' }}>
-            <label style={{ display: 'block', color: '#666', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Nome</label>
+            <label style={{ display: 'block', color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Nome</label>
             <input 
               type="text"
               value={name}
@@ -139,11 +150,12 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
               style={{ 
                 width: '100%', 
                 border: 'none', 
-                borderBottom: '1px solid #eee', 
+                borderBottom: '1px solid var(--color-border)', 
                 fontSize: '1.3rem', 
                 padding: '0.5rem 0',
                 outline: 'none',
-                color: '#1a1a1a'
+                color: 'var(--color-text-primary)',
+                background: 'none'
               }}
             />
           </div>
@@ -159,13 +171,13 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
                     height: '50px',
                     borderRadius: '12px',
                     backgroundColor: c.color,
-                    border: selectedColor === c.color ? '2px solid #1a1a1a' : 'none',
+                    border: selectedColor === c.color ? '2px solid var(--color-text-primary)' : 'none',
                     display: 'flex',
                     alignItems: 'center',
                     padding: '0 1rem',
                     fontSize: '1rem',
                     fontWeight: '600',
-                    color: '#1a1a1a',
+                    color: '#1a1a1a', // Keep dark text on light color backgrounds
                     cursor: 'pointer',
                     justifyContent: 'space-between'
                   }}
@@ -177,14 +189,14 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
             </div>
           </div>
 
-          <div style={{ marginTop: '2.5rem', borderTop: '1px solid #eee', paddingTop: '1.5rem' }}>
+          <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
             <div 
               onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
               style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Configurações avançadas</span>
-                <span style={{ fontSize: '0.85rem', color: '#666' }}>Defina em quais partes do app as movimentações com essa tag serão calculadas.</span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Defina em quais partes do app as movimentações com essa tag serão calculadas.</span>
               </div>
               <ChevronDown size={24} style={{ transform: isAdvancedOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </div>
@@ -216,7 +228,7 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
           </div>
         </div>
 
-        <div style={{ padding: '1.5rem', borderTop: '1px solid #eee' }}>
+        <div style={{ padding: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
           <button 
             onClick={handleSave}
             style={{ 
@@ -224,8 +236,8 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
               padding: '1.25rem', 
               borderRadius: '40px', 
               border: 'none', 
-              backgroundColor: '#1a1a1a', 
-              color: 'white', 
+              backgroundColor: 'var(--color-text-primary)', 
+              color: 'var(--color-bg)', 
               fontSize: '1.2rem', 
               fontWeight: 'bold', 
               cursor: 'pointer' 
@@ -241,9 +253,9 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
                 padding: '1rem', 
                 marginTop: '1rem',
                 borderRadius: '40px', 
-                border: '1px solid #E74C3C', 
+                border: '1px solid var(--status-red)', 
                 backgroundColor: 'transparent', 
-                color: '#E74C3C', 
+                color: 'var(--status-red)', 
                 fontSize: '1.1rem', 
                 fontWeight: 'bold', 
                 cursor: 'pointer' 

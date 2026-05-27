@@ -37,16 +37,17 @@ export const Tags = () => {
   };
 
   return (
-    <div className="tags-page" style={{ padding: '0 1.25rem 80px 1.25rem' }}>
+    <div className="tags-page" style={{ paddingBottom: '80px', minHeight: '100vh', backgroundColor: 'var(--color-bg)' }}>
       <header style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        padding: '1.25rem 0',
+        padding: '1rem 1.25rem',
         backgroundColor: 'var(--color-bg)',
         position: 'sticky',
         top: 0,
-        zIndex: 100
+        zIndex: 101,
+        borderBottom: '1px solid var(--color-border)'
       }}>
         <div style={{ position: 'relative', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Calendar size={32} color="var(--color-primary)" />
@@ -77,44 +78,47 @@ export const Tags = () => {
         </button>
       </header>
 
-      <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-        <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)' }} />
-        <input 
-          type="text" 
-          placeholder="Filtrar tags" 
-          style={{ 
-            width: '100%', 
-            padding: '0.75rem 1rem 0.75rem 2.5rem', 
-            borderRadius: '12px', 
-            border: '1px solid var(--color-border)', 
-            background: 'var(--color-surface)', 
-            color: 'var(--color-text-primary)',
-            boxSizing: 'border-box'
-          }}
-        />
-      </div>
+      <div style={{ padding: '1.5rem 1.25rem' }}>
+        <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
+          <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-secondary)' }} />
+          <input 
+            type="text" 
+            placeholder="Filtrar tags" 
+            style={{ 
+              width: '100%', 
+              padding: '0.75rem 1rem 0.75rem 2.5rem', 
+              borderRadius: '12px', 
+              border: '1px solid var(--color-border)', 
+              background: 'var(--color-surface)', 
+              color: 'var(--color-text-primary)',
+              boxSizing: 'border-box',
+              outline: 'none'
+            }}
+          />
+        </div>
 
-      <div className="tags-list" style={{ display: 'flex', flexDirection: 'column' }}>
-        {tags.length === 0 && (
-          <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', marginTop: '2rem' }}>
-            Nenhuma tag cadastrada.
-          </p>
-        )}
-        {tags.map(tag => (
-          <div 
-            key={tag.id} 
-            onClick={() => { setSelectedTag(tag); setIsModalOpen(true); }}
-            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 0', borderBottom: '1px solid var(--color-border)', cursor: 'pointer' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <TagTrapezoid color={tag.color} />
-              <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{tag.name}</span>
+        <div className="tags-list" style={{ display: 'flex', flexDirection: 'column' }}>
+          {tags.length === 0 && (
+            <p style={{ textAlign: 'center', color: 'var(--color-text-secondary)', marginTop: '2rem' }}>
+              Nenhuma tag cadastrada.
+            </p>
+          )}
+          {tags.map(tag => (
+            <div 
+              key={tag.id} 
+              onClick={() => { setSelectedTag(tag); setIsModalOpen(true); }}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem 0', borderBottom: '1px solid var(--color-border)', cursor: 'pointer' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <TagTrapezoid color={tag.color} />
+                <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{tag.name}</span>
+              </div>
+              <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+                R$ {getTagTotal(tag.id).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </span>
             </div>
-            <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-              R$ {getTagTotal(tag.id).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <TagEditorModal 

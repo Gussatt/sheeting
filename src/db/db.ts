@@ -71,7 +71,26 @@ class SheetingDB {
       });
       console.log('PGLite instance created, applying schema...');
       await this.pg.exec(schemaSql);
-      console.log('Schema applied successfully.');
+      
+      // MIGRATIONS: Ensure new columns exist for recurring transactions and tags
+      console.log('Checking for migrations...');
+      try {
+        await this.pg.exec(`
+          ALTER TABLE transactions ADD COLUMN IF NOT EXISTS recurring_frequency TEXT;
+          ALTER TABLE transactions ADD COLUMN IF NOT EXISTS recurring_indefinite BOOLEAN DEFAULT TRUE;
+          ALTER TABLE transactions ADD COLUMN IF NOT EXISTS recurring_count INTEGER;
+          
+          ALTER TABLE tags ADD COLUMN IF NOT EXISTS calc_saldos BOOLEAN DEFAULT TRUE;
+          ALTER TABLE tags ADD COLUMN IF NOT EXISTS calc_performance BOOLEAN DEFAULT TRUE;
+          ALTER TABLE tags ADD COLUMN IF NOT EXISTS calc_economizado BOOLEAN DEFAULT TRUE;
+          ALTER TABLE tags ADD COLUMN IF NOT EXISTS calc_custo_vida BOOLEAN DEFAULT TRUE;
+          ALTER TABLE tags ADD COLUMN IF NOT EXISTS calc_diario_medio BOOLEAN DEFAULT TRUE;
+        `);
+      } catch (e) {
+        console.warn('Migration warning:', e);
+      }
+      
+      console.log('Schema and migrations applied successfully.');
     })();
     return this.initPromise;
   }

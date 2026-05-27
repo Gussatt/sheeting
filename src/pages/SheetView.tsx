@@ -159,7 +159,7 @@ export const SheetView = () => {
 
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: '50px 1fr 1fr',
+        gridTemplateColumns: '120px 1fr 1fr', // Give more room to the left for Dia + Filter
         alignItems: 'center', 
         padding: '0.75rem 0', 
         fontSize: '0.9rem', 
@@ -170,35 +170,35 @@ export const SheetView = () => {
         top: '73px', 
         zIndex: 100
       }}>
-        <span style={{ textAlign: 'center', fontWeight: '500' }}>Dia</span>
-        
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingLeft: '1.25rem' }}>
+          <span style={{ fontWeight: '500' }}>Dia</span>
           <button 
             onClick={() => setIsFilterOpen(true)} 
             style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '0.5rem', 
+              gap: '0.4rem', 
               background: 'var(--color-surface)', 
               border: '1px solid var(--color-border)', 
-              padding: '6px 16px', 
+              padding: '4px 12px', 
               borderRadius: '24px', 
               color: 'var(--color-text-primary)',
               cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              fontSize: '0.85rem',
+              fontWeight: '600'
             }}
           >
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2px', opacity: 0.8 }}>
-              {[...Array(4)].map((_, i) => <div key={i} style={{ width: '3px', height: '3px', backgroundColor: 'currentColor', borderRadius: '50%' }} />)}
+              {[...Array(4)].map((_, i) => <div key={i} style={{ width: '2px', height: '2px', backgroundColor: 'currentColor', borderRadius: '50%' }} />)}
             </div>
             {getFilterLabel(filter)}
-            <ChevronRight size={14} style={{ transform: 'rotate(90deg)', opacity: 0.6 }} />
+            <ChevronRight size={12} style={{ transform: 'rotate(90deg)', opacity: 0.6 }} />
           </button>
         </div>
 
-        <span style={{ textAlign: 'right', fontWeight: '500', paddingRight: '12px' }}>Saldos</span>
+        <div style={{ flex: 1 }} />
+
+        <span style={{ textAlign: 'right', fontWeight: '500', paddingRight: '1.25rem' }}>Saldos</span>
       </div>
 
       <div className="ledger-list" style={{ display: 'flex', flexDirection: 'column' }}>

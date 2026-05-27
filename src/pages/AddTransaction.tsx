@@ -59,24 +59,28 @@ export const AddTransaction = () => {
       data.recurringCount || null
     ];
 
-    if (id) {
-      await db.exec(
-        `UPDATE transactions 
-         SET amount = $1, type = $2, date = $3, description = $4, tag_id = $5, is_recurring = $6, 
-             recurring_frequency = $7, recurring_indefinite = $8, recurring_count = $9 
-         WHERE id = $10`,
-        [...params, id]
-      );
-    } else {
-      await db.exec(
-        `INSERT INTO transactions (id, amount, type, date, description, tag_id, is_recurring, 
-                                 recurring_frequency, recurring_indefinite, recurring_count) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-        [crypto.randomUUID(), ...params]
-      );
+    try {
+      if (id) {
+        await db.exec(
+          `UPDATE transactions 
+           SET amount = $1, type = $2, date = $3, description = $4, tag_id = $5, is_recurring = $6, 
+               recurring_frequency = $7, recurring_indefinite = $8, recurring_count = $9 
+           WHERE id = $10`,
+          [...params, id]
+        );
+      } else {
+        await db.exec(
+          `INSERT INTO transactions (id, amount, type, date, description, tag_id, is_recurring, 
+                                   recurring_frequency, recurring_indefinite, recurring_count) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [crypto.randomUUID(), ...params]
+        );
+      }
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to save transaction:', error);
+      alert('Erro ao salvar transação. Verifique o console para mais detalhes.');
     }
-
-    navigate('/');
   };
 
   const handleDelete = async () => {
