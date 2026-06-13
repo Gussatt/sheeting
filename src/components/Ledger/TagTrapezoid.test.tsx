@@ -1,19 +1,20 @@
-import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
 import { TagTrapezoid } from './TagTrapezoid';
 
 describe('TagTrapezoid', () => {
-  it('renders with correct color', () => {
+  it('renders an svg with the correct color fill', () => {
     const { container } = render(<TagTrapezoid color="#ff0000" />);
-    const div = container.firstChild as HTMLElement;
-    // JSDOM might return #ff0000 or rgb(255, 0, 0)
-    const color = div.style.backgroundColor;
-    expect(color === 'rgb(255, 0, 0)' || color === '#ff0000' || color === 'red').toBe(true);
+    const svg = container.querySelector('svg');
+    expect(svg).toBeInTheDocument();
+    expect(svg?.getAttribute('fill')).toBe('#ff0000');
   });
 
-  it('applies clip-path style', () => {
-    const { container } = render(<TagTrapezoid color="#ff0000" />);
-    const div = container.firstChild as HTMLElement;
-    expect(div.style.clipPath).toContain('polygon');
+  it('calculates width based on the size prop', () => {
+    const { container } = render(<TagTrapezoid color="#ff0000" size={20} />);
+    const svg = container.querySelector('svg');
+    // 20 * 1.16 = 23.2
+    expect(svg?.getAttribute('width')).toBe('23.2');
+    expect(svg?.getAttribute('height')).toBe('20');
   });
 });

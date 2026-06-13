@@ -1,82 +1,26 @@
 import React from 'react';
-import { ArrowDownLeft, ArrowUpRight, CirclePlay, Landmark, CreditCard, X, LayoutGrid } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { View, Text, Modal, Pressable } from 'react-native';
+import { useAppTheme } from '../../styles/theme';
 
 export type FilterType = 'all' | 'income' | 'expense' | 'daily' | 'savings' | 'credit';
 
-interface FilterSheetProps {
-  isOpen: boolean;
-  onSelect: (type: FilterType) => void;
-  onClose: () => void;
-}
-
-const FilterIcon = ({ type }: { type: FilterType }) => {
-  const size = 20;
-  switch (type) {
-    case 'all': return <LayoutGrid size={size} />;
-    case 'income': return <ArrowDownLeft size={size} color="var(--status-green)" />;
-    case 'expense': return <ArrowUpRight size={size} color="var(--status-red)" />;
-    case 'daily': return <CirclePlay size={size} color="var(--status-pink)" />;
-    case 'savings': return <Landmark size={size} color="var(--status-light-green)" />;
-    case 'credit': return <CreditCard size={size} color="var(--status-purple)" />;
-    default: return null;
-  }
-};
-
-export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onSelect, onClose }) => {
-  const filters: { type: FilterType; label: string }[] = [
-    { type: 'all', label: 'Todas' },
-    { type: 'income', label: 'Entradas' },
-    { type: 'expense', label: 'Saídas' },
-    { type: 'daily', label: 'Diários' },
-    { type: 'savings', label: 'Economias' },
-    { type: 'credit', label: 'Gastos com cartão' },
-  ];
+export const FilterSheet = ({ isOpen, onSelect, onClose }: { isOpen: boolean, onSelect: (t: FilterType) => void, onClose: () => void }) => {
+  const { colors } = useAppTheme();
+  
+  if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="overlay" 
-            onClick={onClose} 
-            style={{ zIndex: 1500 }}
-          />
-          <motion.div 
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="filter-sheet"
-            style={{ zIndex: 2000 }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 style={{ margin: 0 }}>Mostrar</h3>
-              <button className="filter-sheet-close" onClick={onClose} aria-label="Fechar">
-                <X size={24} />
-              </button>
-            </div>
-            
-            <ul className="filter-sheet-list">
-              {filters.map((filter) => (
-                <li key={filter.type}>
-                  <button 
-                    className="filter-sheet-item" 
-                    onClick={() => onSelect(filter.type)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
-                  >
-                    <FilterIcon type={filter.type} />
-                    <span>{filter.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+    <Modal visible={isOpen} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }} onPress={onClose}>
+        <View style={{ backgroundColor: colors.bg, padding: 24, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 16 }}>Filtrar por</Text>
+          {['all', 'income', 'expense', 'daily', 'savings', 'credit'].map((f) => (
+            <Pressable key={f} onPress={() => onSelect(f as FilterType)} style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+              <Text style={{ fontSize: 16, color: colors.textPrimary }}>{f}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </Pressable>
+    </Modal>
   );
 };

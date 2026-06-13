@@ -1,14 +1,9 @@
 import React from 'react';
-import { ArrowDownLeft, ArrowUpRight, CirclePlay, Landmark, CreditCard } from 'lucide-react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import type { Transaction } from '../../db/db';
-import { useLongPress } from '../../hooks/useLongPress';
-import { isWeekend } from 'date-fns';
-
-import { useTheme } from '../../context/ThemeContext';
-import checkinIcon from '../../assets/checkin.svg';
-import checkinNightIcon from '../../assets/checkin_night.svg';
-
-export type TransactionType = 'income' | 'expense' | 'daily' | 'savings' | 'credit';
+import { isWeekend, isToday } from 'date-fns';
+import { useAppTheme } from '../../styles/theme';
+import { TypeIcon, type TransactionType } from './TypeIcon';
 
 interface CellProps {
   type: TransactionType;
@@ -18,53 +13,32 @@ interface CellProps {
   onLongPress: (type: TransactionType) => void;
 }
 
-const TypeIcon = ({ type, size = 18 }: { type: TransactionType; size?: number }) => {
-  switch (type) {
-    case 'income': return <ArrowDownLeft size={size} color="var(--status-green)" />;
-    case 'expense': return <ArrowUpRight size={size} color="var(--status-red)" />;
-    case 'daily': return <CirclePlay size={size} color="var(--status-pink)" />;
-    case 'savings': return <Landmark size={size} color="var(--status-light-green)" />;
-    case 'credit': return <CreditCard size={size} color="var(--status-purple)" />;
-    default: return null;
-  }
-};
-
 const LedgerCell: React.FC<CellProps> = ({ type, total, transactions, onClick, onLongPress }) => {
-  const handlers = useLongPress(
-    () => onClick(type, transactions),
-    () => onLongPress(type)
-  );
+  const { colors } = useAppTheme();
+  const isVirtual = transactions.some(t => t.id.startsWith('virtual-'));
 
   return (
-    <div 
-      {...handlers}
-      style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        height: '40px',
-        cursor: 'pointer',
-        padding: '0 12px',
-        opacity: total === 0 ? 0.3 : 1,
-        transition: 'opacity 0.2s',
-      }}
+    <Pressable 
+      onPress={() => onClick(type, transactions)}
+      onLongPress={() => onLongPress(type)}
+      style={[
+        styles.cellContainer, 
+        { opacity: (total === 0 || isVirtual) ? 0.3 : 1 }
+      ]}
     >
-      <TypeIcon type={type} size={20} />
-      <span style={{ 
-        fontSize: '1rem', 
-        fontWeight: '500',
-        color: 'var(--color-text-primary)',
-        textAlign: 'right',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        flexShrink: 0
+      <View style={styles.cellLeft}>
+        <TypeIcon type={type} />
+      </View>
+      <Text style={{ 
+        color: (type === 'income' && total > 0) ? colors.green : colors.textPrimary,
+        fontSize: 16
       }}>
         R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-      </span>
-    </div>
+      </Text>
+    </Pressable>
   );
 };
+export { type TransactionType } from './TypeIcon';
 
 interface LedgerRowProps {
   date: Date;
@@ -76,100 +50,145 @@ interface LedgerRowProps {
   onCellLongPress: (type: TransactionType) => void;
 }
 
-export const LedgerRow: React.FC<LedgerRowProps> = ({ 
-  date, 
-  transactions, 
-  balance, 
-  isCheckedIn, 
+export const LedgerRow: React.FC<LedgerRowProps> = ({
+  date,
+  transactions,
+  balance,
+  isCheckedIn,
   filter,
   onCellClick,
   onCellLongPress
 }) => {
-  const { theme } = useTheme();
+  const { colors, isDark } = useAppTheme();
 
   const getBalanceBgColor = (bal: number) => {
-    if (bal < 100) return 'var(--status-red)';
-    if (bal < 500) return 'var(--status-yellow)';
-    return 'var(--status-green)';
+    if (bal < 100) return colors.red;
+    if (bal < 500) return colors.yellow;
+    return colors.green;
   };
 
   const types: TransactionType[] = ['income', 'expense', 'daily', 'savings', 'credit'];
   const activeTypes = filter === 'all' ? types : [filter as TransactionType];
   const isWeekendRow = isWeekend(date);
+  const isTodayRow = isToday(date);
+  const isSingleFilter = filter !== 'all';
 
   return (
-    <div 
-      data-testid="ledger-row" 
-      style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '50px 1fr 1fr', 
-        minHeight: '48px',
-        borderBottom: '1px solid var(--color-border)',
-        backgroundColor: isWeekendRow ? 'var(--color-weekend-bg)' : 'var(--color-bg)'
-      }}
-    >
-      {/* Day Column */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        position: 'relative',
-        fontSize: '1.2rem',
-        fontWeight: '600',
-        color: 'var(--color-text-primary)',
-        borderRight: '1px solid var(--color-border)'
-      }}>
-        {date.getDate()}
+    <View style={[styles.rowContainer, { 
+      backgroundColor: isWeekendRow ? colors.surface : 'transparent',
+      borderBottomColor: colors.border
+    }]}>
+      {/* Date Column */}
+      <View style={[styles.dateCol, {
+        backgroundColor: isTodayRow ? colors.primary : 'transparent',
+        borderRightColor: colors.border,
+        alignItems: isSingleFilter ? 'center' : 'flex-start',
+        paddingTop: isSingleFilter ? 0 : 10,
+      }]}>
+        <Text style={[styles.dateText, {
+          color: isTodayRow ? colors.bg : colors.textPrimary,
+        }]}>
+          {date.getDate()}
+        </Text>
         {isCheckedIn && (
-          <img 
-            src={theme === 'dark' ? checkinNightIcon : checkinIcon} 
-            alt="checked"
-            style={{ 
-              position: 'absolute', 
-              top: '2px', 
-              right: '2px', 
-              width: '16px',
-              height: '16px'
-            }} 
-          />
+          <View style={[styles.checkDot, { backgroundColor: isTodayRow ? colors.bg : colors.textPrimary }]} />
         )}
-      </div>
+      </View>
 
       {/* Data Column */}
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <View style={styles.dataCol}>
         {activeTypes.map((type, idx) => {
           const typeTransactions = transactions.filter(t => t.type === type);
           const total = typeTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
           return (
-            <div key={type} style={{ borderBottom: idx < activeTypes.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
-              <LedgerCell 
+            <View
+              key={type}
+              style={[styles.dataCellWrapper, {
+                borderBottomWidth: idx < activeTypes.length - 1 ? 1 : 0,
+                borderBottomColor: colors.border
+              }]}
+            >
+              <LedgerCell
                 type={type}
                 total={total}
                 transactions={typeTransactions}
                 onClick={onCellClick}
                 onLongPress={onCellLongPress}
               />
-            </div>
+            </View>
           );
         })}
-      </div>
+      </View>
 
       {/* Balance Column */}
-      <div style={{ 
+      <View style={[styles.balanceCol, {
         backgroundColor: getBalanceBgColor(balance),
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'flex-end',
-        color: 'white',
-        fontWeight: '700',
-        fontSize: '1rem',
-        padding: '8px 12px',
-        textAlign: 'right',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden'
-      }}>
-        R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-      </div>
-    </div>
+        alignItems: isSingleFilter ? 'center' : 'flex-start',
+        paddingTop: isSingleFilter ? 0 : 10,
+      }]}>
+        <Text style={styles.balanceText}>
+          R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+        </Text>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  cellContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    flex: 1,
+  },
+  cellLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    minHeight: 48,
+  },
+  dateCol: {
+    width: '12%',
+    position: 'relative',
+    borderRightWidth: 1,
+  },
+  dateText: {
+    fontSize: 19,
+    fontWeight: '600',
+    textAlign: 'center',
+    width: '100%',
+  },
+  checkDot: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  dataCol: {
+    width: '44%',
+    flexDirection: 'column',
+  },
+  dataCellWrapper: {
+    flex: 1,
+  },
+  balanceCol: {
+    width: '44%',
+    justifyContent: 'center',
+    paddingRight: 16,
+  },
+  balanceText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 17,
+    textAlign: 'right',
+    width: '100%',
+  }
+});
