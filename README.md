@@ -1,76 +1,71 @@
-# sheeting
-cloning sheet finances
+# Sheeting
 
-## React + TypeScript + Vite
+Sheeting is a local-first web application designed for financial predictability. It provides daily budget tracking and multi-month projections, allowing users to maintain a clear view of their current and future financial status.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🚀 Key Features
 
-Currently, two official plugins are available:
+- **Core Financial Ledger (Saldos):** Day-to-day financial tracking with dynamic month navigation, daily aggregation, and running balances.
+- **Daily Calculation System (Previsão de diário):** Plan daily allowances based on monthly category budgets with real-time math and flexible divisors.
+- **Financial Horizon (Horizonte):** A multi-month projection grid (4 months into the future) with a heat-map visualization for visual health checks.
+- **Transaction Management:** Global entry point for recording all types of financial movements (Entradas, Saídas, Diários, Economias, Gastos com cartão).
+- **Local-first & PWA:** All data is stored locally on your device (Dexie.js). Works offline and is installable as a standalone app.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠 Tech Stack
 
-## React Compiler
+- **Framework:** React 19 + Vite
+- **Language:** TypeScript
+- **Database:** Dexie.js (IndexedDB)
+- **Styling:** Mobile-first Standard CSS + CSS Variables
+- **PWA:** vite-plugin-pwa
+- **Icons:** Lucide React
+- **Dates:** date-fns
+- **Testing:** Vitest + React Testing Library
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (v18 or higher)
+- npm
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/sheeting.git
+   cd sheeting
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Building for Production
+
+To create a production build with PWA assets:
+```bash
+npm run build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🏗 Architecture
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Sheeting follows a local-first architecture using IndexedDB (via Dexie.js) for persistence. The UI is built with React 19, following a mobile-first design pattern.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+For a detailed deep dive into the system design, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow our styling standards and testing mandates.
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to get started.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details (or just use it freely!).

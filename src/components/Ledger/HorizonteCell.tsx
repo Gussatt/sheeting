@@ -1,4 +1,6 @@
 import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useAppTheme } from '../../styles/theme';
 
 interface HorizonteCellProps {
   day: number;
@@ -6,10 +8,12 @@ interface HorizonteCellProps {
 }
 
 export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance }) => {
+  const { colors } = useAppTheme();
+  
   const getCellColor = (val: number) => {
-    if (val < 0) return 'var(--status-pink)';
-    if (val < 1000) return 'var(--status-yellow)';
-    return 'var(--status-light-green)';
+    if (val < 0) return colors.pink;
+    if (val < 1000) return colors.yellow;
+    return colors.lightGreen;
   };
 
   const formatBalance = (val: number) => {
@@ -20,40 +24,43 @@ export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance }) =>
   };
 
   return (
-    <div 
-      style={{ 
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        height: '36px',
-        borderBottom: '1px solid var(--color-border)',
-        width: '100%',
-        fontSize: '0.9rem'
-      }}
-    >
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        backgroundColor: 'var(--color-bg)',
-        color: 'var(--color-text-primary)',
-        borderRight: '1px solid var(--color-border)',
-        fontWeight: '500'
-      }}>
-        {day}
-      </div>
-      <div 
-        data-testid="horizonte-cell"
-        style={{ 
-          backgroundColor: getCellColor(balance), 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          fontWeight: 'bold',
-          color: 'var(--color-bg)' // Dark text on status colors
-        }}
-      >
-        {formatBalance(balance)}
-      </div>
-    </div>
+    <View style={[styles.container, { borderBottomColor: colors.border }]}>
+      <View style={[styles.dayCol, { backgroundColor: colors.bg, borderRightColor: colors.border }]}>
+        <Text style={[styles.dayText, { color: colors.textPrimary }]}>{day}</Text>
+      </View>
+      <View style={[styles.balanceCol, { backgroundColor: getCellColor(balance) }]}>
+        <Text style={[styles.balanceText, { color: colors.bg }]}>
+          {formatBalance(balance)}
+        </Text>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    height: 36,
+    borderBottomWidth: 1,
+    width: '100%',
+  },
+  dayCol: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+  },
+  dayText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  balanceCol: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  balanceText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  }
+});

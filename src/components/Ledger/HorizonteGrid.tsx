@@ -1,76 +1,84 @@
 import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { HorizonteCell } from './HorizonteCell';
 import type { MonthProjection } from '../../utils/projection';
+import { useAppTheme } from '../../styles/theme';
 
 interface Props {
   projections: MonthProjection[];
 }
 
 export const HorizonteGrid: React.FC<Props> = ({ projections }) => {
+  const { colors, isDark } = useAppTheme();
   const maxDays = 31;
 
   return (
-    <div className="horizonte-grid-container" style={{ 
-      display: 'flex', 
-      overflowX: 'auto', 
-      gap: '1px', 
-      backgroundColor: 'var(--color-border)',
-      border: '1px solid var(--color-border)',
-      WebkitOverflowScrolling: 'touch'
-    }}>
+    <ScrollView horizontal style={styles.horizontalScroll} contentContainerStyle={styles.contentContainer}>
       {projections.map((month, idx) => {
-        // Simple logic to check if it's the current month for styling
-        // Note: monthName is in format 'MMM/yy', we can parse it or pass a date object
-        // For now, let's assume the first projection is the current month
         const isCurrentMonth = idx === 0;
 
         return (
-          <div key={month.monthName} style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            minWidth: '120px',
-            backgroundColor: 'var(--color-bg)',
-            flex: 1
-          }}>
-            <header style={{ 
-              height: '40px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              backgroundColor: isCurrentMonth ? '#1a1a1a' : 'white',
-              color: isCurrentMonth ? 'white' : 'black',
-              fontWeight: 'bold',
-              fontSize: '0.9rem',
-              borderBottom: '1px solid var(--color-border)',
-              position: 'sticky',
-              top: 0,
-              zIndex: 10
-            }}>
-              {month.monthName}
-            </header>
+          <View key={month.monthName} style={[styles.monthCol, { backgroundColor: colors.bg, borderRightColor: colors.border }]}>
+            <View style={[styles.header, { 
+              backgroundColor: isCurrentMonth ? (isDark ? '#fff' : '#1a1a1a') : colors.surface,
+              borderBottomColor: colors.border 
+            }]}>
+              <Text style={[styles.headerText, { color: isCurrentMonth ? (isDark ? '#000' : '#fff') : colors.textPrimary }]}>
+                {month.monthName}
+              </Text>
+            </View>
             
-            {Array.from({ length: maxDays }, (_, i) => {
-              const dayData = month.days.find(d => d.day === i + 1);
-              if (dayData) {
+            <ScrollView style={styles.verticalScroll}>
+              {Array.from({ length: maxDays }, (_, i) => {
+                const dayData = month.days.find(d => d.day === i + 1);
+                if (dayData) {
+                  return (
+                    <HorizonteCell 
+                      key={i} 
+                      day={dayData.day} 
+                      balance={dayData.balance} 
+                    />
+                  );
+                }
                 return (
-                  <HorizonteCell 
-                    key={i} 
-                    day={dayData.day} 
-                    balance={dayData.balance} 
-                  />
+                  <View key={i} style={[styles.emptyCell, { borderBottomColor: colors.border }]} />
                 );
-              }
-              return (
-                <div key={i} style={{ 
-                  height: '32px', 
-                  borderBottom: '1px solid var(--color-border)',
-                  backgroundColor: 'rgba(255,255,255,0.05)' 
-                }} />
-              );
-            })}
-          </div>
+              })}
+            </ScrollView>
+          </View>
         );
       })}
-    </div>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  horizontalScroll: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexDirection: 'row',
+  },
+  monthCol: {
+    width: 120,
+    borderRightWidth: 1,
+  },
+  header: {
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+  },
+  headerText: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  verticalScroll: {
+    flex: 1,
+  },
+  emptyCell: {
+    height: 36,
+    borderBottomWidth: 1,
+    opacity: 0.1,
+  }
+});
