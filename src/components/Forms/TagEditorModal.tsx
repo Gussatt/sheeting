@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
-import { X, ChevronDown, Check } from 'lucide-react';
-import { db, type Tag } from '../../db/db';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Alert } from 'react-native';
+import { X, ChevronDown, Check } from 'lucide-react-native';
+import { db } from '../../db/db';
+import type { Tag } from '../../db/db';
+import { useAppTheme } from '../../styles/theme';
+import * as Crypto from 'expo-crypto';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
-  tag?: Tag; // If provided, we are editing
+  tag?: Tag;
 }
 
 const TAG_COLORS = [
@@ -20,16 +24,65 @@ const TAG_COLORS = [
   { name: 'Marrom', color: '#D7CCC8' },
 ];
 
+const Toggle = ({ active, onChange }: { active: boolean, onChange: (val: boolean) => void }) => {
+  const { colors } = useAppTheme();
+  return (
+    <Pressable 
+      onPress={() => onChange(!active)}
+      style={[styles.toggleContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}
+    >
+      <View style={[
+        styles.toggleBtn, 
+        !active && { backgroundColor: colors.bg, shadowOpacity: 0.1 },
+      ]}>
+        <Text style={{ 
+          color: !active ? colors.textPrimary : colors.textSecondary,
+          fontWeight: !active ? 'bold' : 'normal',
+          fontSize: 13
+        }}>
+          Ignorar
+        </Text>
+      </View>
+      <View style={[
+        styles.toggleBtn, 
+        active && { backgroundColor: colors.primary },
+      ]}>
+        <Text style={{ 
+          color: active ? colors.bg : colors.textSecondary,
+          fontWeight: active ? 'bold' : 'normal',
+          fontSize: 13
+        }}>
+          Calcular
+        </Text>
+      </View>
+    </Pressable>
+  );
+};
+
 export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }) => {
-  const [name, setName] = useState(tag?.name || '');
-  const [selectedColor, setSelectedColor] = useState(tag?.color || TAG_COLORS[0].color);
+  const { colors } = useAppTheme();
+  const [name, setName] = useState('');
+  const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].color);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   
-  const [calcSaldos, setCalcSaldos] = useState(tag?.calcSaldos ?? true);
-  const [calcPerformance, setCalcPerformance] = useState(tag?.calcPerformance ?? true);
-  const [calcEconomizado, setCalcEconomizado] = useState(tag?.calcEconomizado ?? true);
-  const [calcCustoVida, setCalcCustoVida] = useState(tag?.calcCustoVida ?? true);
-  const [calcDiarioMedio, setCalcDiarioMedio] = useState(tag?.calcDiarioMedio ?? true);
+  const [calcSaldos, setCalcSaldos] = useState(true);
+  const [calcPerformance, setCalcPerformance] = useState(true);
+  const [calcEconomizado, setCalcEconomizado] = useState(true);
+  const [calcCustoVida, setCalcCustoVida] = useState(true);
+  const [calcDiarioMedio, setCalcDiarioMedio] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      setName(tag?.name || '');
+      setSelectedColor(tag?.color || TAG_COLORS[0].color);
+      setIsAdvancedOpen(false);
+      setCalcSaldos(tag?.calcSaldos ?? true);
+      setCalcPerformance(tag?.calcPerformance ?? true);
+      setCalcEconomizado(tag?.calcEconomizado ?? true);
+      setCalcCustoVida(tag?.calcCustoVida ?? true);
+      setCalcDiarioMedio(tag?.calcDiarioMedio ?? true);
+    }
+  }, [isOpen, tag]);
 
   if (!isOpen) return null;
 
@@ -39,233 +92,295 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
     try {
       if (tag) {
         await db.exec(
-          `UPDATE tags SET name = $1, color = $2, calc_saldos = $3, calc_performance = $4, 
-                  calc_economizado = $5, calc_custo_vida = $6, calc_diario_medio = $7 
-           WHERE id = $8`,
+          `UPDATE tags SET name = ?, color = ?, calc_saldos = ?, calc_performance = ?, 
+                  calc_economizado = ?, calc_custo_vida = ?, calc_diario_medio = ? 
+           WHERE id = ?`,
           [name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio, tag.id]
         );
       } else {
+        const newId = Crypto.randomUUID();
         await db.exec(
           `INSERT INTO tags (id, name, color, calc_saldos, calc_performance, calc_economizado, 
                            calc_custo_vida, calc_diario_medio) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [crypto.randomUUID(), name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [newId, name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
         );
       }
       onSave();
       onClose();
     } catch (error) {
       console.error('Failed to save tag:', error);
-      alert('Erro ao salvar tag.');
+      Alert.alert('Erro', 'Erro ao salvar tag.');
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!tag) return;
-    if (confirm(`Excluir a tag "${tag.name}"? As transações vinculadas ficarão sem tag.`)) {
-      try {
-        await db.exec('DELETE FROM tags WHERE id = $1', [tag.id]);
-        await db.exec('UPDATE transactions SET tag_id = NULL WHERE tag_id = $1', [tag.id]);
-        onSave();
-        onClose();
-      } catch (error) {
-        console.error('Failed to delete tag:', error);
-        alert('Erro ao excluir tag.');
-      }
-    }
+    Alert.alert(
+      'Confirmação',
+      `Excluir a tag "${tag.name}"? As transações vinculadas ficarão sem tag.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Excluir', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await db.exec('DELETE FROM tags WHERE id = ?', [tag.id]);
+              await db.exec('UPDATE transactions SET tag_id = NULL WHERE tag_id = ?', [tag.id]);
+              onSave();
+              onClose();
+            } catch (error) {
+              console.error('Failed to delete tag:', error);
+              Alert.alert('Erro', 'Erro ao excluir tag.');
+            }
+          }
+        }
+      ]
+    );
   };
 
-  const Toggle = ({ active, onChange }: { active: boolean, onChange: (val: boolean) => void }) => (
-    <div 
-      onClick={() => onChange(!active)}
-      style={{ 
-        display: 'flex', 
-        backgroundColor: 'var(--color-surface)', 
-        borderRadius: '20px', 
-        padding: '4px', 
-        width: '140px',
-        cursor: 'pointer',
-        border: '1px solid var(--color-border)'
-      }}
-    >
-      <div style={{ 
-        flex: 1, 
-        padding: '6px', 
-        textAlign: 'center', 
-        fontSize: '0.85rem', 
-        borderRadius: '16px', 
-        backgroundColor: !active ? 'var(--color-bg)' : 'transparent',
-        boxShadow: !active ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-        color: !active ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-        fontWeight: !active ? 'bold' : 'normal'
-      }}>
-        Ignorar
-      </div>
-      <div style={{ 
-        flex: 1, 
-        padding: '6px', 
-        textAlign: 'center', 
-        fontSize: '0.85rem', 
-        borderRadius: '16px', 
-        backgroundColor: active ? 'var(--color-primary)' : 'transparent',
-        color: active ? 'white' : 'var(--color-text-secondary)',
-        fontWeight: active ? 'bold' : 'normal'
-      }}>
-        Calcular
-      </div>
-    </div>
-  );
 
   return (
-    <div className="overlay" style={{ backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 2000 }}>
-      <div className="filter-sheet" style={{ 
-        height: '90vh', 
-        backgroundColor: 'var(--color-bg)', 
-        color: 'var(--color-text-primary)', 
-        display: 'flex', 
-        flexDirection: 'column',
-        padding: 0
-      }}>
-        <header style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          padding: '1.25rem 1.5rem',
-          borderBottom: '1px solid var(--color-border)'
-        }}>
-          <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{tag ? 'Editar tag' : 'Criar tag'}</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}>
-            <X size={28} />
-          </button>
-        </header>
+    <Modal visible={isOpen} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <View style={[styles.sheet, { backgroundColor: colors.bg }]} onStartShouldSetResponder={() => true}>
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{tag ? 'Editar tag' : 'Criar tag'}</Text>
+            <Pressable onPress={onClose} style={styles.closeBtn}>
+              <X size={28} color={colors.textPrimary} />
+            </Pressable>
+          </View>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
-          <div style={{ marginBottom: '2rem' }}>
-            <label style={{ display: 'block', color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Nome</label>
-            <input 
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Ex: Alimentação"
-              style={{ 
-                width: '100%', 
-                border: 'none', 
-                borderBottom: '1px solid var(--color-border)', 
-                fontSize: '1.3rem', 
-                padding: '0.5rem 0',
-                outline: 'none',
-                color: 'var(--color-text-primary)',
-                background: 'none'
-              }}
-            />
-          </div>
+          <ScrollView style={styles.content}>
+            <View style={styles.section}>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Nome</Text>
+              <TextInput 
+                value={name}
+                onChangeText={setName}
+                placeholder="Ex: Alimentação"
+                placeholderTextColor={colors.textSecondary}
+                style={[styles.input, { color: colors.textPrimary, borderBottomColor: colors.border }]}
+              />
+            </View>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '1.25rem' }}>Cor de fundo</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              {TAG_COLORS.map((c) => (
-                <button
-                  key={c.color}
-                  onClick={() => setSelectedColor(c.color)}
-                  style={{
-                    height: '50px',
-                    borderRadius: '12px',
-                    backgroundColor: c.color,
-                    border: selectedColor === c.color ? '2px solid var(--color-text-primary)' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '0 1rem',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    color: '#1a1a1a', // Keep dark text on light color backgrounds
-                    cursor: 'pointer',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  {c.name}
-                  {selectedColor === c.color && <Check size={18} />}
-                </button>
-              ))}
-            </div>
-          </div>
+            <View style={styles.section}>
+              <Text style={[styles.labelBold, { color: colors.textPrimary }]}>Cor de fundo</Text>
+              <View style={styles.colorGrid}>
+                {TAG_COLORS.map((c) => (
+                  <Pressable
+                    key={c.color}
+                    onPress={() => setSelectedColor(c.color)}
+                    style={[
+                      styles.colorBtn, 
+                      { backgroundColor: c.color },
+                      selectedColor === c.color && { borderWidth: 2, borderColor: colors.textPrimary }
+                    ]}
+                  >
+                    <Text style={styles.colorName}>{c.name}</Text>
+                    {selectedColor === c.color && <Check size={18} color="#1a1a1a" />}
+                  </Pressable>
+                ))}
+              </View>
+            </View>
 
-          <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-            <div 
-              onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+            <View style={[styles.advancedSection, { borderTopColor: colors.border }]}>
+              <Pressable 
+                onPress={() => setIsAdvancedOpen(!isAdvancedOpen)}
+                style={styles.advancedHeader}
+              >
+                <View style={styles.advancedTextCol}>
+                  <Text style={[styles.advancedTitle, { color: colors.textPrimary }]}>Configurações avançadas</Text>
+                  <Text style={[styles.advancedDesc, { color: colors.textSecondary }]}>Defina em quais partes do app as movimentações com essa tag serão calculadas.</Text>
+                </View>
+                <ChevronDown size={24} color={colors.textPrimary} style={{ transform: [{ rotate: isAdvancedOpen ? '180deg' : '0deg' }] }} />
+              </Pressable>
+
+              {isAdvancedOpen && (
+                <View style={styles.togglesList}>
+                  <View style={styles.toggleRow}>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Saldos</Text>
+                    <Toggle active={calcSaldos} onChange={setCalcSaldos} />
+                  </View>
+                  <View style={styles.toggleRow}>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Performance</Text>
+                    <Toggle active={calcPerformance} onChange={setCalcPerformance} />
+                  </View>
+                  <View style={styles.toggleRow}>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Economizado</Text>
+                    <Toggle active={calcEconomizado} onChange={setCalcEconomizado} />
+                  </View>
+                  <View style={styles.toggleRow}>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Custo de vida</Text>
+                    <Toggle active={calcCustoVida} onChange={setCalcCustoVida} />
+                  </View>
+                  <View style={styles.toggleRow}>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Diário médio</Text>
+                    <Toggle active={calcDiarioMedio} onChange={setCalcDiarioMedio} />
+                  </View>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+
+          <View style={[styles.footer, { borderTopColor: colors.border }]}>
+            <Pressable 
+              onPress={handleSave}
+              style={[styles.saveBtn, { backgroundColor: colors.textPrimary }]}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>Configurações avançadas</span>
-                <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>Defina em quais partes do app as movimentações com essa tag serão calculadas.</span>
-              </div>
-              <ChevronDown size={24} style={{ transform: isAdvancedOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-            </div>
-
-            {isAdvancedOpen && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: '500' }}>Saldos</span>
-                  <Toggle active={calcSaldos} onChange={setCalcSaldos} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: '500' }}>Performance</span>
-                  <Toggle active={calcPerformance} onChange={setCalcPerformance} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: '500' }}>Economizado</span>
-                  <Toggle active={calcEconomizado} onChange={setCalcEconomizado} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: '500' }}>Custo de vida</span>
-                  <Toggle active={calcCustoVida} onChange={setCalcCustoVida} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: '500' }}>Diário médio</span>
-                  <Toggle active={calcDiarioMedio} onChange={setCalcDiarioMedio} />
-                </div>
-              </div>
+              <Text style={[styles.saveText, { color: colors.bg }]}>
+                {tag ? 'Salvar' : 'Criar'}
+              </Text>
+            </Pressable>
+            {tag && (
+              <Pressable 
+                onPress={handleDelete}
+                style={[styles.deleteBtn, { borderColor: colors.red }]}
+              >
+                <Text style={[styles.deleteText, { color: colors.red }]}>Excluir</Text>
+              </Pressable>
             )}
-          </div>
-        </div>
-
-        <div style={{ padding: '1.5rem', borderTop: '1px solid var(--color-border)' }}>
-          <button 
-            onClick={handleSave}
-            style={{ 
-              width: '100%', 
-              padding: '1.25rem', 
-              borderRadius: '40px', 
-              border: 'none', 
-              backgroundColor: 'var(--color-text-primary)', 
-              color: 'var(--color-bg)', 
-              fontSize: '1.2rem', 
-              fontWeight: 'bold', 
-              cursor: 'pointer' 
-            }}
-          >
-            {tag ? 'Salvar' : 'Criar'}
-          </button>
-          {tag && (
-            <button 
-              onClick={handleDelete}
-              style={{ 
-                width: '100%', 
-                padding: '1rem', 
-                marginTop: '1rem',
-                borderRadius: '40px', 
-                border: '1px solid var(--status-red)', 
-                backgroundColor: 'transparent', 
-                color: 'var(--status-red)', 
-                fontSize: '1.1rem', 
-                fontWeight: 'bold', 
-                cursor: 'pointer' 
-              }}
-            >
-              Excluir
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+          </View>
+        </View>
+      </Pressable>
+    </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    height: '90%',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  closeBtn: { padding: 4 },
+  content: {
+    padding: 24,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  input: {
+    fontSize: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  labelBold: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  colorGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  colorBtn: {
+    height: 50,
+    width: '48%',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  colorName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+  },
+  advancedSection: {
+    marginTop: 24,
+    paddingTop: 24,
+    borderTopWidth: 1,
+  },
+  advancedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  advancedTextCol: {
+    flex: 1,
+    gap: 4,
+    paddingRight: 16,
+  },
+  advancedTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  advancedDesc: {
+    fontSize: 14,
+  },
+  togglesList: {
+    gap: 16,
+    marginTop: 24,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  toggleLabel: {
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    borderRadius: 20,
+    padding: 4,
+    width: 140,
+    borderWidth: 1,
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    alignItems: 'center',
+    borderRadius: 16,
+  },
+  footer: {
+    padding: 24,
+    borderTopWidth: 1,
+  },
+  saveBtn: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 40,
+    alignItems: 'center',
+  },
+  saveText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  deleteBtn: {
+    width: '100%',
+    padding: 16,
+    marginTop: 16,
+    borderRadius: 40,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  deleteText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  }
+});
