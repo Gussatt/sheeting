@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Appearance, ColorSchemeName } from 'react-native';
 
 type Theme = 'light' | 'dark';
 
@@ -9,27 +10,12 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    try {
-      const savedTheme = localStorage.getItem('theme') as Theme;
-      return savedTheme || 'dark';
-    } catch (e) {
-      return 'dark';
-    }
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    try {
-      localStorage.setItem('theme', theme);
-    } catch (e) {
-      // Ignore
-    }
-  }, [theme]);
+export const ThemeProvider: React.FC<{ children: React.ReactNode, initialTheme?: Theme }> = ({ children, initialTheme }) => {
+  const systemTheme = Appearance.getColorScheme();
+  const [theme, setTheme] = useState<Theme>(initialTheme || systemTheme || 'dark');
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return (
