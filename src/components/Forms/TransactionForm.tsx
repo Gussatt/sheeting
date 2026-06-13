@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  ArrowDownLeft, ArrowUpRight, CirclePlay, Landmark, CreditCard, 
-  ChevronDown, X, Pencil, Calendar, RotateCw, Square, Plus, Minus
-} from 'lucide-react';
+  View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Platform
+} from 'react-native';
+import { 
+  ChevronDown, X, Pencil, Calendar as CalendarIcon, RotateCw, Square, Plus, Minus, ArrowDownLeft, ArrowUpRight, PiggyBank, CreditCard
+} from 'lucide-react-native';
 import type { Transaction, Tag } from '../../db/db';
-import { format, startOfMonth, eachDayOfInterval, endOfMonth, isSameDay, addMonths, subMonths } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { TagTrapezoid } from '../Ledger/TagTrapezoid';
-import { TagEditorModal } from './TagEditorModal';
+import { format } from 'date-fns';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useAppTheme } from '../../styles/theme';
 
 type TransactionType = 'income' | 'expense' | 'daily' | 'savings' | 'credit';
 
@@ -18,20 +19,33 @@ interface Props {
   onDelete?: () => void;
 }
 
-const TYPE_OPTIONS: { type: TransactionType; label: string; icon: any; color: string; letter: string }[] = [
-  { type: 'income', label: 'Entrada', icon: ArrowDownLeft, color: 'var(--status-green)', letter: 'E' },
-  { type: 'expense', label: 'Saída', icon: ArrowUpRight, color: 'var(--status-red)', letter: 'S' },
-  { type: 'daily', label: 'Diário', icon: CirclePlay, color: 'var(--status-pink)', letter: 'D' },
-  { type: 'savings', label: 'Economia', icon: Landmark, color: 'var(--status-light-green)', letter: 'E' },
-  { type: 'credit', label: 'Gasto com Cartão', icon: CreditCard, color: 'var(--status-purple)', letter: 'C' },
+const TYPE_OPTIONS: { type: TransactionType; label: string; icon: any; color: string }[] = [
+  { type: 'income', label: 'Entrada', icon: ArrowDownLeft, color: '#27AE60' },
+  { type: 'expense', label: 'Saída', icon: ArrowUpRight, color: '#E74C3C' },
+  { type: 'daily', label: 'Diário', icon: CalendarIcon, color: '#fff' },
+  { type: 'savings', label: 'Economia', icon: PiggyBank, color: '#F1C40F' },
+  { type: 'credit', label: 'Gasto com Cartão', icon: CreditCard, color: '#9B59B6' },
 ];
 
+const ModalHeader = ({ title, onClose }: { title: string, onClose: () => void }) => {
+  const { colors } = useAppTheme();
+  return (
+    <View style={styles.modalHeader}>
+      <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>{title}</Text>
+      <Pressable onPress={onClose} style={styles.modalCloseBtn}>
+        <X size={24} color={colors.textPrimary} />
+      </Pressable>
+    </View>
+  );
+};
+
 export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, onDelete }) => {
+  const { colors, isDark } = useAppTheme();
   const [formData, setFormData] = useState<Partial<Transaction>>({
     type: 'expense',
     amount: 0,
     description: '',
-    date: new Date(),
+    date: new Date().toISOString(), // Keeping it ISO string matching web version
     isRecurring: false,
     recurringFrequency: 'monthly',
     recurringIndefinite: true,
@@ -40,23 +54,13 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
     ...initialData
   });
 
-  const [activeModal, setActiveModal] = useState<'type' | 'date' | 'repeat' | 'tags' | 'until' | 'create-tag' | null>(null);
-  const [calendarMonth, setCalendarMonth] = useState(new Date(formData.date || new Date()));
+  const [activeModal, setActiveModal] = useState<'type' | 'date' | 'repeat' | 'tags' | 'until' | null>(null);
+  
+  // Date tracking for picker
+  const [pickerDate, setPickerDate] = useState(initialData?.date ? new Date(initialData.date as string) : new Date());
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData(prev => ({
-        ...prev,
-        ...initialData,
-        date: initialData.date ? new Date(initialData.date as any) : prev.date,
-        amount: Number(initialData.amount) || 0
-      }));
-    }
-  }, [initialData]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
+  const handleSubmit = () => {
+    onSubmit({ ...formData, date: pickerDate.toISOString() });
   };
 
   const formatAmount = (val: number) => {
@@ -66,8 +70,8 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
     });
   };
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cleanValue = e.target.value.replace(/\D/g, '');
+  const handleAmountChange = (text: string) => {
+    const cleanValue = text.replace(/\D/g, '');
     const numericValue = parseInt(cleanValue || '0', 10) / 100;
     setFormData({ ...formData, amount: numericValue });
   };
@@ -91,428 +95,337 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
     return tag ? tag.name : 'Tags';
   };
 
-  // Calendar Helpers
-  const days = eachDayOfInterval({
-    start: startOfMonth(calendarMonth),
-    end: endOfMonth(calendarMonth)
-  });
-  const firstDayOfMonth = startOfMonth(calendarMonth).getDay();
-  const paddingDays = Array.from({ length: firstDayOfMonth }).map(() => null);
-
-  const ModalHeader = ({ title, onClose }: { title: string, onClose: () => void }) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-      <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{title}</h3>
-      <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}>
-        <X size={24} />
-      </button>
-    </div>
-  );
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '0 1rem' }}>
-      {/* Amount Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: '2rem 0',
-        position: 'relative'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-          <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>R$</span>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <input 
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Amount Header */}
+        <View style={styles.amountHeader}>
+          <View style={styles.amountRow}>
+            <Text style={[styles.currency, { color: colors.textPrimary }]}>R$</Text>
+            <TextInput
               autoFocus
-              inputMode="numeric"
+              keyboardType="numeric"
               value={formatAmount(formData.amount || 0)}
-              onChange={handleAmountChange}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: formData.amount === 0 ? 'var(--color-text-secondary)' : 'var(--color-text-primary)', 
-                fontSize: '3.5rem', 
-                fontWeight: 'bold',
-                outline: 'none',
-                width: '100%',
-                caretColor: 'transparent'
-              }}
+              onChangeText={handleAmountChange}
+              style={[
+                styles.amountInput, 
+                { color: formData.amount === 0 ? colors.textSecondary : colors.textPrimary }
+              ]}
             />
-            <div style={{ 
-              position: 'absolute', 
-              right: '-4px', 
-              width: '2px', 
-              height: '80%', 
-              backgroundColor: 'var(--color-primary)',
-              opacity: 0.8
-            }} />
-          </div>
-        </div>
-        <button 
-          onClick={() => setFormData({ ...formData, amount: 0 })}
-          style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer' }}
-        >
-          <X size={32} />
-        </button>
-      </div>
+          </View>
+          <Pressable onPress={() => setFormData({ ...formData, amount: 0 })} style={styles.clearBtn}>
+            <X size={32} color={colors.textSecondary} />
+          </Pressable>
+        </View>
 
-      {/* Form List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-        {/* Type */}
-        <button 
-          onClick={() => setActiveModal('type')}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 0', 
-            background: 'none', border: 'none', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', cursor: 'pointer'
-          }}
-        >
-          <div style={{ 
-            width: '32px', height: '32px', borderRadius: '50%', backgroundColor: selectedType.color, 
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1rem', color: 'white'
-          }}>
-            {selectedType.letter}
-          </div>
-          <span style={{ fontSize: '1.2rem', fontWeight: '500', flex: 1, textAlign: 'left' }}>{selectedType.label}</span>
-          <ChevronDown size={20} color="var(--color-text-secondary)" />
-        </button>
-
-        {/* Description */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 0', borderBottom: '1px solid var(--color-border)' }}>
-          <Pencil size={24} color="var(--color-text-secondary)" />
-          <input 
-            type="text"
-            placeholder="Descrição"
-            value={formData.description}
-            onChange={e => setFormData({ ...formData, description: e.target.value })}
-            style={{ 
-              background: 'none', border: 'none', color: 'var(--color-text-primary)', fontSize: '1.2rem', fontWeight: '500', 
-              outline: 'none', flex: 1, padding: 0
-            }}
-          />
-        </div>
-
-        {/* Date */}
-        <button 
-          onClick={() => setActiveModal('date')}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 0', 
-            background: 'none', border: 'none', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', cursor: 'pointer'
-          }}
-        >
-          <Calendar size={24} color="var(--color-text-secondary)" />
-          <span style={{ fontSize: '1.2rem', fontWeight: '500', flex: 1, textAlign: 'left' }}>Data</span>
-          <span style={{ fontSize: '1.2rem', fontWeight: '500', color: 'var(--color-text-secondary)' }}>
-            {format(formData.date || new Date(), 'dd/MM/yyyy')}
-          </span>
-          <ChevronDown size={20} color="var(--color-text-secondary)" />
-        </button>
-
-        {/* Repetition */}
-        <button 
-          onClick={() => setActiveModal('repeat')}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 0', 
-            background: 'none', border: 'none', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', cursor: 'pointer'
-          }}
-        >
-          <RotateCw size={24} color="var(--color-text-secondary)" />
-          <span style={{ fontSize: '1.2rem', fontWeight: '500', flex: 1, textAlign: 'left' }}>{getRepeatLabel()}</span>
-          <ChevronDown size={20} color="var(--color-text-secondary)" />
-        </button>
-
-        {/* Repetition Options (A perder de vista / Counter) */}
-        {formData.isRecurring && (
-          <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)' }}>
-            <button 
-              onClick={() => setActiveModal('until')}
-              style={{ 
-                display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 0', flex: 1,
-                background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer'
-              }}
-            >
-              <RotateCw size={24} color="var(--color-text-secondary)" style={{ opacity: 0 }} />
-              <span style={{ fontSize: '1.2rem', fontWeight: '500', flex: 1, textAlign: 'left' }}>{getUntilLabel()}</span>
-              <ChevronDown size={20} color="var(--color-text-secondary)" />
-            </button>
-            {!formData.recurringIndefinite && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '0 1rem', borderLeft: '1px solid var(--color-border)' }}>
-                <button 
-                  onClick={() => setFormData({ ...formData, recurringCount: Math.max(2, (formData.recurringCount || 2) - 1) })}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer' }}
-                >
-                  <Minus size={20} />
-                </button>
-                <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{formData.recurringCount}</span>
-                <button 
-                  onClick={() => setFormData({ ...formData, recurringCount: (formData.recurringCount || 2) + 1 })}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tags */}
-        <button 
-          onClick={() => setActiveModal('tags')}
-          style={{ 
-            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 0', 
-            background: 'none', border: 'none', borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-primary)', cursor: 'pointer'
-          }}
-        >
-          {formData.tagId ? (
-            <TagTrapezoid color={tags.find(t => t.id === formData.tagId)?.color || 'var(--color-text-secondary)'} size={24} />
-          ) : (
-            <Square size={24} color="var(--color-text-secondary)" />
-          )}
-          <span style={{ fontSize: '1.2rem', fontWeight: '500', flex: 1, textAlign: 'left' }}>{getTagName()}</span>
-          <ChevronDown size={20} color="var(--color-text-secondary)" />
-        </button>
-      </div>
-
-      {/* Footer CTA */}
-      <div style={{ padding: '2rem 0' }}>
-        <button 
-          onClick={handleSubmit}
-          style={{ 
-            width: '100%', padding: '1.25rem', borderRadius: '40px', border: 'none', 
-            backgroundColor: selectedType.color, color: 'white', fontSize: '1.3rem', fontWeight: 'bold', cursor: 'pointer'
-          }}
-        >
-          {initialData?.id ? 'Salvar' : `Adicionar ${selectedType.label.toLowerCase()}`}
-        </button>
-        {onDelete && (
-          <button 
-            onClick={onDelete}
-            style={{ 
-              width: '100%', padding: '1rem', marginTop: '1rem', background: 'none', border: 'none', 
-              color: 'var(--status-red)', fontSize: '1.1rem', fontWeight: '500', cursor: 'pointer'
-            }}
+        {/* Form List */}
+        <View style={styles.formList}>
+          {/* Type */}
+          <Pressable 
+            onPress={() => setActiveModal('type')}
+            style={[styles.row, { borderBottomColor: colors.border }]}
           >
-            Excluir
-          </button>
-        )}
-      </div>
+            <View style={[styles.iconCircle, { backgroundColor: isDark && formData.type === 'daily' ? '#fff' : 'transparent' }]}>
+              <selectedType.icon size={24} color={formData.type === 'daily' ? (isDark ? '#000' : colors.textPrimary) : selectedType.color} />
+            </View>
+            <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{selectedType.label}</Text>
+            <ChevronDown size={20} color={colors.textSecondary} />
+          </Pressable>
+
+          {/* Description */}
+          <View style={[styles.row, { borderBottomColor: colors.border }]}>
+            <Pencil size={24} color={colors.textSecondary} />
+            <TextInput 
+              placeholder="Descrição"
+              placeholderTextColor={colors.textSecondary}
+              value={formData.description}
+              onChangeText={text => setFormData({ ...formData, description: text })}
+              style={[styles.input, { color: colors.textPrimary }]}
+            />
+          </View>
+
+          {/* Date */}
+          <Pressable 
+            onPress={() => setActiveModal('date')}
+            style={[styles.row, { borderBottomColor: colors.border }]}
+          >
+            <CalendarIcon size={24} color={colors.textSecondary} />
+            <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>Data</Text>
+            <Text style={[styles.rowValue, { color: colors.textSecondary }]}>
+              {format(pickerDate, 'dd/MM/yyyy')}
+            </Text>
+            <ChevronDown size={20} color={colors.textSecondary} />
+          </Pressable>
+
+          {/* Repetition */}
+          <Pressable 
+            onPress={() => setActiveModal('repeat')}
+            style={[styles.row, { borderBottomColor: colors.border }]}
+          >
+            <RotateCw size={24} color={colors.textSecondary} />
+            <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{getRepeatLabel()}</Text>
+            <ChevronDown size={20} color={colors.textSecondary} />
+          </Pressable>
+
+          {/* Repetition Details */}
+          {formData.isRecurring && (
+            <View style={[styles.recurrenceRow, { borderBottomColor: colors.border }]}>
+              <Pressable 
+                onPress={() => setActiveModal('until')}
+                style={styles.recurrenceLeft}
+              >
+                <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{getUntilLabel()}</Text>
+                <ChevronDown size={20} color={colors.textSecondary} />
+              </Pressable>
+              {!formData.recurringIndefinite && (
+                <View style={[styles.counter, { borderLeftColor: colors.border }]}>
+                  <Pressable onPress={() => setFormData({ ...formData, recurringCount: Math.max(2, (formData.recurringCount || 2) - 1) })}>
+                    <Minus size={20} color={colors.textSecondary} />
+                  </Pressable>
+                  <Text style={[styles.counterText, { color: colors.textPrimary }]}>{formData.recurringCount}</Text>
+                  <Pressable onPress={() => setFormData({ ...formData, recurringCount: (formData.recurringCount || 2) + 1 })}>
+                    <Plus size={20} color={colors.textPrimary} />
+                  </Pressable>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Tags */}
+          <Pressable 
+            onPress={() => setActiveModal('tags')}
+            style={[styles.row, { borderBottomColor: colors.border }]}
+          >
+            <Square size={24} color={colors.textSecondary} />
+            <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{getTagName()}</Text>
+            <ChevronDown size={20} color={colors.textSecondary} />
+          </Pressable>
+        </View>
+
+        {/* Footer CTA */}
+        <View style={styles.footer}>
+          <Pressable 
+            onPress={handleSubmit}
+            style={[styles.submitBtn, { backgroundColor: colors.primary }]}
+          >
+            <Text style={[styles.submitText, { color: isDark ? '#000' : '#fff' }]}>
+              {initialData?.id ? 'Salvar' : `Adicionar ${selectedType.label.toLowerCase()}`}
+            </Text>
+          </Pressable>
+          {onDelete && (
+            <Pressable onPress={onDelete} style={styles.deleteBtn}>
+              <Text style={styles.deleteText}>Excluir</Text>
+            </Pressable>
+          )}
+        </View>
+      </ScrollView>
 
       {/* MODALS */}
-      {activeModal && activeModal !== 'create-tag' && (
-        <>
-          <div className="overlay" onClick={() => setActiveModal(null)} />
-          <div className="filter-sheet" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
-            {/* TYPE MODAL */}
-            {activeModal === 'type' && (
-              <>
-                <ModalHeader title="Tipo de Transação" onClose={() => setActiveModal(null)} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {TYPE_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.type}
-                      onClick={() => {
-                        setFormData({ ...formData, type: opt.type });
-                        setActiveModal(null);
-                      }}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '1.25rem', padding: '1.25rem', 
-                        border: 'none', borderRadius: '12px', background: formData.type === opt.type ? 'var(--color-bg)' : 'transparent', 
-                        color: 'var(--color-text-primary)', cursor: 'pointer', textAlign: 'left'
-                      }}
-                    >
-                      <div style={{ 
-                        width: '32px', height: '32px', borderRadius: '50%', backgroundColor: opt.color, 
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'white'
-                      }}>
-                        {opt.letter}
-                      </div>
-                      <span style={{ fontSize: '1.2rem', fontWeight: formData.type === opt.type ? 'bold' : 'normal' }}>{opt.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
+      
+      {/* Type Modal */}
+      <Modal visible={activeModal === 'type'} transparent animationType="slide">
+        <Pressable style={styles.modalOverlay} onPress={() => setActiveModal(null)}>
+          <View style={[styles.modalSheet, { backgroundColor: colors.bg }]}>
+            <ModalHeader title="Tipo" onClose={() => setActiveModal(null)} />
+            {TYPE_OPTIONS.map(opt => (
+              <Pressable 
+                key={opt.type} 
+                style={styles.modalOption}
+                onPress={() => {
+                  setFormData({ ...formData, type: opt.type });
+                  setActiveModal(null);
+                }}
+              >
+                <opt.icon size={24} color={opt.color} />
+                <Text style={[styles.modalOptionText, { color: colors.textPrimary }]}>{opt.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </Pressable>
+      </Modal>
 
-            {/* DATE MODAL */}
-            {activeModal === 'date' && (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>
-                    {format(calendarMonth, 'MMMM de yyyy', { locale: ptBR })}
-                  </h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <button onClick={() => setCalendarMonth(subMonths(calendarMonth, 1))} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)' }}>
-                      <ChevronDown size={20} style={{ transform: 'rotate(90deg)' }} />
-                    </button>
-                    <button onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)' }}>
-                      <ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} />
-                    </button>
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center' }}>
-                  {['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'].map(d => (
-                    <span key={d} style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>{d}.</span>
-                  ))}
-                  {paddingDays.map((_, i) => <div key={`pad-${i}`} />)}
-                  {days.map(d => (
-                    <button
-                      key={d.toISOString()}
-                      onClick={() => {
-                        setFormData({ ...formData, date: d });
-                        setActiveModal(null);
-                      }}
-                      style={{
-                        padding: '12px 0', border: 'none', background: isSameDay(d, formData.date || new Date()) ? 'var(--color-text-primary)' : 'transparent',
-                        color: isSameDay(d, formData.date || new Date()) ? 'var(--color-bg)' : 'var(--color-text-primary)', borderRadius: '50%', cursor: 'pointer', fontSize: '1.1rem',
-                        fontWeight: isSameDay(d, formData.date || new Date()) ? 'bold' : 'normal', position: 'relative'
-                      }}
-                    >
-                      {d.getDate()}
-                      {isSameDay(d, new Date()) && !isSameDay(d, formData.date || new Date()) && (
-                        <div style={{ position: 'absolute', bottom: '6px', left: '50%', transform: 'translateX(-50%)', width: '4px', height: '4px', background: 'var(--color-primary)', borderRadius: '50%' }} />
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <button 
-                  onClick={() => setActiveModal(null)}
-                  style={{ 
-                    width: '100%', padding: '1rem', marginTop: '2rem', borderRadius: '40px', border: 'none', 
-                    backgroundColor: 'var(--color-text-primary)', color: 'var(--color-bg)', fontWeight: 'bold', fontSize: '1.1rem' 
-                  }}
-                >
-                  Salvar
-                </button>
-              </>
-            )}
-
-            {/* REPEAT MODAL */}
-            {activeModal === 'repeat' && (
-              <>
-                <ModalHeader title="Repetir" onClose={() => setActiveModal(null)} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  {[
-                    { freq: 'monthly', label: 'Todo mês' },
-                    { freq: 'weekly', label: 'Toda semana' },
-                    { freq: 'daily', label: 'Todo dia' },
-                    { freq: 'none', label: 'Não repetir' }
-                  ].map((opt) => (
-                    <button
-                      key={opt.freq}
-                      onClick={() => {
-                        if (opt.freq === 'none') {
-                          setFormData({ ...formData, isRecurring: false });
-                        } else {
-                          setFormData({ ...formData, isRecurring: true, recurringFrequency: opt.freq as any });
-                        }
-                        setActiveModal(null);
-                      }}
-                      style={{
-                        display: 'flex', alignItems: 'center', padding: '0.5rem 0', 
-                        border: 'none', background: 'transparent', color: 'var(--color-text-primary)', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* UNTIL MODAL */}
-            {activeModal === 'until' && (
-              <>
-                <ModalHeader title="Até quando" onClose={() => setActiveModal(null)} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem 0' }}>
-                  <button
-                    onClick={() => {
-                      setFormData({ ...formData, recurringIndefinite: true });
-                      setActiveModal(null);
-                    }}
-                    style={{
-                      display: 'flex', alignItems: 'center', border: 'none', background: 'transparent', color: 'var(--color-text-primary)', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
-                    }}
-                  >
-                    A perder de vista
-                  </button>
-                  <button
-                    onClick={() => {
-                      setFormData({ ...formData, recurringIndefinite: false });
-                      setActiveModal(null);
-                    }}
-                    style={{
-                      display: 'flex', alignItems: 'center', border: 'none', background: 'transparent', color: 'var(--color-text-primary)', cursor: 'pointer', fontSize: '1.25rem', fontWeight: '500'
-                    }}
-                  >
-                    Definir número de vezes
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* TAGS MODAL */}
-            {activeModal === 'tags' && (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>Tags</h3>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button 
-                      onClick={() => setActiveModal('create-tag')}
-                      style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', cursor: 'pointer' }}
-                    >
-                      <Plus size={24} />
-                    </button>
-                    <button onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)' }}><X size={24} /></button>
-                  </div>
-                </div>
-                <div style={{ marginBottom: '1.5rem', position: 'relative' }}>
-                  <Pencil size={20} color="var(--color-text-secondary)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input 
-                    type="text" 
-                    placeholder="Filtrar tags"
-                    style={{ width: '100%', padding: '1rem 1rem 1rem 3rem', borderRadius: '12px', border: 'none', background: 'var(--color-bg)', color: 'var(--color-text-primary)', boxSizing: 'border-box' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <button
-                    onClick={() => { setFormData({ ...formData, tagId: '' }); setActiveModal(null); }}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: 'none', background: formData.tagId === '' ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text-primary)', borderRadius: '12px' }}
-                  >
-                    <span>Sem Tag</span>
-                    <input type="checkbox" checked={formData.tagId === ''} readOnly style={{ width: '20px', height: '20px' }} />
-                  </button>
-                  {tags.map(tag => (
-                    <button
-                      key={tag.id}
-                      onClick={() => { setFormData({ ...formData, tagId: tag.id }); setActiveModal(null); }}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', border: 'none', background: formData.tagId === tag.id ? 'var(--color-bg)' : 'transparent', color: 'var(--color-text-primary)', borderRadius: '12px' }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <TagTrapezoid color={tag.color} />
-                        <span>{tag.name}</span>
-                      </div>
-                      <input type="checkbox" checked={formData.tagId === tag.id} readOnly style={{ width: '20px', height: '20px' }} />
-                    </button>
-                  ))}
-                </div>
-                <button 
-                  onClick={() => setActiveModal(null)}
-                  style={{ 
-                    width: '100%', padding: '1rem', marginTop: '2rem', borderRadius: '40px', border: 'none', 
-                    backgroundColor: 'var(--color-text-primary)', color: 'var(--color-bg)', fontWeight: 'bold', fontSize: '1.1rem' 
-                  }}
-                >
-                  Salvar
-                </button>
-              </>
-            )}
-          </div>
-        </>
+      {/* Date Picker */}
+      {activeModal === 'date' && (
+        <DateTimePicker
+          value={pickerDate}
+          mode="date"
+          display="default"
+          onChange={(event, date) => {
+            if (Platform.OS === 'android') {
+              setActiveModal(null);
+            }
+            if (date) setPickerDate(date);
+          }}
+        />
+      )}
+      {activeModal === 'date' && Platform.OS === 'ios' && (
+        <View style={{ backgroundColor: colors.surface, padding: 16 }}>
+           <Pressable onPress={() => setActiveModal(null)}><Text style={{ color: colors.primary, fontWeight: 'bold', textAlign: 'right' }}>Concluído</Text></Pressable>
+        </View>
       )}
 
-      <TagEditorModal 
-        isOpen={activeModal === 'create-tag'}
-        onClose={() => setActiveModal('tags')}
-        onSave={() => {}}
-      />
-    </div>
+      {/* Repeat Modal */}
+      <Modal visible={activeModal === 'repeat'} transparent animationType="slide">
+        <Pressable style={styles.modalOverlay} onPress={() => setActiveModal(null)}>
+          <View style={[styles.modalSheet, { backgroundColor: colors.bg }]}>
+            <ModalHeader title="Repetir" onClose={() => setActiveModal(null)} />
+            {[
+              { freq: 'monthly', label: 'Todo mês' },
+              { freq: 'weekly', label: 'Toda semana' },
+              { freq: 'daily', label: 'Todo dia' },
+              { freq: 'none', label: 'Não repetir' }
+            ].map(opt => (
+              <Pressable 
+                key={opt.freq} 
+                style={styles.modalOption}
+                onPress={() => {
+                  if (opt.freq === 'none') setFormData({ ...formData, isRecurring: false });
+                  else setFormData({ ...formData, isRecurring: true, recurringFrequency: opt.freq as any });
+                  setActiveModal(null);
+                }}
+              >
+                <Text style={[styles.modalOptionText, { color: colors.textPrimary }]}>{opt.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </Pressable>
+      </Modal>
+
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollContent: { padding: 20 },
+  amountHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+    flex: 1,
+  },
+  currency: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  amountInput: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    padding: 0,
+    flex: 1,
+  },
+  clearBtn: { padding: 4 },
+  formList: { gap: 4 },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+  },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowLabel: {
+    fontSize: 18,
+    fontWeight: '500',
+    flex: 1,
+  },
+  rowValue: {
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  input: {
+    fontSize: 18,
+    fontWeight: '500',
+    flex: 1,
+  },
+  recurrenceRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+  },
+  recurrenceLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingLeft: 40,
+    flex: 1,
+    gap: 8,
+  },
+  counter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+    paddingHorizontal: 20,
+    borderLeftWidth: 1,
+  },
+  counterText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  footer: {
+    paddingVertical: 40,
+  },
+  submitBtn: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 40,
+    alignItems: 'center',
+  },
+  submitText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  deleteBtn: {
+    width: '100%',
+    padding: 16,
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  deleteText: {
+    color: '#E74C3C',
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalCloseBtn: { padding: 4 },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    paddingVertical: 16,
+  },
+  modalOptionText: {
+    fontSize: 18,
+  }
+});
