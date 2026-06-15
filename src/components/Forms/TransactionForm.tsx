@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Platform
 } from 'react-native';
-import { Image } from 'expo-image';
 import { 
   ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus
 } from 'lucide-react-native';
@@ -10,6 +9,7 @@ import type { Transaction, Tag } from '../../db/db';
 import { format } from 'date-fns';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAppTheme } from '../../styles/theme';
+import { AppIcon, AppIconName } from '../AppIcon';
 
 type TransactionType = 'income' | 'expense' | 'daily' | 'savings' | 'credit';
 
@@ -20,18 +20,12 @@ interface Props {
   onDelete?: () => void;
 }
 
-const entradasIcon = require('../../assets/icons/entradas.svg');
-const saidasIcon = require('../../assets/icons/saidas.svg');
-const diarioIcon = require('../../assets/icons/diario.svg');
-const economiaIcon = require('../../assets/icons/economia.svg');
-const cartaoIcon = require('../../assets/icons/cartao.svg');
-
-const TYPE_OPTIONS: { type: TransactionType; label: string; icon: any; color: string }[] = [
-  { type: 'income', label: 'Entrada', icon: entradasIcon, color: '#27AE60' },
-  { type: 'expense', label: 'Saída', icon: saidasIcon, color: '#E74C3C' },
-  { type: 'daily', label: 'Diário', icon: diarioIcon, color: '#FFFFFF' },
-  { type: 'savings', label: 'Economia', icon: economiaIcon, color: '#F1C40F' },
-  { type: 'credit', label: 'Gasto com Cartão', icon: cartaoIcon, color: '#9B59B6' },
+const TYPE_OPTIONS: { type: TransactionType; label: string; iconName: AppIconName; color: string }[] = [
+  { type: 'income', label: 'Entrada', iconName: 'entradas', color: '#27AE60' },
+  { type: 'expense', label: 'Saída', iconName: 'saidas', color: '#E74C3C' },
+  { type: 'daily', label: 'Diário', iconName: 'diario', color: '#FFFFFF' },
+  { type: 'savings', label: 'Economia', iconName: 'economia', color: '#F1C40F' },
+  { type: 'credit', label: 'Gasto com Cartão', iconName: 'cartao', color: '#9B59B6' },
 ];
 
 const ModalHeader = ({ title, onClose }: { title: string, onClose: () => void }) => {
@@ -52,7 +46,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
     type: 'expense',
     amount: 0,
     description: '',
-    date: new Date().toISOString(), // Keeping it ISO string matching web version
+    date: new Date().toISOString(),
     isRecurring: false,
     recurringFrequency: 'monthly',
     recurringIndefinite: true,
@@ -63,7 +57,6 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
 
   const [activeModal, setActiveModal] = useState<'type' | 'date' | 'repeat' | 'tags' | 'until' | null>(null);
   
-  // Date tracking for picker
   const [pickerDate, setPickerDate] = useState(initialData?.date ? new Date(initialData.date as string) : new Date());
 
   const handleSubmit = () => {
@@ -133,7 +126,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
             <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
-              <Image source={selectedType.icon} style={{ width: 24, height: 24 }} contentFit="contain" />
+              <AppIcon name={selectedType.iconName} size={24} />
             </View>
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{selectedType.label}</Text>
             <ChevronDown size={20} color={colors.textSecondary} />
@@ -156,7 +149,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             onPress={() => setActiveModal('date')}
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
-            <Image source={diarioIcon} style={{ width: 24, height: 24 }} contentFit="contain" />
+            <AppIcon name="diario" size={24} />
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>Data</Text>
             <Text style={[styles.rowValue, { color: colors.textSecondary }]}>
               {format(pickerDate, 'dd/MM/yyyy')}
@@ -243,7 +236,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                   setActiveModal(null);
                 }}
               >
-                <Image source={opt.icon} style={{ width: 24, height: 24 }} contentFit="contain" />
+                <AppIcon name={opt.iconName} size={24} />
                 <Text style={[styles.modalOptionText, { color: colors.textPrimary }]}>{opt.label}</Text>
               </Pressable>
             ))}

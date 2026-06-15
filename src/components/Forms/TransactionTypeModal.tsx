@@ -1,32 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
-import { Image } from 'expo-image';
 import { X } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
+import { AppIcon, AppIconName } from '../AppIcon';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const entradasIcon = require('../../assets/icons/entradas.svg');
-const saidasIcon = require('../../assets/icons/saidas.svg');
-const diarioIcon = require('../../assets/icons/diario.svg');
-const economiaIcon = require('../../assets/icons/economia.svg');
-const cartaoIcon = require('../../assets/icons/cartao.svg');
-
-const ADD_OPTIONS = [
-  { type: 'income', label: 'Entrada', description: 'Salário, comissão, vales', icon: entradasIcon, color: '#27AE60' },
-  { type: 'expense', label: 'Saída', description: 'Gastos fixos, boletos, aluguel', icon: saidasIcon, color: '#E74C3C' },
-  { type: 'daily', label: 'Diário', description: 'Gastos variáveis, compras', icon: diarioIcon, color: '#FFFFFF' },
-  { type: 'savings', label: 'Economia', description: 'Reserva, investimento', icon: economiaIcon, color: '#F1C40F' },
-  { type: 'credit', label: 'Gasto com cartão', description: 'Gastos ou total da fatura', icon: cartaoIcon, color: '#9B59B6' },
+const ADD_OPTIONS: { type: string; label: string; description: string; iconName: AppIconName; color: string }[] = [
+  { type: 'income', label: 'Entrada', description: 'Salário, comissão, vales', iconName: 'entradas', color: '#27AE60' },
+  { type: 'expense', label: 'Saída', description: 'Gastos fixos, boletos, aluguel', iconName: 'saidas', color: '#E74C3C' },
+  { type: 'daily', label: 'Diário', description: 'Gastos variáveis, compras', iconName: 'diario', color: '#FFFFFF' },
+  { type: 'savings', label: 'Economia', description: 'Reserva, investimento', iconName: 'economia', color: '#F1C40F' },
+  { type: 'credit', label: 'Gasto com cartão', description: 'Gastos ou total da fatura', iconName: 'cartao', color: '#9B59B6' },
 ];
 
 export const TransactionTypeModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const router = useRouter();
-  const { colors, isDark } = useAppTheme();
+  const { colors } = useAppTheme();
 
   return (
     <Modal
@@ -55,7 +49,7 @@ export const TransactionTypeModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 style={[styles.option, { borderBottomColor: colors.border }]}
               >
                 <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
-                  <Image source={opt.icon} style={{ width: 24, height: 24 }} contentFit="contain" />
+                  <AppIcon name={opt.iconName} size={24} />
                 </View>
                 <View style={styles.textCol}>
                   <Text style={[styles.label, { color: colors.textPrimary }]}>{opt.label}</Text>

@@ -1,19 +1,9 @@
 import React, { useState } from 'react';
 import { Tabs } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Image } from 'expo-image';
 import { useAppTheme } from '../../src/styles/theme';
 import { TransactionTypeModal } from '../../src/components/Forms/TransactionTypeModal';
-
-const ledgerIcon = require('../../src/assets/icons/ledger.svg');
-const totaisIcon = require('../../src/assets/icons/totais.svg');
-const totaisNightIcon = require('../../src/assets/icons/totais_night.svg');
-const tagsIcon = require('../../src/assets/icons/tags.svg');
-const tagsNightIcon = require('../../src/assets/icons/tags_night.svg');
-const navegacaoIcon = require('../../src/assets/icons/navegacao.svg');
-const navegacaoNightIcon = require('../../src/assets/icons/navegacao_night.svg');
-const adicaoIcon = require('../../src/assets/icons/adicao.svg');
-const adicaoNightIcon = require('../../src/assets/icons/adicao_night.svg');
+import { AppIcon } from '../../src/components/AppIcon';
 
 export default function TabLayout() {
   const { colors, isDark } = useAppTheme();
@@ -37,7 +27,7 @@ export default function TabLayout() {
           options={{ 
             title: 'Saldos',
             tabBarIcon: ({ color, size }) => (
-              <Image source={ledgerIcon} style={{ width: size, height: size }} tintColor={color as string} contentFit="contain" />
+              <AppIcon name="ledger" size={size} color={color as string} />
             )
           }} 
         />
@@ -45,8 +35,8 @@ export default function TabLayout() {
           name="performance" 
           options={{ 
             title: 'Totais',
-            tabBarIcon: ({ color, size }) => (
-              <Image source={isDark ? totaisNightIcon : totaisIcon} style={{ width: size, height: size }} contentFit="contain" />
+            tabBarIcon: ({ size }) => (
+              <AppIcon name="totais" size={size} />
             )
           }} 
         />
@@ -61,7 +51,7 @@ export default function TabLayout() {
                   onPress={() => setIsModalOpen(true)}
                   style={[styles.fab, { backgroundColor: isDark ? '#fff' : '#000' }]}
                 >
-                  <Image source={isDark ? adicaoNightIcon : adicaoIcon} style={{ width: 32, height: 32 }} contentFit="contain" />
+                  <AppIcon name="adicao" size={32} forceTheme={isDark ? 'dark' : 'light'} />
                 </Pressable>
               </View>
             )
@@ -72,8 +62,8 @@ export default function TabLayout() {
           name="tags" 
           options={{ 
             title: 'Tags',
-            tabBarIcon: ({ color, size }) => (
-              <Image source={isDark ? tagsNightIcon : tagsIcon} style={{ width: size, height: size }} contentFit="contain" />
+            tabBarIcon: ({ size }) => (
+              <AppIcon name="tags" size={size} />
             )
           }} 
         />
@@ -81,8 +71,8 @@ export default function TabLayout() {
           name="menu" 
           options={{ 
             title: 'Menu',
-            tabBarIcon: ({ color, size }) => (
-              <Image source={isDark ? navegacaoNightIcon : navegacaoIcon} style={{ width: size, height: size }} contentFit="contain" />
+            tabBarIcon: ({ size }) => (
+              <AppIcon name="navegacao" size={size} />
             )
           }} 
         />
