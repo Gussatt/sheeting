@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
-  View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView
+  View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, LayoutAnimation
 } from 'react-native';
 import { 
   ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus, ChevronLeft, ChevronRight
@@ -219,7 +219,13 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
         </View>
 
         <View style={styles.formList}>
-          <Pressable onPress={() => setActiveModal('type')} style={[styles.row, { borderBottomColor: colors.border }]}>
+          <Pressable 
+            onPress={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setActiveModal('type');
+            }} 
+            style={[styles.row, { borderBottomColor: colors.border }]}
+          >
             <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
               <AppIcon name={selectedType.iconName} size={24} />
             </View>
@@ -238,14 +244,26 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             />
           </View>
 
-          <Pressable onPress={() => setActiveModal('date')} style={[styles.row, { borderBottomColor: colors.border }]}>
+          <Pressable 
+            onPress={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setActiveModal('date');
+            }} 
+            style={[styles.row, { borderBottomColor: colors.border }]}
+          >
             <AppIcon name="diario" size={24} />
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>Data</Text>
             <Text style={[styles.rowValue, { color: colors.textSecondary }]}>{format(pickerDate, 'dd/MM/yyyy')}</Text>
             <ChevronDown size={20} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable onPress={() => setActiveModal('repeat')} style={[styles.row, { borderBottomColor: colors.border }]}>
+          <Pressable 
+            onPress={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setActiveModal('repeat');
+            }} 
+            style={[styles.row, { borderBottomColor: colors.border }]}
+          >
             <RotateCw size={24} color={colors.textSecondary} />
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{repeatLabel}</Text>
             <ChevronDown size={20} color={colors.textSecondary} />
@@ -253,17 +271,29 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
 
           {formData.isRecurring && (
             <View style={[styles.recurrenceRow, { borderBottomColor: colors.border }]}>
-              <Pressable onPress={() => setActiveModal('until')} style={styles.recurrenceLeft}>
+              <Pressable 
+                onPress={() => {
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  setActiveModal('until');
+                }} 
+                style={styles.recurrenceLeft}
+              >
                 <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{untilLabel}</Text>
                 <ChevronDown size={20} color={colors.textSecondary} />
               </Pressable>
               {!formData.recurringIndefinite && (
                 <View style={[styles.counter, { borderLeftColor: colors.border }]}>
-                  <Pressable onPress={() => setFormData(prev => ({ ...prev, recurringCount: Math.max(2, (prev.recurringCount || 2) - 1) }))}>
+                  <Pressable onPress={() => {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                    setFormData(prev => ({ ...prev, recurringCount: Math.max(2, (prev.recurringCount || 2) - 1) }));
+                  }}>
                     <Minus size={20} color={colors.textSecondary} />
                   </Pressable>
                   <Text style={[styles.counterText, { color: colors.textPrimary }]}>{formData.recurringCount}</Text>
-                  <Pressable onPress={() => setFormData(prev => ({ ...prev, recurringCount: (prev.recurringCount || 2) + 1 }))}>
+                  <Pressable onPress={() => {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                    setFormData(prev => ({ ...prev, recurringCount: (prev.recurringCount || 2) + 1 }));
+                  }}>
                     <Plus size={20} color={colors.textPrimary} />
                   </Pressable>
                 </View>
@@ -271,7 +301,13 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             </View>
           )}
 
-          <Pressable onPress={() => setActiveModal('tags')} style={[styles.row, { borderBottomColor: colors.border }]}>
+          <Pressable 
+            onPress={() => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setActiveModal('tags');
+            }} 
+            style={[styles.row, { borderBottomColor: colors.border }]}
+          >
             <Square size={24} color={colors.textSecondary} />
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{tagName}</Text>
             <ChevronDown size={20} color={colors.textSecondary} />

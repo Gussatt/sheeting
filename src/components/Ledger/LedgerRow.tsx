@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useLayoutEffect } from 'react';
+import { View, Text, Pressable, StyleSheet, LayoutAnimation } from 'react-native';
 import type { Transaction } from '../../db/db';
 import { isWeekend, isToday } from 'date-fns';
 import { useAppTheme } from '../../styles/theme';
@@ -60,6 +60,10 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
   onCellLongPress
 }) => {
   const { colors, isDark } = useAppTheme();
+
+  useLayoutEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [filter]);
 
   const getBalanceBgColor = (bal: number) => {
     if (bal < 100) return colors.red;
