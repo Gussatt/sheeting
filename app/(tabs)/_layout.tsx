@@ -26,8 +26,8 @@ export default function TabLayout() {
           name="index" 
           options={{ 
             title: 'Saldos',
-            tabBarIcon: ({ color, size }) => (
-              <AppIcon name="ledger" size={size} color={color as string} />
+            tabBarIcon: ({ color }) => (
+              <AppIcon name="ledger" size={26} color={color as string} />
             )
           }} 
         />
@@ -35,8 +35,8 @@ export default function TabLayout() {
           name="performance" 
           options={{ 
             title: 'Totais',
-            tabBarIcon: ({ size }) => (
-              <AppIcon name="totais" size={size} />
+            tabBarIcon: () => (
+              <AppIcon name="totais" size={26} />
             )
           }} 
         />
@@ -51,7 +51,7 @@ export default function TabLayout() {
                   onPress={() => setIsModalOpen(true)}
                   style={[styles.fab, { backgroundColor: isDark ? '#fff' : '#000' }]}
                 >
-                  <AppIcon name="adicao" size={32} forceTheme={isDark ? 'dark' : 'light'} />
+                  <AppIcon name="adicao" size={36} forceTheme={isDark ? 'dark' : 'light'} />
                 </Pressable>
               </View>
             )
@@ -62,8 +62,8 @@ export default function TabLayout() {
           name="tags" 
           options={{ 
             title: 'Tags',
-            tabBarIcon: ({ size }) => (
-              <AppIcon name="tags" size={size} />
+            tabBarIcon: () => (
+              <AppIcon name="tags" size={26} />
             )
           }} 
         />
@@ -71,8 +71,8 @@ export default function TabLayout() {
           name="menu" 
           options={{ 
             title: 'Menu',
-            tabBarIcon: ({ size }) => (
-              <AppIcon name="navegacao" size={size} />
+            tabBarIcon: () => (
+              <AppIcon name="config" size={26} />
             )
           }} 
         />

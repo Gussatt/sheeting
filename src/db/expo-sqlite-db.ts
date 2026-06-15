@@ -110,6 +110,11 @@ class SheetingSQLiteDB {
           key TEXT PRIMARY KEY,
           value TEXT
         );
+
+        CREATE TABLE IF NOT EXISTS daily_status (
+          date TEXT PRIMARY KEY,
+          is_checked INTEGER DEFAULT 0
+        );
       `);
       console.log('Schema applied successfully.');
     })();
