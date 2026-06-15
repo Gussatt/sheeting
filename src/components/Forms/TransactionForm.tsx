@@ -3,11 +3,11 @@ import {
   View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Platform
 } from 'react-native';
 import { 
-  ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus
+  ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus, ChevronLeft, ChevronRight
 } from 'lucide-react-native';
 import type { Transaction, Tag } from '../../db/db';
-import { format } from 'date-fns';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { format, subMonths, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay } from 'date-fns';
+import { ptBR } from 'date-fns/locale/pt-BR';
 import { useAppTheme } from '../../styles/theme';
 import { AppIcon, AppIconName } from '../AppIcon';
 
@@ -58,6 +58,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
   const [activeModal, setActiveModal] = useState<'type' | 'date' | 'repeat' | 'tags' | 'until' | null>(null);
   
   const [pickerDate, setPickerDate] = useState(initialData?.date ? new Date(initialData.date as string) : new Date());
+  const [currentMonth, setCurrentMonth] = useState(pickerDate);
 
   const handleSubmit = () => {
     onSubmit({ ...formData, date: pickerDate.toISOString() });
@@ -94,6 +95,15 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
     const tag = tags.find(t => t.id === formData.tagId);
     return tag ? tag.name : 'Tags';
   };
+
+  // Calendar logic
+  const startDay = startOfMonth(currentMonth).getDay();
+  const daysInMonth = eachDayOfInterval({
+    start: startOfMonth(currentMonth),
+    end: endOfMonth(currentMonth)
+  });
+  const paddingDays = Array(startDay).fill(null);
+  const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -244,25 +254,67 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
         </Pressable>
       </Modal>
 
-      {/* Date Picker */}
-      {activeModal === 'date' && (
-        <DateTimePicker
-          value={pickerDate}
-          mode="date"
-          display="default"
-          onChange={(event, date) => {
-            if (Platform.OS === 'android') {
-              setActiveModal(null);
-            }
-            if (date) setPickerDate(date);
-          }}
-        />
-      )}
-      {activeModal === 'date' && Platform.OS === 'ios' && (
-        <View style={{ backgroundColor: colors.surface, padding: 16 }}>
-           <Pressable onPress={() => setActiveModal(null)}><Text style={{ color: colors.primary, fontWeight: 'bold', textAlign: 'right' }}>Concluído</Text></Pressable>
-        </View>
-      )}
+      {/* Date Modal */}
+      <Modal visible={activeModal === 'date'} transparent animationType="slide">
+        <Pressable style={styles.modalOverlay} onPress={() => setActiveModal(null)}>
+          <View style={[styles.modalSheet, { backgroundColor: colors.bg }]} onStartShouldSetResponder={() => true}>
+            <ModalHeader title="Data" onClose={() => setActiveModal(null)} />
+            
+            <View style={styles.calendarHeader}>
+              <Pressable onPress={() => setCurrentMonth(subMonths(currentMonth, 1))} style={styles.chevronBtn}>
+                <ChevronLeft size={24} color={colors.textPrimary} />
+              </Pressable>
+              <Text style={[styles.calendarMonth, { color: colors.textPrimary }]}>
+                {format(currentMonth, 'MMMM yyyy', { locale: ptBR })}
+              </Text>
+              <Pressable onPress={() => setCurrentMonth(addMonths(currentMonth, 1))} style={styles.chevronBtn}>
+                <ChevronRight size={24} color={colors.textPrimary} />
+              </Pressable>
+            </View>
+
+            <View style={styles.weekDays}>
+              {weekDays.map((day, i) => (
+                <Text key={i} style={[styles.weekDay, { color: colors.textSecondary }]}>{day}</Text>
+              ))}
+            </View>
+
+            <View style={styles.daysGrid}>
+              {paddingDays.map((_, i) => (
+                <View key={`pad-${i}`} style={styles.dayCell} />
+              ))}
+              {daysInMonth.map((date) => {
+                const isSelected = isSameDay(date, pickerDate);
+                const isToday = isSameDay(date, new Date());
+                
+                return (
+                  <Pressable
+                    key={date.toISOString()}
+                    onPress={() => {
+                      setPickerDate(date);
+                      setActiveModal(null);
+                    }}
+                    style={[
+                      styles.dayCell,
+                      isSelected && { backgroundColor: colors.primary },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.dayText,
+                        { color: colors.textPrimary },
+                        isSelected && { color: isDark ? '#000' : '#fff', fontWeight: 'bold' },
+                        !isSelected && isToday && { color: colors.primary, fontWeight: 'bold' },
+                      ]}
+                    >
+                      {format(date, 'd')}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
 
       {/* Repeat Modal */}
       <Modal visible={activeModal === 'repeat'} transparent animationType="slide">
@@ -427,5 +479,42 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: 18,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  chevronBtn: {
+    padding: 8,
+  },
+  calendarMonth: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textTransform: 'capitalize',
+  },
+  weekDays: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  weekDay: {
+    flex: 1,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  daysGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  dayCell: {
+    width: `${100 / 7}%`,
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+  },
+  dayText: {
+    fontSize: 16,
   }
 });
