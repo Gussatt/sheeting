@@ -119,7 +119,7 @@ export default function TagsScreen() {
               style={[styles.tagRow, { borderBottomColor: colors.border }]}
             >
               <View style={styles.tagInfo}>
-                <View style={[styles.tagColorBlock, { backgroundColor: tag.color }]} />
+                <TagTrapezoid color={tag.color} size={18} />
                 <Text style={[styles.tagName, { color: colors.textPrimary }]}>{tag.name}</Text>
               </View>
               <View style={styles.tagActions}>
@@ -262,6 +262,14 @@ const styles = StyleSheet.create({
   editActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
+    marginLeft: 8,
+  },
+  actionBtn: {
+    padding: 4,
+  }
+});
+  alignItems: 'center',
     gap: 12,
     marginLeft: 8,
   },
