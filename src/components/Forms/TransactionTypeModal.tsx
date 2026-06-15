@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Modal, ScrollView } from 'react-native';
-import { X, ArrowDownLeft, ArrowUpRight, Calendar, PiggyBank, CreditCard } from 'lucide-react-native';
+import { Image } from 'expo-image';
+import { X } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../../styles/theme';
 
@@ -9,12 +10,18 @@ interface Props {
   onClose: () => void;
 }
 
+const entradasIcon = require('../../assets/icons/entradas.svg');
+const saidasIcon = require('../../assets/icons/saidas.svg');
+const diarioIcon = require('../../assets/icons/diario.svg');
+const economiaIcon = require('../../assets/icons/economia.svg');
+const cartaoIcon = require('../../assets/icons/cartao.svg');
+
 const ADD_OPTIONS = [
-  { type: 'income', label: 'Entrada', description: 'Salário, comissão, vales', icon: ArrowDownLeft, color: '#27AE60' },
-  { type: 'expense', label: 'Saída', description: 'Gastos fixos, boletos, aluguel', icon: ArrowUpRight, color: '#E74C3C' },
-  { type: 'daily', label: 'Diário', description: 'Gastos variáveis, compras', icon: Calendar, color: '#FFFFFF' },
-  { type: 'savings', label: 'Economia', description: 'Reserva, investimento', icon: PiggyBank, color: '#F1C40F' },
-  { type: 'credit', label: 'Gasto com cartão', description: 'Gastos ou total da fatura', icon: CreditCard, color: '#9B59B6' },
+  { type: 'income', label: 'Entrada', description: 'Salário, comissão, vales', icon: entradasIcon, color: '#27AE60' },
+  { type: 'expense', label: 'Saída', description: 'Gastos fixos, boletos, aluguel', icon: saidasIcon, color: '#E74C3C' },
+  { type: 'daily', label: 'Diário', description: 'Gastos variáveis, compras', icon: diarioIcon, color: '#FFFFFF' },
+  { type: 'savings', label: 'Economia', description: 'Reserva, investimento', icon: economiaIcon, color: '#F1C40F' },
+  { type: 'credit', label: 'Gasto com cartão', description: 'Gastos ou total da fatura', icon: cartaoIcon, color: '#9B59B6' },
 ];
 
 export const TransactionTypeModal: React.FC<Props> = ({ isOpen, onClose }) => {
@@ -47,8 +54,8 @@ export const TransactionTypeModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 }}
                 style={[styles.option, { borderBottomColor: colors.border }]}
               >
-                <View style={[styles.iconCircle, { backgroundColor: isDark && opt.type === 'daily' ? '#fff' : 'transparent' }]}>
-                  <opt.icon size={32} color={opt.type === 'daily' ? (isDark ? '#000' : colors.textPrimary) : opt.color} />
+                <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
+                  <Image source={opt.icon} style={{ width: 24, height: 24 }} contentFit="contain" />
                 </View>
                 <View style={styles.textCol}>
                   <Text style={[styles.label, { color: colors.textPrimary }]}>{opt.label}</Text>

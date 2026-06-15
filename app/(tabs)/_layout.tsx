@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { Tabs } from 'expo-router';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { Plus } from 'lucide-react-native';
+import { Image } from 'expo-image';
 import { useAppTheme } from '../../src/styles/theme';
 import { TransactionTypeModal } from '../../src/components/Forms/TransactionTypeModal';
+
+const ledgerIcon = require('../../src/assets/icons/ledger.svg');
+const totaisIcon = require('../../src/assets/icons/totais.svg');
+const totaisNightIcon = require('../../src/assets/icons/totais_night.svg');
+const tagsIcon = require('../../src/assets/icons/tags.svg');
+const tagsNightIcon = require('../../src/assets/icons/tags_night.svg');
+const navegacaoIcon = require('../../src/assets/icons/navegacao.svg');
+const navegacaoNightIcon = require('../../src/assets/icons/navegacao_night.svg');
+const adicaoIcon = require('../../src/assets/icons/adicao.svg');
+const adicaoNightIcon = require('../../src/assets/icons/adicao_night.svg');
 
 export default function TabLayout() {
   const { colors, isDark } = useAppTheme();
@@ -22,10 +32,25 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.textPrimary,
         tabBarInactiveTintColor: colors.textSecondary,
       }}>
-        <Tabs.Screen name="index" options={{ title: 'Saldos' }} />
-        <Tabs.Screen name="performance" options={{ title: 'Totais' }} />
+        <Tabs.Screen 
+          name="index" 
+          options={{ 
+            title: 'Saldos',
+            tabBarIcon: ({ color, size }) => (
+              <Image source={ledgerIcon} style={{ width: size, height: size }} tintColor={color as string} contentFit="contain" />
+            )
+          }} 
+        />
+        <Tabs.Screen 
+          name="performance" 
+          options={{ 
+            title: 'Totais',
+            tabBarIcon: ({ color, size }) => (
+              <Image source={isDark ? totaisNightIcon : totaisIcon} style={{ width: size, height: size }} contentFit="contain" />
+            )
+          }} 
+        />
         
-        {/* Placeholder for the FAB */}
         <Tabs.Screen 
           name="fab-placeholder" 
           options={{ 
@@ -36,15 +61,31 @@ export default function TabLayout() {
                   onPress={() => setIsModalOpen(true)}
                   style={[styles.fab, { backgroundColor: isDark ? '#fff' : '#000' }]}
                 >
-                  <Plus size={32} color={isDark ? '#000' : '#fff'} />
+                  <Image source={isDark ? adicaoNightIcon : adicaoIcon} style={{ width: 32, height: 32 }} contentFit="contain" />
                 </Pressable>
               </View>
             )
           }} 
         />
 
-        <Tabs.Screen name="tags" options={{ title: 'Tags' }} />
-        <Tabs.Screen name="menu" options={{ title: 'Menu' }} />
+        <Tabs.Screen 
+          name="tags" 
+          options={{ 
+            title: 'Tags',
+            tabBarIcon: ({ color, size }) => (
+              <Image source={isDark ? tagsNightIcon : tagsIcon} style={{ width: size, height: size }} contentFit="contain" />
+            )
+          }} 
+        />
+        <Tabs.Screen 
+          name="menu" 
+          options={{ 
+            title: 'Menu',
+            tabBarIcon: ({ color, size }) => (
+              <Image source={isDark ? navegacaoNightIcon : navegacaoIcon} style={{ width: size, height: size }} contentFit="contain" />
+            )
+          }} 
+        />
       </Tabs>
 
       <TransactionTypeModal 

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Platform
 } from 'react-native';
+import { Image } from 'expo-image';
 import { 
-  ChevronDown, X, Pencil, Calendar as CalendarIcon, RotateCw, Square, Plus, Minus, ArrowDownLeft, ArrowUpRight, PiggyBank, CreditCard
+  ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus
 } from 'lucide-react-native';
 import type { Transaction, Tag } from '../../db/db';
 import { format } from 'date-fns';
@@ -19,12 +20,18 @@ interface Props {
   onDelete?: () => void;
 }
 
+const entradasIcon = require('../../assets/icons/entradas.svg');
+const saidasIcon = require('../../assets/icons/saidas.svg');
+const diarioIcon = require('../../assets/icons/diario.svg');
+const economiaIcon = require('../../assets/icons/economia.svg');
+const cartaoIcon = require('../../assets/icons/cartao.svg');
+
 const TYPE_OPTIONS: { type: TransactionType; label: string; icon: any; color: string }[] = [
-  { type: 'income', label: 'Entrada', icon: ArrowDownLeft, color: '#27AE60' },
-  { type: 'expense', label: 'Saída', icon: ArrowUpRight, color: '#E74C3C' },
-  { type: 'daily', label: 'Diário', icon: CalendarIcon, color: '#fff' },
-  { type: 'savings', label: 'Economia', icon: PiggyBank, color: '#F1C40F' },
-  { type: 'credit', label: 'Gasto com Cartão', icon: CreditCard, color: '#9B59B6' },
+  { type: 'income', label: 'Entrada', icon: entradasIcon, color: '#27AE60' },
+  { type: 'expense', label: 'Saída', icon: saidasIcon, color: '#E74C3C' },
+  { type: 'daily', label: 'Diário', icon: diarioIcon, color: '#FFFFFF' },
+  { type: 'savings', label: 'Economia', icon: economiaIcon, color: '#F1C40F' },
+  { type: 'credit', label: 'Gasto com Cartão', icon: cartaoIcon, color: '#9B59B6' },
 ];
 
 const ModalHeader = ({ title, onClose }: { title: string, onClose: () => void }) => {
@@ -125,8 +132,8 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             onPress={() => setActiveModal('type')}
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
-            <View style={[styles.iconCircle, { backgroundColor: isDark && formData.type === 'daily' ? '#fff' : 'transparent' }]}>
-              <selectedType.icon size={24} color={formData.type === 'daily' ? (isDark ? '#000' : colors.textPrimary) : selectedType.color} />
+            <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
+              <Image source={selectedType.icon} style={{ width: 24, height: 24 }} contentFit="contain" />
             </View>
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{selectedType.label}</Text>
             <ChevronDown size={20} color={colors.textSecondary} />
@@ -149,7 +156,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             onPress={() => setActiveModal('date')}
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
-            <CalendarIcon size={24} color={colors.textSecondary} />
+            <Image source={diarioIcon} style={{ width: 24, height: 24 }} contentFit="contain" />
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>Data</Text>
             <Text style={[styles.rowValue, { color: colors.textSecondary }]}>
               {format(pickerDate, 'dd/MM/yyyy')}
@@ -236,7 +243,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
                   setActiveModal(null);
                 }}
               >
-                <opt.icon size={24} color={opt.color} />
+                <Image source={opt.icon} style={{ width: 24, height: 24 }} contentFit="contain" />
                 <Text style={[styles.modalOptionText, { color: colors.textPrimary }]}>{opt.label}</Text>
               </Pressable>
             ))}

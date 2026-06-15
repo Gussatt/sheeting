@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import { useSQL } from '../../src/db/db';
 import type { BudgetCategory, Transaction } from '../../src/db/db';
 import { calculateDailyBudget } from '../../src/utils/budgetCalc';
 import { startOfMonth, endOfMonth, isWithinInterval, format, getDaysInMonth } from 'date-fns';
-import { ChevronLeft, ChevronRight, ArrowDownLeft, ArrowUpRight, Calendar, PiggyBank, CreditCard, TrendingUp, MoreHorizontal } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useFilteredTransactions } from '../../src/hooks/useFilteredTransactions';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useAppTheme } from '../../src/styles/theme';
+
+const entradasIcon = require('../../src/assets/icons/entradas.svg');
+const saidasIcon = require('../../src/assets/icons/saidas.svg');
+const diarioIcon = require('../../src/assets/icons/diario.svg');
+const economiaIcon = require('../../src/assets/icons/economia.svg');
+const cartaoIcon = require('../../src/assets/icons/cartao.svg');
 
 interface MetricItemProps {
   label: string;
@@ -48,7 +55,7 @@ const MetricItem = ({ label, value, subvalue, color, math, secondaryValue }: Met
 interface MovementItemProps {
   label: string;
   value: number;
-  icon: React.ReactNode;
+  icon: any;
 }
 
 const MovementItem = ({ label, value, icon }: MovementItemProps) => {
@@ -56,7 +63,7 @@ const MovementItem = ({ label, value, icon }: MovementItemProps) => {
   return (
     <View style={[styles.movementContainer, { borderBottomColor: colors.border }]}>
       <View style={styles.movementLeft}>
-        {icon}
+        <Image source={icon} style={{ width: 24, height: 24 }} contentFit="contain" />
         <Text style={[styles.movementLabel, { color: colors.textPrimary }]}>{label}</Text>
       </View>
       <Text style={[styles.movementValue, { color: colors.textPrimary }]}>
@@ -161,17 +168,17 @@ export default function PerformanceScreen() {
           subvalue={performance < 0 ? "Faltou dinheiro" : "Dentro da meta"}
           math={
             <View style={styles.mathRow}>
-              <ArrowDownLeft size={16} color={colors.green} />
+              <Image source={entradasIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>-</Text>
-              <ArrowUpRight size={16} color={colors.red} />
+              <Image source={saidasIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>-</Text>
-              <Calendar size={16} color={colors.textPrimary} />
+              <Image source={diarioIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>-</Text>
-              <PiggyBank size={16} color={colors.yellow} />
+              <Image source={economiaIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>-</Text>
-              <CreditCard size={16} color={colors.purple} />
+              <Image source={cartaoIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>-</Text>
-              <TrendingUp size={16} color={colors.pink} />
+              <Text style={{color: colors.pink, fontWeight: 'bold'}}>M</Text>
             </View>
           }
         />
@@ -183,11 +190,11 @@ export default function PerformanceScreen() {
           color={colors.textPrimary}
           math={
             <View style={styles.mathRow}>
-              <PiggyBank size={16} color={colors.yellow} />
+              <Image source={economiaIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <View style={[styles.progressTrack, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 <View style={[styles.progressFill, { width: `${savedPercent}%`, backgroundColor: colors.lightGreen }]} />
               </View>
-              <ArrowDownLeft size={16} color={colors.green} />
+              <Image source={entradasIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
             </View>
           }
         />
@@ -198,13 +205,13 @@ export default function PerformanceScreen() {
           subvalue={costOfLiving > income ? "Acima da renda" : "Dentro da renda"}
           math={
             <View style={styles.mathRow}>
-              <ArrowUpRight size={16} color={colors.red} />
+              <Image source={saidasIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>+</Text>
-              <Calendar size={16} color={colors.textPrimary} />
+              <Image source={diarioIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>+</Text>
-              <CreditCard size={16} color={colors.purple} />
+              <Image source={cartaoIcon} style={{ width: 16, height: 16 }} contentFit="contain" />
               <Text style={{color: colors.textSecondary}}>+</Text>
-              <TrendingUp size={16} color={colors.pink} />
+              <Text style={{color: colors.pink, fontWeight: 'bold'}}>M</Text>
             </View>
           }
         />
@@ -215,13 +222,13 @@ export default function PerformanceScreen() {
             value={avgDaily}
             math={
               <View style={[styles.mathRow, { gap: 4 }]}>
-                <Calendar size={18} color={colors.pink} />
+                <Image source={diarioIcon} style={{ width: 18, height: 18 }} contentFit="contain" />
                 <Text style={{ color: colors.pink, fontWeight: 'bold' }}>/ {monthsWithDaily}</Text>
               </View>
             }
             subvalue={
               <View style={[styles.mathRow, { gap: 4 }]}>
-                <TrendingUp size={16} color={colors.pink} />
+                <Text style={{color: colors.pink, fontWeight: 'bold'}}>M</Text>
                 <Text style={{ color: colors.pink, fontSize: 14, fontWeight: '500' }}>
                   R$ {dailyPlanned.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </Text>
@@ -233,11 +240,11 @@ export default function PerformanceScreen() {
 
       <View style={styles.movementsSection}>
         <Text style={[styles.movementsTitle, { color: colors.textSecondary }]}>Movimentações do mês</Text>
-        <MovementItem label="Entradas" value={income} icon={<ArrowDownLeft size={24} color={colors.green} />} />
-        <MovementItem label="Saídas" value={expense} icon={<ArrowUpRight size={24} color={colors.red} />} />
-        <MovementItem label="Diários" value={daily} icon={<Calendar size={24} color={colors.textPrimary} />} />
-        <MovementItem label="Economias" value={savings} icon={<PiggyBank size={24} color={colors.yellow} />} />
-        <MovementItem label="Gastos com cartão" value={credit} icon={<CreditCard size={24} color={colors.purple} />} />
+        <MovementItem label="Entradas" value={income} icon={entradasIcon} />
+        <MovementItem label="Saídas" value={expense} icon={saidasIcon} />
+        <MovementItem label="Diários" value={daily} icon={diarioIcon} />
+        <MovementItem label="Economias" value={savings} icon={economiaIcon} />
+        <MovementItem label="Gastos com cartão" value={credit} icon={cartaoIcon} />
         
         <Pressable 
           onPress={() => router.push('/')}
