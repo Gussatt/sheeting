@@ -6,6 +6,7 @@ import { Search, ChevronLeft, ChevronRight, Edit2, Plus, Trash2 } from 'lucide-r
 import { startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
 import { useAppTheme } from '../../src/styles/theme';
 import { useTheme } from '../../src/context/ThemeContext';
+import { TagTrapezoid } from '../../src/components/Ledger/TagTrapezoid';
 
 export default function TagsScreen() {
   const { theme } = useTheme();
@@ -262,14 +263,6 @@ const styles = StyleSheet.create({
   editActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginLeft: 8,
-  },
-  actionBtn: {
-    padding: 4,
-  }
-});
-  alignItems: 'center',
     gap: 12,
     marginLeft: 8,
   },
