@@ -243,11 +243,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
   },
-  tagColorBlock: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
-  },
   tagName: {
     fontSize: 17,
     fontWeight: '600',
