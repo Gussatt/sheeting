@@ -127,7 +127,7 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
       {/* Balance Column */}
       <View style={[styles.balanceCol, {
         backgroundColor: getBalanceBgColor(balance),
-        alignItems: isSingleFilter ? 'center' : 'flex-start',
+        alignItems: isSingleFilter ? 'center' : 'flex-end',
         paddingTop: isSingleFilter ? 0 : 10,
       }]}>
         <Text style={styles.balanceText}>
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   dataCol: {
-    width: '44%',
+    flex: 1,
     flexDirection: 'column',
   },
   dataCellWrapper: {
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
   balanceCol: {
     width: '44%',
     justifyContent: 'center',
+    alignItems: 'flex-end',
     paddingRight: 16,
   },
   balanceText: {

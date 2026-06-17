@@ -6,6 +6,7 @@ import { calculateDailyBudget } from '../../src/utils/budgetCalc';
 import { startOfMonth, endOfMonth, isWithinInterval, format, getDaysInMonth } from 'date-fns';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFilteredTransactions } from '../../src/hooks/useFilteredTransactions';
 import { useTheme } from '../../src/context/ThemeContext';
 import { useAppTheme } from '../../src/styles/theme';
@@ -71,6 +72,7 @@ export default function PerformanceScreen() {
   const { theme } = useTheme();
   const { colors } = useAppTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [currentDate, setCurrentDate] = useState(new Date());
   
   const monthStart = startOfMonth(currentDate);
@@ -130,7 +132,7 @@ export default function PerformanceScreen() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} contentContainerStyle={{ paddingBottom: 100 }}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]} contentContainerStyle={{ paddingBottom: 100 }}>
       <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
         <View style={styles.todayContainer}>
            <Text style={[styles.todayText, { color: colors.textPrimary }]}>{new Date().getDate()}</Text>
@@ -163,16 +165,16 @@ export default function PerformanceScreen() {
           math={
             <View style={styles.mathRow}>
               <AppIcon name="entradas" size={16} />
-              <Text style={{color: colors.textSecondary}}>-</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>-</Text>
               <AppIcon name="saidas" size={16} />
-              <Text style={{color: colors.textSecondary}}>-</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>-</Text>
               <AppIcon name="diario" size={16} />
-              <Text style={{color: colors.textSecondary}}>-</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>-</Text>
               <AppIcon name="economia" size={16} />
-              <Text style={{color: colors.textSecondary}}>-</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>-</Text>
               <AppIcon name="cartao" size={16} />
-              <Text style={{color: colors.textSecondary}}>-</Text>
-              <Text style={{color: colors.pink, fontWeight: 'bold'}}>M</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>-</Text>
+              <Text style={[styles.mathMarker, { color: colors.pink }]}>M</Text>
             </View>
           }
         />
@@ -200,12 +202,12 @@ export default function PerformanceScreen() {
           math={
             <View style={styles.mathRow}>
               <AppIcon name="saidas" size={16} />
-              <Text style={{color: colors.textSecondary}}>+</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>+</Text>
               <AppIcon name="diario" size={16} />
-              <Text style={{color: colors.textSecondary}}>+</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>+</Text>
               <AppIcon name="cartao" size={16} />
-              <Text style={{color: colors.textSecondary}}>+</Text>
-              <Text style={{color: colors.pink, fontWeight: 'bold'}}>M</Text>
+              <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>+</Text>
+              <Text style={[styles.mathMarker, { color: colors.pink }]}>M</Text>
             </View>
           }
         />
@@ -217,13 +219,13 @@ export default function PerformanceScreen() {
             math={
               <View style={[styles.mathRow, { gap: 4 }]}>
                 <AppIcon name="diario" size={18} />
-                <Text style={{ color: colors.pink, fontWeight: 'bold' }}>/ {monthsWithDaily}</Text>
+                <Text style={[styles.mathMarker, { color: colors.pink }]}>/ {monthsWithDaily}</Text>
               </View>
             }
             subvalue={
               <View style={[styles.mathRow, { gap: 4 }]}>
-                <Text style={{color: colors.pink, fontWeight: 'bold'}}>M</Text>
-                <Text style={{ color: colors.pink, fontSize: 14, fontWeight: '500' }}>
+                <Text style={[styles.mathMarker, { color: colors.pink }]}>M</Text>
+                <Text style={{ color: colors.pink, fontSize: 13, fontWeight: '500' }}>
                   R$ {dailyPlanned.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </Text>
               </View>
@@ -297,16 +299,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingVertical: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
   },
   metricLeft: {
     flexDirection: 'column',
-    gap: 6,
+    gap: 8,
   },
   metricLabel: {
     fontWeight: '600',
-    fontSize: 17,
+    fontSize: 16,
   },
   metricMath: {
     flexDirection: 'row',
@@ -317,6 +319,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+  },
+  mathSymbol: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  mathMarker: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   metricRight: {
     flexDirection: 'column',
@@ -334,20 +344,21 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     fontWeight: 'bold',
-    fontSize: 17,
+    fontSize: 16,
   },
   metricSubvalue: {
-    fontSize: 13,
+    fontSize: 12,
   },
   progressTrack: {
     width: 80,
-    height: 10,
-    borderRadius: 50,
+    height: 8,
+    borderRadius: 4,
     borderWidth: 1,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
+    borderRadius: 4,
   },
   movementsSection: {
     paddingHorizontal: 20,
@@ -362,7 +373,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
   },
   movementLeft: {
@@ -372,20 +383,20 @@ const styles = StyleSheet.create({
   },
   movementLabel: {
     fontWeight: '500',
-    fontSize: 16,
+    fontSize: 15,
   },
   movementValue: {
     fontWeight: '500',
-    fontSize: 16,
+    fontSize: 15,
   },
   viewAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    paddingVertical: 20,
+    paddingVertical: 16,
   },
   viewAllText: {
     fontWeight: '500',
-    fontSize: 16,
+    fontSize: 15,
   }
 });

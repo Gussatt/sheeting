@@ -4,6 +4,7 @@ import { useSQL, db } from '../../src/db/db';
 import type { Tag, Transaction } from '../../src/db/db';
 import { Search, ChevronLeft, ChevronRight, Edit2, Plus, Trash2 } from 'lucide-react-native';
 import { startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/styles/theme';
 import { useTheme } from '../../src/context/ThemeContext';
 import { TagTrapezoid } from '../../src/components/Ledger/TagTrapezoid';
@@ -11,6 +12,7 @@ import { TagTrapezoid } from '../../src/components/Ledger/TagTrapezoid';
 export default function TagsScreen() {
   const { theme } = useTheme();
   const { colors, isDark } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<Tag | undefined>(undefined);
@@ -58,7 +60,7 @@ export default function TagsScreen() {
   const filteredTags = tags.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
         <View style={styles.todayContainer}>
            <Text style={[styles.todayText, { color: colors.textPrimary }]}>{new Date().getDate()}</Text>

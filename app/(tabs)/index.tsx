@@ -8,6 +8,7 @@ import { TransactionListSheet } from '../../src/components/Ledger/TransactionLis
 import type { FilterType } from '../../src/components/Ledger/FilterSheet';
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusDots } from '../../src/components/Ledger/StatusDots';
 import { useFilteredTransactions } from '../../src/hooks/useFilteredTransactions';
 import { useTheme } from '../../src/context/ThemeContext';
@@ -19,6 +20,7 @@ export default function LedgerScreen() {
   const { theme } = useTheme();
   const { colors, isDark } = useAppTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   const [currentDate, setCurrentDate] = useState(new Date());
   const [filter, setFilter] = useState<FilterType>('all');
@@ -121,7 +123,7 @@ export default function LedgerScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
         <Pressable onPress={jumpToToday} style={styles.todayContainer}>
           <Text style={[styles.todayText, { color: colors.textPrimary }]}>{new Date().getDate()}</Text>
@@ -145,7 +147,7 @@ export default function LedgerScreen() {
       <View style={[styles.columnsHeader, { backgroundColor: colors.surface, borderBottomColor: colors.border, borderTopColor: colors.border }]}>
         <Text style={[styles.colText, { width: '12%', paddingLeft: 16 }]}>Dia</Text>
         
-        <View style={{ width: '44%', paddingHorizontal: 4 }}>
+        <View style={{ flex: 1, paddingHorizontal: 4 }}>
           <Pressable 
             onPress={() => setIsFilterOpen(true)} 
             style={[styles.filterBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
