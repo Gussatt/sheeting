@@ -35,8 +35,8 @@ export default function TabLayout() {
           name="performance" 
           options={{ 
             title: 'Totais',
-            tabBarIcon: () => (
-              <AppIcon name="totais" size={26} />
+            tabBarIcon: ({ color }) => (
+              <AppIcon name="totais" size={26} color={color as string} />
             )
           }} 
         />
@@ -62,8 +62,8 @@ export default function TabLayout() {
           name="tags" 
           options={{ 
             title: 'Tags',
-            tabBarIcon: () => (
-              <AppIcon name="tags" size={26} />
+            tabBarIcon: ({ color }) => (
+              <AppIcon name="tags" size={26} color={color as string} />
             )
           }} 
         />
@@ -71,8 +71,8 @@ export default function TabLayout() {
           name="menu" 
           options={{ 
             title: 'Menu',
-            tabBarIcon: () => (
-              <AppIcon name="config" size={26} />
+            tabBarIcon: ({ color }) => (
+              <AppIcon name="navegacao" size={26} color={color as string} />
             )
           }} 
         />

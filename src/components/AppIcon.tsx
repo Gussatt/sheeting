@@ -1,7 +1,33 @@
 import React from 'react';
-import { Image, ImageStyle } from 'expo-image';
-import { StyleProp } from 'react-native';
+import { View, StyleProp, ViewStyle } from 'react-native';
 import { useAppTheme } from '../styles/theme';
+
+import AddTags from '../assets/icons/add_tags.svg';
+import Adicao from '../assets/icons/adicao.svg';
+import AdicaoNight from '../assets/icons/adicao_night.svg';
+import Cartao from '../assets/icons/cartao.svg';
+import Checkin from '../assets/icons/checkin.svg';
+import CheckinNight from '../assets/icons/checkin_night.svg';
+import Config from '../assets/icons/config.svg';
+import DiarioTotais from '../assets/icons/diario_totais.svg';
+import Diario from '../assets/icons/diario.svg';
+import Economia from '../assets/icons/economia.svg';
+import Edit from '../assets/icons/edit.svg';
+import Entradas from '../assets/icons/entradas.svg';
+import Filtro from '../assets/icons/filtro.svg';
+import FiltroNight from '../assets/icons/filtro_night.svg';
+import GenericTag from '../assets/icons/generic_tag.svg';
+import Ledger from '../assets/icons/ledger.svg';
+import Navegacao from '../assets/icons/navegacao.svg';
+import NavegacaoNight from '../assets/icons/navegacao_night.svg';
+import PrevisaoDiario from '../assets/icons/previsao_diario.svg';
+import Saidas from '../assets/icons/saidas.svg';
+import Tags from '../assets/icons/tags.svg';
+import TagsNight from '../assets/icons/tags_night.svg';
+import Totais from '../assets/icons/totais.svg';
+import TotaisNight from '../assets/icons/totais_night.svg';
+import Trash from '../assets/icons/trash.svg';
+import User from '../assets/icons/user.svg';
 
 export type AppIconName = 
   | 'add_tags' 
@@ -25,27 +51,27 @@ export type AppIconName =
   | 'trash' 
   | 'user';
 
-const ICONS: Record<AppIconName, { default: any; dark?: any }> = {
-  add_tags: { default: require('../assets/icons/add_tags.svg') },
-  adicao: { default: require('../assets/icons/adicao.svg'), dark: require('../assets/icons/adicao_night.svg') },
-  cartao: { default: require('../assets/icons/cartao.svg') },
-  checkin: { default: require('../assets/icons/checkin.svg'), dark: require('../assets/icons/checkin_night.svg') },
-  config: { default: require('../assets/icons/config.svg') },
-  diario_totais: { default: require('../assets/icons/diario_totais.svg') },
-  diario: { default: require('../assets/icons/diario.svg') },
-  economia: { default: require('../assets/icons/economia.svg') },
-  edit: { default: require('../assets/icons/edit.svg') },
-  entradas: { default: require('../assets/icons/entradas.svg') },
-  filtro: { default: require('../assets/icons/filtro.svg'), dark: require('../assets/icons/filtro_night.svg') },
-  generic_tag: { default: require('../assets/icons/generic_tag.svg') },
-  ledger: { default: require('../assets/icons/ledger.svg') },
-  navegacao: { default: require('../assets/icons/navegacao.svg'), dark: require('../assets/icons/navegacao_night.svg') },
-  previsao_diario: { default: require('../assets/icons/previsao_diario.svg') },
-  saidas: { default: require('../assets/icons/saidas.svg') },
-  tags: { default: require('../assets/icons/tags.svg'), dark: require('../assets/icons/tags_night.svg') },
-  totais: { default: require('../assets/icons/totais.svg'), dark: require('../assets/icons/totais_night.svg') },
-  trash: { default: require('../assets/icons/trash.svg') },
-  user: { default: require('../assets/icons/user.svg') },
+const ICONS: Record<AppIconName, { default: React.FC<any>; dark?: React.FC<any> }> = {
+  add_tags: { default: AddTags },
+  adicao: { default: Adicao, dark: AdicaoNight },
+  cartao: { default: Cartao },
+  checkin: { default: Checkin, dark: CheckinNight },
+  config: { default: Config },
+  diario_totais: { default: DiarioTotais },
+  diario: { default: Diario },
+  economia: { default: Economia },
+  edit: { default: Edit },
+  entradas: { default: Entradas },
+  filtro: { default: Filtro, dark: FiltroNight },
+  generic_tag: { default: GenericTag },
+  ledger: { default: Ledger },
+  navegacao: { default: Navegacao, dark: NavegacaoNight },
+  previsao_diario: { default: PrevisaoDiario },
+  saidas: { default: Saidas },
+  tags: { default: Tags, dark: TagsNight },
+  totais: { default: Totais, dark: TotaisNight },
+  trash: { default: Trash },
+  user: { default: User },
 };
 
 export interface AppIconProps {
@@ -54,7 +80,7 @@ export interface AppIconProps {
   width?: number;
   height?: number;
   color?: string;
-  style?: StyleProp<ImageStyle>;
+  style?: StyleProp<ViewStyle>;
   forceTheme?: 'light' | 'dark';
 }
 
@@ -69,14 +95,15 @@ export const AppIcon: React.FC<AppIconProps> = ({
   const themeToUse = forceTheme || (isDark ? 'dark' : 'light');
   
   const iconSet = ICONS[name];
-  const source = (themeToUse === 'dark' && iconSet.dark) ? iconSet.dark : iconSet.default;
+  const IconComponent = (themeToUse === 'dark' && iconSet.dark) ? iconSet.dark : iconSet.default;
 
   return (
-    <Image 
-      source={source} 
-      style={[{ width: width || size, height: height || size }, style]} 
-      tintColor={color} 
-      contentFit="contain" 
-    />
+    <View style={style}>
+      <IconComponent 
+        width={width || size} 
+        height={height || size} 
+        color={color} 
+      />
+    </View>
   );
 };
