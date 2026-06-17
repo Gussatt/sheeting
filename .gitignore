@@ -26,3 +26,9 @@ node_modules/
 *.njsproj
 *.sln
 *.sw?
+
+# Worktrees
+.worktrees/
+
+# Expo build cache
+.expo/
