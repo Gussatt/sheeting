@@ -7,6 +7,7 @@ import { format, addDays } from 'date-fns';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../src/styles/theme';
 import { TypeIcon, type TransactionType } from '../src/components/Ledger/TypeIcon';
+import { FilterSheet, type FilterType } from '../src/components/Ledger/FilterSheet';
 
 const TYPE_LABELS: Record<string, string> = {
   all: 'Todas', income: 'Entradas', expense: 'Saídas',
@@ -26,7 +27,8 @@ export default function TransactionsPage() {
     }
     return new Date();
   });
-  const [filter, setFilter] = useState<TransactionType | 'all'>((typeParam as TransactionType | 'all') || 'all');
+  const [filter, setFilter] = useState<FilterType>((typeParam as FilterType) || 'all');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const dateStr = currentDate.toISOString().split('T')[0];
 
@@ -71,12 +73,15 @@ export default function TransactionsPage() {
       </View>
 
       <View style={styles.filterRow}>
-        <View style={[styles.filterChip, { borderColor: colors.border }]}>
-          <TypeIcon type={(filter === 'all' ? 'income' : filter) as TransactionType} size={16} />
+        <Pressable 
+          onPress={() => setIsFilterOpen(true)}
+          style={[styles.filterChip, { borderColor: colors.border }]}
+        >
+          <TypeIcon type={(filter === 'all' ? 'income' : filter) as TransactionType} size={18} />
           <Text style={[styles.filterText, { color: colors.textPrimary }]}>
             {TYPE_LABELS[filter] || filter}
           </Text>
-        </View>
+        </Pressable>
       </View>
 
       <ScrollView style={styles.list}>
@@ -114,6 +119,15 @@ export default function TransactionsPage() {
           ))
         )}
       </ScrollView>
+
+      <FilterSheet 
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onSelect={(t) => {
+          setFilter(t);
+          setIsFilterOpen(false);
+        }}
+      />
     </View>
   );
 }
@@ -146,15 +160,15 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
     borderWidth: 1,
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 32,
+    borderRadius: 30,
     alignSelf: 'flex-start',
   },
   filterText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '500',
   },
   list: {
