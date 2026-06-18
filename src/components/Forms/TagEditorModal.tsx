@@ -70,6 +70,8 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
   const [calcEconomizado, setCalcEconomizado] = useState(true);
   const [calcCustoVida, setCalcCustoVida] = useState(true);
   const [calcDiarioMedio, setCalcDiarioMedio] = useState(true);
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const [keywordInput, setKeywordInput] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -81,31 +83,68 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
       setCalcEconomizado(tag?.calcEconomizado ?? true);
       setCalcCustoVida(tag?.calcCustoVida ?? true);
       setCalcDiarioMedio(tag?.calcDiarioMedio ?? true);
+      setKeywords([]);
+      if (tag) {
+        db.query<{ keyword: string }>(
+          'SELECT keyword FROM tag_keywords WHERE tag_id = ?',
+          [tag.id]
+        ).then(rows => setKeywords(rows.map(r => r.keyword)));
+      }
     }
   }, [isOpen, tag]);
 
   if (!isOpen) return null;
 
+  const addKeyword = (text: string) => {
+    const trimmed = text.trim().toLowerCase();
+    if (!trimmed || keywords.includes(trimmed)) return;
+    setKeywords(prev => [...prev, trimmed]);
+  };
+
+  const removeKeyword = (keyword: string) => {
+    setKeywords(prev => prev.filter(k => k !== keyword));
+  };
+
   const handleSave = async () => {
     if (!name) return;
 
     try {
+      let tagId = tag?.id;
       if (tag) {
         await db.exec(
-          `UPDATE tags SET name = ?, color = ?, calc_saldos = ?, calc_performance = ?, 
-                  calc_economizado = ?, calc_custo_vida = ?, calc_diario_medio = ? 
+          `UPDATE tags SET name = ?, color = ?, calc_saldos = ?, calc_performance = ?,
+                  calc_economizado = ?, calc_custo_vida = ?, calc_diario_medio = ?
            WHERE id = ?`,
           [name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio, tag.id]
         );
       } else {
-        const newId = Crypto.randomUUID();
+        tagId = Crypto.randomUUID();
         await db.exec(
-          `INSERT INTO tags (id, name, color, calc_saldos, calc_performance, calc_economizado, 
-                           calc_custo_vida, calc_diario_medio) 
+          `INSERT INTO tags (id, name, color, calc_saldos, calc_performance, calc_economizado,
+                           calc_custo_vida, calc_diario_medio)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [newId, name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
+          [tagId, name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
         );
       }
+
+      const existing = await db.query<{ keyword: string }>(
+        'SELECT keyword FROM tag_keywords WHERE tag_id = ?',
+        [tagId!]
+      );
+      const existingKeywords = existing.map(r => r.keyword);
+      const toDelete = existingKeywords.filter(k => !keywords.includes(k));
+      const toAdd = keywords.filter(k => !existingKeywords.includes(k));
+
+      for (const kw of toDelete) {
+        await db.exec('DELETE FROM tag_keywords WHERE tag_id = ? AND keyword = ?', [tagId!, kw]);
+      }
+      for (const kw of toAdd) {
+        await db.exec(
+          'INSERT INTO tag_keywords (id, tag_id, keyword) VALUES (?, ?, ?)',
+          [Crypto.randomUUID(), tagId!, kw]
+        );
+      }
+
       onSave();
       onClose();
     } catch (error) {
@@ -182,6 +221,41 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
                   </Pressable>
                 ))}
               </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={[styles.labelBold, { color: colors.textPrimary }]}>Palavras-chave</Text>
+              <Text style={[styles.label, { color: colors.textSecondary, marginBottom: 12 }]}>
+                A transação recebe esta tag automaticamente quando a descrição contém uma das palavras-chave.
+              </Text>
+              <View style={styles.keywordInputRow}>
+                <TextInput
+                  value={keywordInput}
+                  onChangeText={setKeywordInput}
+                  placeholder="Adicionar palavra-chave"
+                  placeholderTextColor={colors.textSecondary}
+                  style={[styles.input, { color: colors.textPrimary, borderBottomColor: colors.border, flex: 1 }]}
+                  onSubmitEditing={() => { addKeyword(keywordInput); setKeywordInput(''); }}
+                />
+                <Pressable
+                  onPress={() => { addKeyword(keywordInput); setKeywordInput(''); }}
+                  style={[styles.addKeywordBtn, { borderColor: colors.border }]}
+                >
+                  <Text style={[styles.addKeywordText, { color: colors.textPrimary }]}>+</Text>
+                </Pressable>
+              </View>
+              {keywords.length > 0 && (
+                <View style={styles.chipsRow}>
+                  {keywords.map(kw => (
+                    <View key={kw} style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                      <Text style={[styles.chipText, { color: colors.textPrimary }]}>{kw}</Text>
+                      <Pressable onPress={() => removeKeyword(kw)} style={styles.chipX}>
+                        <X size={14} color={colors.textSecondary} />
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
 
             <View style={[styles.advancedSection, { borderTopColor: colors.border }]}>
@@ -284,6 +358,45 @@ const styles = StyleSheet.create({
     fontSize: 20,
     paddingVertical: 12,
     borderBottomWidth: 1,
+  },
+  keywordInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  addKeywordBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  addKeywordText: {
+    fontSize: 24,
+    fontWeight: '300',
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 16,
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  chipText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  chipX: {
+    padding: 2,
   },
   labelBold: {
     fontWeight: 'bold',
