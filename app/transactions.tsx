@@ -78,7 +78,15 @@ export default function TransactionsPage() {
           style={[styles.filterChip, { borderColor: colors.border }]}
         >
           <View style={styles.filterChipLeft}>
-            <TypeIcon type={(filter === 'all' ? 'income' : filter) as TransactionType} size={18} />
+            {filter === 'all' ? (
+              <View style={{ flexDirection: 'row', gap: 2, alignItems: 'center', justifyContent: 'center', width: 24 }}>
+                <View style={[styles.dot, { backgroundColor: colors.green }]} />
+                <View style={[styles.dot, { backgroundColor: colors.red }]} />
+                <View style={[styles.dot, { backgroundColor: colors.pink }]} />
+              </View>
+            ) : (
+              <TypeIcon type={filter as TransactionType} size={18} />
+            )}
             <Text style={[styles.filterText, { color: colors.textPrimary }]}>
               {TYPE_LABELS[filter] || filter}
             </Text>
@@ -178,6 +186,11 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
   },
   list: {
     flex: 1,
