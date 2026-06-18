@@ -251,10 +251,10 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             }} 
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
-            <AppIcon name="diario" size={24} />
+            <Calendar size={24} color={colors.textSecondary} />
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>Data</Text>
             <Text style={[styles.rowValue, { color: colors.textSecondary }]}>{format(pickerDate, 'dd/MM/yyyy')}</Text>
-            <Calendar size={20} color={colors.textSecondary} />
+            <ChevronDown size={20} color={colors.textSecondary} />
           </Pressable>
 
           <Pressable 
