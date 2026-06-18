@@ -5,10 +5,10 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday
 import { LedgerRow, type TransactionType } from '../../src/components/Ledger/LedgerRow';
 import { FilterSheet } from '../../src/components/Ledger/FilterSheet';
 import type { FilterType } from '../../src/components/Ledger/FilterSheet';
-import { ChevronLeft, ChevronRight, ChevronDown, Calendar } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatusDots } from '../../src/components/Ledger/StatusDots';
+import { HorizonteGridButton } from '../../src/components/Ledger/HorizonteGridButton';
 import { useFilteredTransactions } from '../../src/hooks/useFilteredTransactions';
 import { useTheme } from '../../src/context/ThemeContext';
 import { TypeIcon } from '../../src/components/Ledger/TypeIcon';
@@ -86,6 +86,18 @@ export default function LedgerScreen() {
     return result;
   }, [daysInMonth, filteredTransactions, statuses, dailyPredictionValue]);
 
+  const futureBalances = useMemo(() => {
+    if (dailyData.length === 0) return [];
+    const lastEntry = dailyData[dailyData.length - 1];
+    let balance = lastEntry.balance;
+    const result: number[] = [balance];
+    for (let i = 1; i < 9; i++) {
+      balance -= dailyPredictionValue;
+      result.push(balance);
+    }
+    return result;
+  }, [dailyData, dailyPredictionValue]);
+
   const handleCellClick = useCallback((type: TransactionType, date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
     router.push(`/transactions?type=${type}&date=${dateStr}`);
@@ -121,10 +133,19 @@ export default function LedgerScreen() {
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
         <Pressable onPress={jumpToToday} style={styles.todayContainer}>
-          <Calendar size={28} color={colors.textPrimary} strokeWidth={2} />
-          <Text style={[styles.todayText, { color: colors.textPrimary, position: 'absolute', top: 12, fontSize: 10 }]}>
-            {new Date().getDate()}
-          </Text>
+          <View style={styles.calendarIcon}>
+            {/* Calendar top bar with pins */}
+            <View style={[styles.calendarTop, { backgroundColor: colors.textPrimary }]}>
+              <View style={[styles.calendarPin, { backgroundColor: colors.bg }]} />
+              <View style={[styles.calendarPin, { backgroundColor: colors.bg }]} />
+            </View>
+            {/* Calendar body with day number */}
+            <View style={[styles.calendarBody, { borderColor: colors.textPrimary }]}>
+              <Text style={[styles.calendarDay, { color: colors.textPrimary }]}>
+                {new Date().getDate()}
+              </Text>
+            </View>
+          </View>
         </Pressable>
 
         <View style={styles.monthSelector}>
@@ -138,7 +159,7 @@ export default function LedgerScreen() {
         </View>
 
         <Pressable onPress={() => router.push('/horizonte')} style={{ padding: 4 }}>
-          <StatusDots />
+          <HorizonteGridButton balances={futureBalances} />
         </Pressable>
       </View>
 
@@ -204,14 +225,43 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   todayContainer: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  todayText: {
-    fontSize: 12,
-    fontWeight: 'bold',
+  calendarIcon: {
+    width: 28,
+    height: 28,
+    overflow: 'hidden',
+  },
+  calendarTop: {
+    height: 9,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+  },
+  calendarPin: {
+    width: 3,
+    height: 5,
+    borderRadius: 1.5,
+  },
+  calendarBody: {
+    flex: 1,
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calendarDay: {
+    fontSize: 11,
+    fontWeight: '800',
+    marginTop: -1,
   },
   monthSelector: {
     flexDirection: 'row',
