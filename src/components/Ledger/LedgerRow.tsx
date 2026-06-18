@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react';
-import { View, Text, Pressable, StyleSheet, LayoutAnimation } from 'react-native';
+import { View, Text, Pressable, StyleSheet, LayoutAnimation, LayoutChangeEvent } from 'react-native';
 import type { Transaction } from '../../db/db';
 import { isWeekend, isToday } from 'date-fns';
 import { useAppTheme } from '../../styles/theme';
@@ -48,6 +48,7 @@ interface LedgerRowProps {
   filter: string;
   onCellClick: (type: TransactionType, txs: Transaction[]) => void;
   onCellLongPress: (type: TransactionType) => void;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }
 
 export const LedgerRow: React.FC<LedgerRowProps> = ({
@@ -57,7 +58,8 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
   isCheckedIn,
   filter,
   onCellClick,
-  onCellLongPress
+  onCellLongPress,
+  onLayout
 }) => {
   const { colors, isDark } = useAppTheme();
 
@@ -78,7 +80,9 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
   const isSingleFilter = filter !== 'all';
 
   return (
-    <View style={[styles.rowContainer, { 
+    <View 
+      onLayout={onLayout}
+      style={[styles.rowContainer, { 
       backgroundColor: isWeekendRow ? colors.surface : 'transparent',
       borderBottomColor: colors.border
     }]}>

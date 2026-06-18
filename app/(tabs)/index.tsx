@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useSQL, db, type Transaction, type BudgetCategory } from '../../src/db/db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, startOfDay, isAfter } from 'date-fns';
@@ -24,6 +24,9 @@ export default function LedgerScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [filter, setFilter] = useState<FilterType>('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [shouldScrollToToday, setShouldScrollToToday] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const todayRowY = useRef<number>(0);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -122,7 +125,21 @@ export default function LedgerScreen() {
     return labels[t];
   };
 
-  const jumpToToday = () => setCurrentDate(new Date());
+  const jumpToToday = () => {
+    setCurrentDate(new Date());
+    setShouldScrollToToday(true);
+  };
+
+  useEffect(() => {
+    if (shouldScrollToToday) {
+      // Small delay to allow layout to settle after month change
+      const timer = setTimeout(() => {
+        scrollViewRef.current?.scrollTo({ y: todayRowY.current, animated: true });
+        setShouldScrollToToday(false);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldScrollToToday, dailyData]);
 
   const formatMonth = (date: Date) => {
     const formatted = format(date, 'MMM/yy');
@@ -190,7 +207,7 @@ export default function LedgerScreen() {
         <Text style={[styles.colText, { width: '44%', textAlign: 'right', paddingRight: 16 }]}>Saldos</Text>
       </View>
 
-      <ScrollView style={styles.ledgerList}>
+      <ScrollView ref={scrollViewRef} style={styles.ledgerList}>
         {dailyData.map(({ date, dayTransactions, balance, isChecked }) => (
           <LedgerRow 
             key={date.toISOString()}
@@ -201,6 +218,7 @@ export default function LedgerScreen() {
             filter={filter}
             onCellClick={(type) => handleCellClick(type, date)}
             onCellLongPress={(type) => handleCellLongPress(type, date)}
+            onLayout={isToday(date) ? (e) => { todayRowY.current = e.nativeEvent.layout.y; } : undefined}
           />
         ))}
       </ScrollView>
