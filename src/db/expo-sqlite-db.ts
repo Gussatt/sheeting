@@ -33,6 +33,7 @@ export interface Tag {
   calcEconomizado: boolean;
   calcCustoVida: boolean;
   calcDiarioMedio: boolean;
+  keywords?: string[];
 }
 
 const toCamel = (str: string) => str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
@@ -75,7 +76,8 @@ class SheetingSQLiteDB {
       console.log('Applying SQLite schema...');
       await this.db.execAsync(`
         PRAGMA journal_mode = WAL;
-        
+        PRAGMA foreign_keys = ON;
+
         CREATE TABLE IF NOT EXISTS transactions (
           id TEXT PRIMARY KEY,
           amount REAL NOT NULL,
@@ -115,6 +117,16 @@ class SheetingSQLiteDB {
           date TEXT PRIMARY KEY,
           is_checked INTEGER DEFAULT 0
         );
+
+        CREATE TABLE IF NOT EXISTS tag_keywords (
+          id TEXT PRIMARY KEY,
+          tag_id TEXT NOT NULL,
+          keyword TEXT NOT NULL,
+          FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_tag_keywords_tag_id ON tag_keywords(tag_id);
+        CREATE INDEX IF NOT EXISTS idx_tag_keywords_keyword ON tag_keywords(keyword);
       `);
       console.log('Schema applied successfully.');
     })();
