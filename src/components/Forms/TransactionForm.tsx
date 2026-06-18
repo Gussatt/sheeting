@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, LayoutAnimation
 } from 'react-native';
 import { 
-  ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus, ChevronLeft, ChevronRight
+  ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus, ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react-native';
 import type { Transaction, Tag } from '../../db/db';
 import { format, subMonths, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
@@ -254,7 +254,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             <AppIcon name="diario" size={24} />
             <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>Data</Text>
             <Text style={[styles.rowValue, { color: colors.textSecondary }]}>{format(pickerDate, 'dd/MM/yyyy')}</Text>
-            <ChevronDown size={20} color={colors.textSecondary} />
+            <Calendar size={20} color={colors.textSecondary} />
           </Pressable>
 
           <Pressable 
