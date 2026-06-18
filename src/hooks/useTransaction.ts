@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { db } from '../db/db';
 import type { Transaction } from '../db/db';
+import { findMatchingTagId } from '../utils/autoTag';
 
 interface UseTransactionReturn {
   initialData: Partial<Transaction> | undefined;
@@ -51,6 +52,20 @@ export const useTransaction = (id?: string, typeParam?: string | null, dateParam
 
   const saveTransaction = async (data: Partial<Transaction>) => {
     if (!data.type) return;
+
+    if (!data.tagId) {
+      const description = (data.description || '').toLowerCase();
+      if (description) {
+        const keywords = await db.query<{ tagId: string; keyword: string }>(
+          `SELECT tag_keywords.tag_id AS tag_id, keyword
+           FROM tag_keywords
+           JOIN tags ON tag_keywords.tag_id = tags.id
+           ORDER BY tags.name ASC`
+        );
+        const matchId = findMatchingTagId(description, keywords);
+        if (matchId) data.tagId = matchId;
+      }
+    }
 
     const amount = Number(data.amount) || 0;
     const dateToStore = data.date instanceof Date ? data.date : new Date(data.date as string);
