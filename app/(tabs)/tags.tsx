@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Image, TextInput, ScrollView, Alert } from 'react-native';
 import { useSQL, db } from '../../src/db/db';
 import type { Tag, Transaction } from '../../src/db/db';
-import { Search, ChevronLeft, ChevronRight, Edit2, Plus, Trash2 } from 'lucide-react-native';
+import { Search, ChevronLeft, ChevronRight, Edit2, Plus, Trash2, Calendar } from 'lucide-react-native';
 import { startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/styles/theme';
 import { useTheme } from '../../src/context/ThemeContext';
 import { TagTrapezoid } from '../../src/components/Ledger/TagTrapezoid';
+import { TagEditorModal } from '../../src/components/Forms/TagEditorModal';
 
 export default function TagsScreen() {
   const { theme } = useTheme();
@@ -63,7 +64,10 @@ export default function TagsScreen() {
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
         <View style={styles.todayContainer}>
-           <Text style={[styles.todayText, { color: colors.textPrimary }]}>{new Date().getDate()}</Text>
+          <Calendar size={28} color={colors.textPrimary} strokeWidth={2} />
+          <Text style={[styles.todayText, { color: colors.textPrimary, position: 'absolute', top: 12, fontSize: 10 }]}>
+            {new Date().getDate()}
+          </Text>
         </View>
 
         <View style={styles.monthSelector}>
@@ -159,6 +163,13 @@ export default function TagsScreen() {
           ))}
         </View>
       </ScrollView>
+
+      <TagEditorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={() => {}}
+        tag={selectedTag}
+      />
     </View>
   );
 }

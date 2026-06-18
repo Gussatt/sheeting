@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70" width="70" height="70">
-  <circle cx="35" cy="35" r="35" fill="#FF5CAC" />
-  <text x="35" y="35" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="42" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">D</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="35" fill="#ff5cac"/><path fill="#fff" d="M21.17 50.03V19.97h13.8q4.08 0 6.59 1.1 2.52 1.11 4.16 3.18t2.38 4.82q.73 2.75.73 5.83 0 4.81-1.09 7.47-1.1 2.66-3.05 4.45t-4.18 2.39q-3.06.82-5.54.82zm11.61-23.26h-2.32V43.2h2.28q2.91 0 4.14-.65 1.23-.64 1.93-2.25.69-1.61.69-5.22 0-4.78-1.56-6.54-1.55-1.77-5.16-1.77"/></svg>
