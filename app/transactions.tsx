@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
   },
@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   dayText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: 'bold',
   },
   addBtn: { padding: 4 },
   filterRow: {

@@ -88,12 +88,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     gap: 16,
   },
   backBtn: { padding: 4 },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
   }
 });
