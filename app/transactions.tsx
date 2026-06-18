@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Plus, ChevronDown } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSQL, type Transaction } from '../src/db/db';
 import { format, addDays } from 'date-fns';
@@ -77,10 +77,13 @@ export default function TransactionsPage() {
           onPress={() => setIsFilterOpen(true)}
           style={[styles.filterChip, { borderColor: colors.border }]}
         >
-          <TypeIcon type={(filter === 'all' ? 'income' : filter) as TransactionType} size={18} />
-          <Text style={[styles.filterText, { color: colors.textPrimary }]}>
-            {TYPE_LABELS[filter] || filter}
-          </Text>
+          <View style={styles.filterChipLeft}>
+            <TypeIcon type={(filter === 'all' ? 'income' : filter) as TransactionType} size={18} />
+            <Text style={[styles.filterText, { color: colors.textPrimary }]}>
+              {TYPE_LABELS[filter] || filter}
+            </Text>
+          </View>
+          <ChevronDown size={20} color={colors.textSecondary} />
         </Pressable>
       </View>
 
@@ -160,16 +163,21 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    justifyContent: 'space-between',
     borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 32,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 30,
-    alignSelf: 'flex-start',
+    width: '100%',
+  },
+  filterChipLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   filterText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   list: {
     flex: 1,
