@@ -23,7 +23,7 @@ const LedgerCell: React.FC<CellProps> = ({ type, total, transactions, onClick, o
       onLongPress={() => onLongPress(type)}
       style={[
         styles.cellContainer, 
-        { opacity: (total === 0 || isVirtual) ? 0.3 : 1 }
+        { opacity: (total === 0) ? 0.3 : 1 }
       ]}
     >
       <View style={styles.cellLeft}>
@@ -86,7 +86,8 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
       <View style={[styles.dateCol, {
         backgroundColor: isTodayRow ? colors.primary : 'transparent',
         borderRightColor: colors.border,
-        alignItems: isSingleFilter ? 'center' : 'flex-start',
+        alignItems: 'center',
+        justifyContent: isSingleFilter ? 'center' : 'flex-start',
         paddingTop: isSingleFilter ? 0 : 10,
       }]}>
         <Text style={[styles.dateText, {
