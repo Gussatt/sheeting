@@ -1,6 +1,7 @@
 // app/_layout.tsx
 import { Stack } from 'expo-router';
 import { ThemeProvider } from '../src/context/ThemeContext';
+import { LanguageProvider } from '../src/context/LanguageContext';
 import { Platform, UIManager } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -11,9 +12,10 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
+      <LanguageProvider>
+        <ThemeProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
           <Stack.Screen
             name="transactions"
             options={{
@@ -50,8 +52,9 @@ export default function RootLayout() {
               animation: 'slide_from_right',
             }}
           />
-        </Stack>
-      </ThemeProvider>
+          </Stack>
+        </ThemeProvider>
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }
