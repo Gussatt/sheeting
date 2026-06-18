@@ -135,14 +135,18 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
       const toDelete = existingKeywords.filter(k => !keywords.includes(k));
       const toAdd = keywords.filter(k => !existingKeywords.includes(k));
 
-      for (const kw of toDelete) {
-        await db.exec('DELETE FROM tag_keywords WHERE tag_id = ? AND keyword = ?', [tagId!, kw]);
-      }
-      for (const kw of toAdd) {
-        await db.exec(
-          'INSERT INTO tag_keywords (id, tag_id, keyword) VALUES (?, ?, ?)',
-          [Crypto.randomUUID(), tagId!, kw]
-        );
+      if (toDelete.length > 0 || toAdd.length > 0) {
+        await db.withTransactionAsync(async () => {
+          for (const kw of toDelete) {
+            await db.exec('DELETE FROM tag_keywords WHERE tag_id = ? AND keyword = ?', [tagId!, kw]);
+          }
+          for (const kw of toAdd) {
+            await db.exec(
+              'INSERT INTO tag_keywords (id, tag_id, keyword) VALUES (?, ?, ?)',
+              [Crypto.randomUUID(), tagId!, kw]
+            );
+          }
+        });
       }
 
       onSave();

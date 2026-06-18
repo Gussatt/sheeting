@@ -33,7 +33,6 @@ export interface Tag {
   calcEconomizado: boolean;
   calcCustoVida: boolean;
   calcDiarioMedio: boolean;
-  keywords?: string[];
 }
 
 const toCamel = (str: string) => str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
@@ -65,6 +64,7 @@ const dbEvents = {
 class SheetingSQLiteDB {
   private db: SQLite.SQLiteDatabase | null = null;
   private initPromise: Promise<void> | null = null;
+  private suppressEvents = false;
 
   async init() {
     if (this.initPromise) return this.initPromise;
@@ -162,8 +162,24 @@ class SheetingSQLiteDB {
     const sqliteQuery = this.convertSql(sql);
     // @ts-ignore
     await this.db!.runAsync(sqliteQuery, params);
-    
-    // Notify all useSQL hooks that data has changed
+
+    // Notify all useSQL hooks that data has changed (unless suppressed by a transaction)
+    if (!this.suppressEvents) {
+      dbEvents.next();
+    }
+  }
+
+  async withTransactionAsync(task: () => Promise<void>): Promise<void> {
+    await this.init();
+    const previous = this.suppressEvents;
+    this.suppressEvents = true;
+    try {
+      // @ts-ignore
+      await this.db!.withTransactionAsync(task);
+    } finally {
+      this.suppressEvents = previous;
+    }
+    // Notify all useSQL hooks once after the transaction commits
     dbEvents.next();
   }
 }
