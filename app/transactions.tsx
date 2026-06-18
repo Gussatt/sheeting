@@ -95,7 +95,7 @@ export default function TransactionsPage() {
                 <TypeIcon type={tx.type as TransactionType} size={20} />
                 <View style={styles.txInfo}>
                   <Text style={[styles.txType, { color: colors.textPrimary }]}>
-                    {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
+                    {tx.description || TYPE_LABELS[tx.type] || tx.type}
                   </Text>
                   <Text style={[styles.txDate, { color: colors.textSecondary }]}>
                     {format(new Date(tx.date), 'dd/MM')}
@@ -107,7 +107,7 @@ export default function TransactionsPage() {
                   R$ {Number(tx.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </Text>
                 <Text style={[styles.txDesc, { color: colors.textSecondary }]}>
-                  {tx.description || TYPE_LABELS[tx.type] || tx.type}
+                  {TYPE_LABELS[tx.type] || tx.type}
                 </Text>
               </View>
             </Pressable>
