@@ -11,11 +11,13 @@ import { useFilteredTransactions } from '../src/hooks/useFilteredTransactions';
 import { startOfMonth } from 'date-fns';
 import { useAppTheme } from '../src/styles/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useDailyStatus } from '../src/hooks/useDailyStatus';
 
 export default function HorizonteScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
+  const { checkedDates, toggleDate } = useDailyStatus();
   const now = new Date();
   const monthStart = startOfMonth(now);
 
@@ -49,7 +51,11 @@ export default function HorizonteScreen() {
         </Pressable>
       </View>
 
-      <HorizonteGrid projections={projections} />
+      <HorizonteGrid
+        projections={projections}
+        checkedDates={checkedDates}
+        onToggleDay={toggleDate}
+      />
     </View>
   );
 }

@@ -1,14 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { parse } from 'date-fns';
 import { HorizonteCell } from './HorizonteCell';
 import type { MonthProjection } from '../../utils/projection';
 import { useAppTheme } from '../../styles/theme';
+import { buildDateKey } from '../../hooks/useDailyStatus';
 
 interface Props {
   projections: MonthProjection[];
+  checkedDates?: Set<string>;
+  onToggleDay?: (dateKey: string) => void;
 }
 
-export const HorizonteGrid: React.FC<Props> = ({ projections }) => {
+export const HorizonteGrid: React.FC<Props> = ({ projections, checkedDates, onToggleDay }) => {
   const { colors, isDark } = useAppTheme();
   const maxDays = 31;
 
@@ -16,6 +20,9 @@ export const HorizonteGrid: React.FC<Props> = ({ projections }) => {
     <ScrollView horizontal style={styles.horizontalScroll} contentContainerStyle={styles.contentContainer}>
       {projections.map((month, idx) => {
         const isCurrentMonth = idx === 0;
+        const parsedDate = parse(month.monthName, 'MMM/yy', new Date());
+        const year = parsedDate.getFullYear();
+        const month0 = parsedDate.getMonth();
 
         return (
           <View key={month.monthName} style={[styles.monthCol, { backgroundColor: colors.bg, borderRightColor: colors.border }]}>
@@ -32,11 +39,14 @@ export const HorizonteGrid: React.FC<Props> = ({ projections }) => {
               {Array.from({ length: maxDays }, (_, i) => {
                 const dayData = month.days.find(d => d.day === i + 1);
                 if (dayData) {
+                  const dateKey = buildDateKey(year, month0, dayData.day);
                   return (
                     <HorizonteCell 
                       key={i} 
                       day={dayData.day} 
-                      balance={dayData.balance} 
+                      balance={dayData.balance}
+                      isChecked={checkedDates?.has(dateKey)}
+                      onToggle={onToggleDay ? () => onToggleDay(dateKey) : undefined}
                     />
                   );
                 }
