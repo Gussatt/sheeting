@@ -4,9 +4,8 @@ import { useSQL, db, type Transaction, type BudgetCategory } from '../../src/db/
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, startOfDay, isAfter } from 'date-fns';
 import { LedgerRow, type TransactionType } from '../../src/components/Ledger/LedgerRow';
 import { FilterSheet } from '../../src/components/Ledger/FilterSheet';
-import { TransactionListSheet } from '../../src/components/Ledger/TransactionListSheet';
 import type { FilterType } from '../../src/components/Ledger/FilterSheet';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, ChevronDown, Calendar } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusDots } from '../../src/components/Ledger/StatusDots';
@@ -25,9 +24,6 @@ export default function LedgerScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [filter, setFilter] = useState<FilterType>('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isListOpen, setIsListOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedType, setSelectedType] = useState<FilterType>('all');
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -91,10 +87,9 @@ export default function LedgerScreen() {
   }, [daysInMonth, filteredTransactions, statuses, dailyPredictionValue]);
 
   const handleCellClick = useCallback((type: TransactionType, date: Date) => {
-    setSelectedDate(date);
-    setSelectedType(type);
-    setIsListOpen(true);
-  }, []);
+    const dateStr = date.toISOString().split('T')[0];
+    router.push(`/transactions?type=${type}&date=${dateStr}`);
+  }, [router]);
 
   const handleCellLongPress = useCallback((type: TransactionType, date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
@@ -126,7 +121,10 @@ export default function LedgerScreen() {
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
         <Pressable onPress={jumpToToday} style={styles.todayContainer}>
-          <Text style={[styles.todayText, { color: colors.textPrimary }]}>{new Date().getDate()}</Text>
+          <Calendar size={28} color={colors.textPrimary} strokeWidth={2} />
+          <Text style={[styles.todayText, { color: colors.textPrimary, position: 'absolute', top: 12, fontSize: 10 }]}>
+            {new Date().getDate()}
+          </Text>
         </Pressable>
 
         <View style={styles.monthSelector}>
@@ -190,13 +188,6 @@ export default function LedgerScreen() {
         isOpen={isFilterOpen} 
         onSelect={(t) => { setFilter(t); setIsFilterOpen(false); }} 
         onClose={() => setIsFilterOpen(false)} 
-      />
-
-      <TransactionListSheet 
-        isOpen={isListOpen}
-        initialDate={selectedDate}
-        initialType={selectedType}
-        onClose={() => setIsListOpen(false)}
       />
     </View>
   );

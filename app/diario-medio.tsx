@@ -7,10 +7,12 @@ import type { Transaction } from '../src/db/db';
 import { startOfMonth, endOfMonth, isWithinInterval, format, getDaysInMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale/pt-BR';
 import { useAppTheme } from '../src/styles/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DiarioMedioScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [showExplanation, setShowExplanation] = useState(true);
 
@@ -45,7 +47,7 @@ export default function DiarioMedioScreen() {
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <View style={styles.headerLeft}>
           <Pressable onPress={() => router.back()} style={styles.iconBtn}>

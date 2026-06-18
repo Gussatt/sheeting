@@ -5,6 +5,8 @@ import { User, Database, LogOut, ChevronRight, AlertTriangle, Moon, Sun } from '
 import { useSQL, db } from '../../src/db/db';
 import { useAppTheme } from '../../src/styles/theme';
 import { useTheme } from '../../src/context/ThemeContext';
+import { AppIcon } from '../../src/components/AppIcon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface SettingItemProps {
   icon: any;
@@ -44,6 +46,7 @@ export default function MenuScreen() {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { colors, isDark } = useAppTheme();
+  const insets = useSafeAreaInsets();
   
   const config = useSQL<{ key: string, value: string }>('SELECT * FROM config');
   const userName = config.find(c => c.key === 'user_name')?.value || 'Usuário';
@@ -71,7 +74,7 @@ export default function MenuScreen() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} contentContainerStyle={{ padding: 16 }}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} contentContainerStyle={{ padding: 16, paddingTop: insets.top + 16 }}>
 
       <View style={{ paddingVertical: 24 }}>
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Menu</Text>
@@ -100,7 +103,7 @@ export default function MenuScreen() {
         <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 32 }]}>Configurações</Text>
         {/* Skipping previsaoDiarioIcon SVG import for now, using standard icon */}
         <SettingItem 
-          icon={Database} 
+          icon={(props: any) => <AppIcon name="previsao_diario" {...props} />} 
           label="Previsão de diário" 
           onClick={() => router.push('/daily-calculation')}
         />

@@ -4,6 +4,7 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import { useAppTheme } from '../../src/styles/theme';
 import { TransactionTypeModal } from '../../src/components/Forms/TransactionTypeModal';
 import { AppIcon } from '../../src/components/AppIcon';
+import { Plus, Menu as MenuIcon } from 'lucide-react-native';
 
 export default function TabLayout() {
   const { colors, isDark } = useAppTheme();
@@ -36,7 +37,7 @@ export default function TabLayout() {
           options={{ 
             title: 'Totais',
             tabBarIcon: ({ color }) => (
-              <AppIcon name="totais" size={26} color={color as string} />
+              <AppIcon name="totais" size={26} color={color as string} forceTheme="light" />
             )
           }} 
         />
@@ -51,7 +52,7 @@ export default function TabLayout() {
                   onPress={() => setIsModalOpen(true)}
                   style={[styles.fab, { backgroundColor: isDark ? '#fff' : '#000' }]}
                 >
-                  <AppIcon name="adicao" size={36} forceTheme={isDark ? 'dark' : 'light'} />
+                  <Plus size={36} color={isDark ? '#000' : '#fff'} />
                 </Pressable>
               </View>
             )
@@ -63,7 +64,7 @@ export default function TabLayout() {
           options={{ 
             title: 'Tags',
             tabBarIcon: ({ color }) => (
-              <AppIcon name="tags" size={26} color={color as string} />
+              <AppIcon name="tags" size={26} color={color as string} forceTheme="light" />
             )
           }} 
         />
@@ -72,7 +73,7 @@ export default function TabLayout() {
           options={{ 
             title: 'Menu',
             tabBarIcon: ({ color }) => (
-              <AppIcon name="navegacao" size={26} color={color as string} />
+              <MenuIcon size={26} color={color as string} />
             )
           }} 
         />

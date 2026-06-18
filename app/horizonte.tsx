@@ -10,10 +10,12 @@ import { ChevronLeft, Plus } from 'lucide-react-native';
 import { useFilteredTransactions } from '../src/hooks/useFilteredTransactions';
 import { startOfMonth } from 'date-fns';
 import { useAppTheme } from '../src/styles/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HorizonteScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const now = new Date();
   const monthStart = startOfMonth(now);
 
@@ -34,7 +36,7 @@ export default function HorizonteScreen() {
   const projections = calculateProjection(now, balanceAtStartOfMonth, dailyPlanned, filteredTransactions, 3);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <View style={styles.headerLeft}>
           <Pressable onPress={() => router.back()} style={styles.iconBtn}>

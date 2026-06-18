@@ -7,11 +7,13 @@ import { ArrowLeft } from 'lucide-react-native';
 import { TransactionForm } from '../src/components/Forms/TransactionForm';
 import { useTransaction } from '../src/hooks/useTransaction';
 import { useAppTheme } from '../src/styles/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function AddTransactionScreen() {
   const router = useRouter();
   const { id, type, date } = useLocalSearchParams();
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   
   const tags = useSQL<Tag>('SELECT * FROM tags');
 
@@ -61,7 +63,7 @@ export default function AddTransactionScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <ArrowLeft size={24} color={colors.textPrimary} />

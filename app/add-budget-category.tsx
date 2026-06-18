@@ -4,11 +4,13 @@ import { useRouter } from 'expo-router';
 import { db } from '../src/db/db';
 import { X, Pencil } from 'lucide-react-native';
 import { useAppTheme } from '../src/styles/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Crypto from 'expo-crypto';
 
 export default function AddBudgetCategoryScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState('');
 
@@ -39,7 +41,7 @@ export default function AddBudgetCategoryScreen() {
   const isComplete = amount > 0 && description.length > 0;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.amountRow}>
@@ -105,7 +107,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 32,
-    paddingTop: 48,
   },
   amountRow: {
     flexDirection: 'row',

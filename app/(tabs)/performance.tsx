@@ -45,6 +45,21 @@ const MetricItem = ({ label, value, subvalue, color, math, secondaryValue }: Met
   );
 };
 
+const MovementItem = ({ label, value, iconName }: { label: string; value: number; iconName: string }) => {
+  const { colors } = useAppTheme();
+  return (
+    <View style={[styles.movementContainer, { borderBottomColor: colors.border }]}>
+      <View style={styles.movementLeft}>
+        <AppIcon name={iconName as any} size={20} />
+        <Text style={[styles.movementLabel, { color: colors.textPrimary }]}>{label}</Text>
+      </View>
+      <Text style={[styles.movementValue, { color: colors.textPrimary }]}>
+        R$ {value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+      </Text>
+    </View>
+  );
+};
+
 export default function PerformanceScreen() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { colors } = useAppTheme();
@@ -179,6 +194,20 @@ export default function PerformanceScreen() {
           />
         </Pressable>
       </View>
+
+      <View style={styles.movementsSection}>
+        <Text style={[styles.movementsTitle, { color: colors.textSecondary }]}>Movimentações do mês</Text>
+        <MovementItem label="Entradas" value={income} iconName="entradas" />
+        <MovementItem label="Saídas" value={expense} iconName="saidas" />
+        <MovementItem label="Diários" value={daily} iconName="diario" />
+        <MovementItem label="Economias" value={savings} iconName="economia" />
+        <MovementItem label="Gastos com cartão" value={credit} iconName="cartao" />
+
+        <Pressable onPress={() => router.push('/')} style={styles.viewAllButton}>
+          <MoreHorizontal size={24} color={colors.textPrimary} />
+          <Text style={[styles.viewAllText, { color: colors.textPrimary }]}>Ver todas</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -284,5 +313,44 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-  }
+  },
+  movementsSection: {
+    paddingHorizontal: 16,
+    marginTop: 32,
+  },
+  movementsTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  movementContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+  },
+  movementLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  movementLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  movementValue: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    paddingVertical: 20,
+  },
+  viewAllText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
 });

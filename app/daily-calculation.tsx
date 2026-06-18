@@ -6,10 +6,12 @@ import type { BudgetCategory } from '../src/db/db';
 import { calculateDailyBudget } from '../src/utils/budgetCalc';
 import { Plus, ArrowLeft, ChevronDown } from 'lucide-react-native';
 import { useAppTheme } from '../src/styles/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DailyCalculationScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
+  const insets = useSafeAreaInsets();
   const [days, setDays] = useState(30);
   const categories = useSQL<BudgetCategory>('SELECT * FROM budget_categories');
   
@@ -24,7 +26,7 @@ export default function DailyCalculationScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <View style={styles.headerLeft}>
           <Pressable onPress={() => router.back()} style={styles.iconBtn}>
