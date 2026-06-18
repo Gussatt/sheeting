@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HorizonteGridButton } from '../../src/components/Ledger/HorizonteGridButton';
 import { useFilteredTransactions } from '../../src/hooks/useFilteredTransactions';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import { TypeIcon } from '../../src/components/Ledger/TypeIcon';
 import { calculateDailyBudget } from '../../src/utils/budgetCalc';
 import { useAppTheme } from '../../src/styles/theme';
@@ -18,6 +19,7 @@ import { useAppTheme } from '../../src/styles/theme';
 export default function LedgerScreen() {
   const { theme } = useTheme();
   const { colors, isDark } = useAppTheme();
+  const { t } = useLanguage();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   
@@ -117,12 +119,12 @@ export default function LedgerScreen() {
     setCurrentDate(next);
   };
 
-  const getFilterLabel = (t: FilterType) => {
+  const getFilterLabel = (type: FilterType) => {
     const labels: Record<FilterType, string> = {
-      all: 'Todas', income: 'Entradas', expense: 'Saídas', 
+      all: t('filter.all'), income: t('filter.income'), expense: t('filter.expense'), 
       daily: 'Diário', savings: 'Economia', credit: 'Cartão'
     };
-    return labels[t];
+    return labels[type];
   };
 
   const jumpToToday = () => {
