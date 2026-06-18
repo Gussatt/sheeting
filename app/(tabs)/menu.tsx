@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, Image, Alert, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { User, Database, LogOut, ChevronRight, AlertTriangle, Moon, Sun } from 'lucide-react-native';
+import { User, Database, LogOut, ChevronRight, AlertTriangle, Moon, Sun, Globe } from 'lucide-react-native';
 import { useSQL, db } from '../../src/db/db';
 import { useAppTheme } from '../../src/styles/theme';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 import { AppIcon } from '../../src/components/AppIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -44,12 +45,13 @@ const SettingItem = ({ icon: Icon, label, value, onClick, color }: SettingItemPr
 
 export default function MenuScreen() {
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
   const { colors, isDark } = useAppTheme();
+  const { toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const insets = useSafeAreaInsets();
   
   const config = useSQL<{ key: string, value: string }>('SELECT * FROM config');
-  const userName = config.find(c => c.key === 'user_name')?.value || 'Usuário';
+  const userName = config.find(c => c.key === 'user_name')?.value || t('menu.user_default');
   const userPhoto = config.find(c => c.key === 'user_photo')?.value;
 
   const handleReset = () => {
@@ -77,7 +79,7 @@ export default function MenuScreen() {
     <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} contentContainerStyle={{ padding: 16, paddingTop: insets.top + 16 }}>
 
       <View style={{ paddingVertical: 24 }}>
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Menu</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('menu.title')}</Text>
       </View>
 
       <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
@@ -113,6 +115,12 @@ export default function MenuScreen() {
           value={isDark ? 'Escuro' : 'Claro'} 
           onClick={toggleTheme}
         />
+        <SettingItem 
+          icon={Globe} 
+          label={t('menu.language')} 
+          value={language === 'pt' ? t('menu.language.pt') : t('menu.language.en')} 
+          onClick={() => setLanguage(language === 'pt' ? 'en' : 'pt')}
+        />
 
         <Text style={[styles.sectionTitle, { color: colors.textSecondary, marginTop: 32 }]}>Dados</Text>
         <SettingItem icon={Database} label="Exportar Dados" value="Backup em JSON ou CSV" />
@@ -129,7 +137,7 @@ export default function MenuScreen() {
         style={[styles.logoutButton, { borderColor: colors.border }]}
       >
         <LogOut size={20} color={colors.red} />
-        <Text style={{ color: colors.red, fontWeight: 'bold', marginLeft: 8 }}>Sair</Text>
+        <Text style={{ color: colors.red, fontWeight: 'bold', marginLeft: 8 }}>{t('menu.logout')}</Text>
       </Pressable>
     </ScrollView>
   );

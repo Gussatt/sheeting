@@ -7,6 +7,7 @@ export const translations = {
     'menu.language.pt': 'Português',
     'menu.language.en': 'Inglês',
     'menu.logout': 'Sair',
+    'menu.user_default': 'Usuário',
   },
   en: {
     'menu.title': 'Menu',
@@ -14,5 +15,6 @@ export const translations = {
     'menu.language.pt': 'Portuguese',
     'menu.language.en': 'English',
     'menu.logout': 'Logout',
+    'menu.user_default': 'User',
   }
 };
