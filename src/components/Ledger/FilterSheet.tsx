@@ -21,8 +21,8 @@ export const FilterSheet = ({ isOpen, onSelect, onClose }: { isOpen: boolean, on
 
   return (
     <Modal visible={isOpen} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }} onPress={onClose}>
-        <View style={{ backgroundColor: colors.bg, padding: 24, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+      <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end', alignItems: 'center' }} onPress={onClose}>
+        <View style={{ backgroundColor: colors.bg, padding: 24, borderTopLeftRadius: 16, borderTopRightRadius: 16, width: '100%', maxWidth: 500 }}>
           <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 16 }}>Filtrar por</Text>
           {FILTER_OPTIONS.map((opt) => (
             <Pressable 

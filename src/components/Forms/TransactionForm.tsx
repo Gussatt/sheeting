@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
+import {
   View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, LayoutAnimation
 } from 'react-native';
-import { 
+import {
   ChevronDown, X, Pencil, RotateCw, Square, Plus, Minus, ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react-native';
 import type { Transaction, Tag } from '../../db/db';
@@ -63,16 +63,16 @@ const DayCell = React.memo(({ date, isSelected, isToday, isDark, colors, onPress
   );
 });
 
-const CalendarModal = React.memo(({ 
-  visible, 
-  onClose, 
-  pickerDate, 
-  onSelect 
-}: { 
-  visible: boolean, 
-  onClose: () => void, 
-  pickerDate: Date, 
-  onSelect: (date: Date) => void 
+const CalendarModal = React.memo(({
+  visible,
+  onClose,
+  pickerDate,
+  onSelect
+}: {
+  visible: boolean,
+  onClose: () => void,
+  pickerDate: Date,
+  onSelect: (date: Date) => void
 }) => {
   const { colors, isDark } = useAppTheme();
   const [currentMonth, setCurrentMonth] = useState(new Date(pickerDate));
@@ -99,7 +99,7 @@ const CalendarModal = React.memo(({
       <Pressable style={styles.modalOverlay} onPress={onClose}>
         <View style={[styles.modalSheet, { backgroundColor: colors.bg }]} onStartShouldSetResponder={() => true}>
           <ModalHeader title="Data" onClose={onClose} />
-          
+
           <View style={styles.calendarHeader}>
             <Pressable onPress={() => setCurrentMonth(subMonths(currentMonth, 1))} style={styles.chevronBtn}>
               <ChevronLeft size={24} color={colors.textPrimary} />
@@ -123,7 +123,7 @@ const CalendarModal = React.memo(({
               <View key={`pad-${i}`} style={styles.dayCell} />
             ))}
             {daysInMonth.map((date) => (
-              <DayCell 
+              <DayCell
                 key={date.toISOString()}
                 date={date}
                 isSelected={isSameDay(date, pickerDate)}
@@ -208,7 +208,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
               value={formatAmount(formData.amount || 0)}
               onChangeText={handleAmountChange}
               style={[
-                styles.amountInput, 
+                styles.amountInput,
                 { color: formData.amount === 0 ? colors.textSecondary : colors.textPrimary }
               ]}
             />
@@ -219,11 +219,11 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
         </View>
 
         <View style={styles.formList}>
-          <Pressable 
+          <Pressable
             onPress={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setActiveModal('type');
-            }} 
+            }}
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
             <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
@@ -235,7 +235,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
 
           <View style={[styles.row, { borderBottomColor: colors.border }]}>
             <Pencil size={24} color={colors.textSecondary} />
-            <TextInput 
+            <TextInput
               placeholder="Descrição"
               placeholderTextColor={colors.textSecondary}
               value={formData.description}
@@ -244,11 +244,11 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             />
           </View>
 
-          <Pressable 
+          <Pressable
             onPress={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setActiveModal('date');
-            }} 
+            }}
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
             <Calendar size={24} color={colors.textSecondary} />
@@ -257,11 +257,11 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             <ChevronDown size={20} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable 
+          <Pressable
             onPress={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setActiveModal('repeat');
-            }} 
+            }}
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
             <RotateCw size={24} color={colors.textSecondary} />
@@ -271,11 +271,11 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
 
           {formData.isRecurring && (
             <View style={[styles.recurrenceRow, { borderBottomColor: colors.border }]}>
-              <Pressable 
+              <Pressable
                 onPress={() => {
                   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                   setActiveModal('until');
-                }} 
+                }}
                 style={styles.recurrenceLeft}
               >
                 <Text style={[styles.rowLabel, { color: colors.textPrimary }]}>{untilLabel}</Text>
@@ -301,11 +301,11 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
             </View>
           )}
 
-          <Pressable 
+          <Pressable
             onPress={() => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setActiveModal('tags');
-            }} 
+            }}
             style={[styles.row, { borderBottomColor: colors.border }]}
           >
             <Square size={24} color={colors.textSecondary} />
@@ -332,7 +332,7 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
       <Modal visible={activeModal === 'type'} transparent animationType="slide">
         <Pressable style={styles.modalOverlay} onPress={() => setActiveModal(null)}>
           <View style={[styles.modalSheet, { backgroundColor: colors.bg }]}>
-            <ModalHeader title="Tipo" onClose={() => setActiveModal(null)} />
+            <ModalHeader title="Mudar para" onClose={() => setActiveModal(null)} />
             {TYPE_OPTIONS.map(opt => (
               <Pressable key={opt.type} style={styles.modalOption} onPress={() => { setFormData(prev => ({ ...prev, type: opt.type })); setActiveModal(null); }}>
                 <AppIcon name={opt.iconName} size={24} />
@@ -343,11 +343,11 @@ export const TransactionForm: React.FC<Props> = ({ initialData, tags, onSubmit, 
         </Pressable>
       </Modal>
 
-      <CalendarModal 
-        visible={activeModal === 'date'} 
-        onClose={() => setActiveModal(null)} 
-        pickerDate={pickerDate} 
-        onSelect={handleDateSelect} 
+      <CalendarModal
+        visible={activeModal === 'date'}
+        onClose={() => setActiveModal(null)}
+        pickerDate={pickerDate}
+        onSelect={handleDateSelect}
       />
 
       <Modal visible={activeModal === 'repeat'} transparent animationType="slide">

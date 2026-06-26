@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useSQL } from '../../src/db/db';
 import type { BudgetCategory, Transaction } from '../../src/db/db';
@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/styles/theme';
 import { AppIcon } from '../../src/components/AppIcon';
+import { HorizonteGridButton } from '../../src/components/Ledger/HorizonteGridButton';
 
 interface MetricItemProps {
   label: string;
@@ -33,7 +34,7 @@ const MetricItem = ({ label, value, subvalue, color, math, secondaryValue }: Met
         <View style={styles.metricValueRow}>
           {secondaryValue ? <Text style={[styles.metricSecondary, { color: colors.pink }]}>{secondaryValue}</Text> : null}
           <Text style={[
-            styles.metricValue, 
+            styles.metricValue,
             { color: typeof value === 'number' && value < 0 ? colors.red : color || colors.textPrimary }
           ]}>
             {typeof value === 'number' ? `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : value}
@@ -65,14 +66,14 @@ export default function PerformanceScreen() {
   const { colors } = useAppTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  
+
   const start = startOfMonth(currentDate);
   const end = endOfMonth(currentDate);
 
   const transactions = useSQL<Transaction>('SELECT * FROM transactions');
   const budgets = useSQL<BudgetCategory>('SELECT * FROM budget_categories');
 
-  const monthTransactions = transactions.filter(t => 
+  const monthTransactions = transactions.filter(t =>
     isWithinInterval(new Date(t.date), { start, end })
   );
 
@@ -83,13 +84,24 @@ export default function PerformanceScreen() {
   const credit = monthTransactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + Number(t.amount), 0);
   const daysInMonth = getDaysInMonth(currentDate);
   const { daily: dailyPlanned } = calculateDailyBudget(budgets, daysInMonth);
-  
+
   const performance = income - expense - daily - savings - credit;
   const costOfLiving = expense + daily + credit;
   const savedPercent = income > 0 ? Math.round((savings / income) * 100) : 0;
-  
+
   const avgDaily = daysInMonth > 0 ? daily / daysInMonth : 0;
-  const monthsWithDaily = 1; // placeholder for multi-month calc
+  const monthsWithDaily = 1;
+
+  const futureBalances = useMemo(() => {
+    const netBalance = income - expense - daily - savings - credit;
+    const result: number[] = [netBalance];
+    let balance = netBalance;
+    for (let i = 1; i < 9; i++) {
+      balance -= dailyPlanned;
+      result.push(balance);
+    }
+    return result;
+  }, [income, expense, daily, savings, credit, dailyPlanned]);
 
   const changeMonth = (delta: number) => {
     const next = new Date(currentDate);
@@ -117,13 +129,13 @@ export default function PerformanceScreen() {
           </Pressable>
         </View>
 
-        <Pressable style={styles.moreBtn}>
-          <MoreHorizontal size={24} color={colors.textPrimary} />
+        <Pressable onPress={() => router.push('/horizonte')} style={styles.moreBtn}>
+          <HorizonteGridButton balances={futureBalances} />
         </Pressable>
       </View>
 
       <View style={styles.metricsList}>
-        <MetricItem 
+        <MetricItem
           label="Performance"
           value={performance}
           subvalue={performance < 0 ? "Faltou dinheiro" : "Dentro da meta"}
@@ -141,8 +153,8 @@ export default function PerformanceScreen() {
             </View>
           }
         />
-        
-        <MetricItem 
+
+        <MetricItem
           label="Economizado"
           value={`${savedPercent}%`}
           subvalue="Acima do ideal"
@@ -158,7 +170,7 @@ export default function PerformanceScreen() {
           }
         />
 
-        <MetricItem 
+        <MetricItem
           label="Custo de vida"
           value={costOfLiving}
           subvalue={costOfLiving > income ? "Acima da renda" : "Dentro da renda"}
@@ -166,7 +178,7 @@ export default function PerformanceScreen() {
             <View style={styles.mathRow}>
               <AppIcon name="saidas" size={16} />
               <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>+</Text>
-              <AppIcon name="previsao_diario" size={16} color={colors.pink} />
+              <AppIcon name="diario" size={16} color={colors.pink} />
               <Text style={[styles.mathSymbol, { color: colors.textSecondary }]}>+</Text>
               <AppIcon name="cartao" size={16} />
             </View>
@@ -174,7 +186,7 @@ export default function PerformanceScreen() {
         />
 
         <Pressable onPress={() => router.push('/diario-medio')}>
-          <MetricItem 
+          <MetricItem
             label="Diário médio"
             value={avgDaily}
             math={
