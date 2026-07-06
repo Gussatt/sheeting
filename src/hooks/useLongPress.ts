@@ -1,10 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-export const useLongPress = (
-  onClick: () => void,
-  onLongPress: () => void,
-  ms: number = 500
-) => {
+export const useLongPress = (onClick: () => void, onLongPress: () => void, ms: number = 500) => {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLongPressTriggered, setIsLongPressTriggered] = useState(false);
 

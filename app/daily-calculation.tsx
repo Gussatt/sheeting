@@ -14,7 +14,7 @@ export default function DailyCalculationScreen() {
   const insets = useSafeAreaInsets();
   const [days, setDays] = useState(30);
   const categories = useSQL<BudgetCategory>('SELECT * FROM budget_categories');
-  
+
   const { total, daily } = calculateDailyBudget(categories, days);
 
   const handleDelete = async (id: string) => {
@@ -42,7 +42,7 @@ export default function DailyCalculationScreen() {
       <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 120 }}>
         {categories.length === 0 ? (
           <View style={styles.emptyState}>
-            <Pressable 
+            <Pressable
               onPress={handleAdd}
               style={[styles.emptyAddBtn, { borderColor: colors.border }]}
             >
@@ -53,9 +53,9 @@ export default function DailyCalculationScreen() {
             </Text>
           </View>
         ) : (
-          categories.map(cat => (
+          categories.map((cat) => (
             <View key={cat.id} style={[styles.categoryItem, { borderBottomColor: colors.border }]}>
-              <Pressable 
+              <Pressable
                 onPress={() => {
                   // In a real app we'd use Alert.alert here
                   handleDelete(cat.id);
@@ -64,7 +64,10 @@ export default function DailyCalculationScreen() {
               >
                 <Text style={[styles.categoryName, { color: colors.textPrimary }]}>{cat.name}</Text>
                 <Text style={[styles.categoryAmount, { color: colors.textPrimary }]}>
-                  R$ {Number(cat.monthlyAmount || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R${' '}
+                  {Number(cat.monthlyAmount || 0).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                  })}
                 </Text>
               </Pressable>
             </View>
@@ -79,7 +82,7 @@ export default function DailyCalculationScreen() {
             R$ {Number(total || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </Text>
         </View>
-        
+
         <View style={[styles.footerRow, { marginBottom: 24 }]}>
           <Text style={[styles.footerLabel, { color: colors.textPrimary }]}>Dividido por</Text>
           <View style={styles.daysSelector}>
@@ -193,5 +196,5 @@ const styles = StyleSheet.create({
   dailyText: {
     fontSize: 36,
     fontWeight: 'bold',
-  }
+  },
 });

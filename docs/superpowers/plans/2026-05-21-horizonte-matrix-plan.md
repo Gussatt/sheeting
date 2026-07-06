@@ -4,7 +4,8 @@
 
 **Goal:** Implement the "Horizonte" projection matrix, a multi-month grid showing financial health forecasts.
 
-**Architecture:** 
+**Architecture:**
+
 - **Utility:** A projection engine that takes initial balance, recurring transactions, and daily allowances to compute daily balances for N months.
 - **Component:** A scrollable grid (Months as columns, Days as rows) using the `HorizonteCell` component.
 
@@ -15,6 +16,7 @@
 ### Task 1: Projection Logic Utility
 
 **Files:**
+
 - Create: `src/utils/projection.ts`
 - Create: `src/utils/projection.test.ts`
 
@@ -31,11 +33,19 @@ describe('calculateProjection', () => {
     const initialBalance = 1000;
     const dailyAllowance = 50; // Spend per day
     const transactions: Transaction[] = [
-      { id: '1', amount: 500, type: 'income', date: new Date('2026-05-15'), tagId: 't', isRecurring: false, description: 'Bonus' }
+      {
+        id: '1',
+        amount: 500,
+        type: 'income',
+        date: new Date('2026-05-15'),
+        tagId: 't',
+        isRecurring: false,
+        description: 'Bonus',
+      },
     ];
 
     const result = calculateProjection(startDate, initialBalance, dailyAllowance, transactions, 1); // 1 month
-    
+
     // Day 1: 1000 - 50 = 950
     expect(result[0].days[0].balance).toBe(950);
     // Day 15: Previous(14 days) + 500 - 50
@@ -68,7 +78,7 @@ export const calculateProjection = (
   initialBalance: number,
   dailyAllowance: number,
   transactions: Transaction[],
-  monthsToProject: number = 3
+  monthsToProject: number = 3,
 ): MonthProjection[] => {
   let currentBalance = initialBalance;
   const projections: MonthProjection[] = [];
@@ -78,7 +88,7 @@ export const calculateProjection = (
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-    
+
     const dayProjections: DayProjection[] = [];
 
     daysInMonth.forEach((date) => {
@@ -86,21 +96,21 @@ export const calculateProjection = (
       currentBalance -= dailyAllowance;
 
       // 2. Add/Sub transactions for this day
-      const daysTransactions = transactions.filter(t => isSameDay(new Date(t.date), date));
-      daysTransactions.forEach(t => {
+      const daysTransactions = transactions.filter((t) => isSameDay(new Date(t.date), date));
+      daysTransactions.forEach((t) => {
         if (t.type === 'income') currentBalance += t.amount;
         else currentBalance -= t.amount;
       });
 
       dayProjections.push({
         day: date.getDate(),
-        balance: currentBalance
+        balance: currentBalance,
       });
     });
 
     projections.push({
       monthName: format(currentDate, 'MMM/yy'),
-      days: dayProjections
+      days: dayProjections,
     });
 
     currentDate = addDays(monthEnd, 1);
@@ -124,6 +134,7 @@ git commit -m "feat: implement financial projection logic utility"
 ### Task 2: Horizonte Grid Component
 
 **Files:**
+
 - Create: `src/components/Ledger/HorizonteGrid.tsx`
 - Create: `src/components/Ledger/HorizonteGrid.test.tsx`
 
@@ -138,11 +149,23 @@ import { HorizonteGrid } from './HorizonteGrid';
 describe('HorizonteGrid', () => {
   it('renders correct number of months and day rows', () => {
     const projections = [
-      { monthName: 'May/26', days: [{ day: 1, balance: 100 }, { day: 2, balance: 200 }] },
-      { monthName: 'Jun/26', days: [{ day: 1, balance: 300 }, { day: 2, balance: 400 }] }
+      {
+        monthName: 'May/26',
+        days: [
+          { day: 1, balance: 100 },
+          { day: 2, balance: 200 },
+        ],
+      },
+      {
+        monthName: 'Jun/26',
+        days: [
+          { day: 1, balance: 300 },
+          { day: 2, balance: 400 },
+        ],
+      },
     ];
     render(<HorizonteGrid projections={projections} />);
-    
+
     expect(screen.getByText('May/26')).toBeInTheDocument();
     expect(screen.getByText('Jun/26')).toBeInTheDocument();
     expect(screen.getAllByTestId('horizonte-cell')).toHaveLength(4);
@@ -171,7 +194,16 @@ export const HorizonteGrid: React.FC<Props> = ({ projections }) => {
       {/* Labels Column */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingTop: '2rem' }}>
         {Array.from({ length: maxDays }, (_, i) => (
-          <div key={i} style={{ height: '30px', display: 'flex', alignItems: 'center', fontSize: '0.8rem', opacity: 0.6 }}>
+          <div
+            key={i}
+            style={{
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '0.8rem',
+              opacity: 0.6,
+            }}
+          >
             {i + 1}
           </div>
         ))}
@@ -179,10 +211,15 @@ export const HorizonteGrid: React.FC<Props> = ({ projections }) => {
 
       {/* Month Columns */}
       {projections.map((month) => (
-        <div key={month.monthName} style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '8px' }}>{month.monthName}</span>
+        <div
+          key={month.monthName}
+          style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}
+        >
+          <span style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '8px' }}>
+            {month.monthName}
+          </span>
           {Array.from({ length: maxDays }, (_, i) => {
-            const dayData = month.days.find(d => d.day === i + 1);
+            const dayData = month.days.find((d) => d.day === i + 1);
             return dayData ? (
               <HorizonteCell key={i} day={dayData.day} forecast={dayData.balance} />
             ) : (

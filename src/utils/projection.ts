@@ -16,7 +16,7 @@ export const calculateProjection = (
   initialBalance: number,
   dailyAllowance: number,
   transactions: Transaction[],
-  monthsToProject: number = 3
+  monthsToProject: number = 3,
 ): MonthProjection[] => {
   let currentBalance = initialBalance;
   const projections: MonthProjection[] = [];
@@ -26,7 +26,7 @@ export const calculateProjection = (
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
     const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
-    
+
     const dayProjections: DayProjection[] = [];
 
     daysInMonth.forEach((date) => {
@@ -34,24 +34,29 @@ export const calculateProjection = (
       currentBalance -= Number(dailyAllowance);
 
       // 2. Add/Sub transactions for this day
-      const daysTransactions = transactions.filter(t => isSameDay(new Date(t.date), date));
-      daysTransactions.forEach(t => {
+      const daysTransactions = transactions.filter((t) => isSameDay(new Date(t.date), date));
+      daysTransactions.forEach((t) => {
         const amount = Number(t.amount);
         if (t.type === 'income') currentBalance += amount;
-        else if (t.type === 'expense' || t.type === 'daily' || t.type === 'savings' || t.type === 'credit') {
+        else if (
+          t.type === 'expense' ||
+          t.type === 'daily' ||
+          t.type === 'savings' ||
+          t.type === 'credit'
+        ) {
           currentBalance -= amount;
         }
       });
 
       dayProjections.push({
         day: date.getDate(),
-        balance: currentBalance
+        balance: currentBalance,
       });
     });
 
     projections.push({
       monthName: format(currentDate, 'MMM/yy'),
-      days: dayProjections
+      days: dayProjections,
     });
 
     currentDate = addDays(monthEnd, 1);

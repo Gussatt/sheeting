@@ -13,6 +13,7 @@
 ### Task 1: Filter Bottom Sheet UI
 
 **Files:**
+
 - Create: `src/components/Ledger/FilterSheet.tsx`
 - Create: `src/components/Ledger/FilterSheet.test.tsx`
 
@@ -29,7 +30,7 @@ describe('FilterSheet', () => {
   it('calls onSelect with the chosen filter', () => {
     const onSelect = vi.fn();
     render(<FilterSheet isOpen={true} onSelect={onSelect} onClose={() => {}} />);
-    
+
     fireEvent.click(screen.getByText('Entradas'));
     expect(onSelect).toHaveBeenCalledWith('income');
   });
@@ -59,7 +60,9 @@ export const FilterSheet: React.FC<FilterSheetProps> = ({ isOpen, onSelect, onCl
   if (!isOpen) return null;
 
   return (
-    <div style={{ position: 'fixed', bottom: 0, width: '100%', background: 'white', padding: '16px' }}>
+    <div
+      style={{ position: 'fixed', bottom: 0, width: '100%', background: 'white', padding: '16px' }}
+    >
       <h3>Mostrar</h3>
       <button onClick={onClose}>X</button>
       <ul>
@@ -89,6 +92,7 @@ git commit -m "feat: create FilterSheet component"
 ### Task 2: Horizonte Grid Cell
 
 **Files:**
+
 - Create: `src/components/Ledger/HorizonteCell.tsx`
 - Create: `src/components/Ledger/HorizonteCell.test.tsx`
 
@@ -107,7 +111,7 @@ describe('HorizonteCell', () => {
     const cell = screen.getByTestId('horizonte-cell');
     expect(cell.style.backgroundColor).toBe('rgb(149, 253, 184)'); // #95FDB8
   });
-  
+
   it('renders pink cell for negative forecast', () => {
     render(<HorizonteCell day={2} forecast={-50} />);
     const cell = screen.getByTestId('horizonte-cell');
@@ -140,9 +144,16 @@ export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, forecast }) =
   };
 
   return (
-    <div 
-      data-testid="horizonte-cell" 
-      style={{ backgroundColor: getCellColor(forecast), width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    <div
+      data-testid="horizonte-cell"
+      style={{
+        backgroundColor: getCellColor(forecast),
+        width: '30px',
+        height: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       {day}
     </div>

@@ -14,6 +14,7 @@ Per-tag keyword lists. The user pre-creates a tag (e.g. "Transporte") and adds k
 ## Scope
 
 In scope:
+
 - New `tag_keywords` table (relational storage)
 - Keyword management UI in `TagEditorModal` (chip add/remove)
 - Matching logic in `useTransaction.saveTransaction` (save-time, empty-tag-only)
@@ -21,6 +22,7 @@ In scope:
 - Minimal Vitest setup (dev dependency + npm script)
 
 Out of scope:
+
 - Multi-tag per transaction (junction table migration)
 - Live tag suggestions while typing in `TransactionForm`
 - Global rules screen (keywords live on each tag)
@@ -51,16 +53,19 @@ CREATE INDEX IF NOT EXISTS idx_tag_keywords_keyword ON tag_keywords(keyword);
 Adds a "Palavras-chave" section to `src/components/Forms/TagEditorModal.tsx`, positioned above the existing "Configurações avançadas" section.
 
 ### Layout
+
 - Section label "Palavras-chave" with helper text: "A transação recebe esta tag automaticamente quando a descrição contém uma das palavras-chave."
 - A `TextInput` (placeholder "Adicionar palavra-chave") with a `+` button (or submit-on-return) to add the typed keyword.
 - Below the input: a wrapping `flexWrap` row of chips. Each chip shows the keyword string + an `X` icon. Pressing X removes that keyword.
 
 ### State
+
 - New `keywords: string[]` state, initialized from the loaded tag's keywords (empty for new tags).
 - `addKeyword(text)`: trims, lowercases, dedupes (skip if already present or empty), appends.
 - `removeKeyword(keyword)`: filters out the chip.
 
 ### Persistence (in `handleSave`)
+
 - Diff the current `keywords` against the tag's original keywords.
 - Delete removed keywords from `tag_keywords` by keyword value for that tag.
 - Insert added keywords with new `Crypto.randomUUID()` ids.
@@ -68,10 +73,12 @@ Adds a "Palavras-chave" section to `src/components/Forms/TagEditorModal.tsx`, po
 - Reuse the existing `dbEvents` reactivity — `useSQL` consumers auto-refresh.
 
 ### Chip styling
+
 - `colors.surface` background, `colors.border` border, `colors.textPrimary` text. Matches existing color-grid density.
 - X icon uses `colors.textSecondary`.
 
 ### Edge cases
+
 - Keywords stored and matched case-insensitively (lowercased on insert, lowercased description on match).
 - Empty list is valid — the tag never auto-assigns.
 
@@ -80,13 +87,14 @@ Adds a "Palavras-chave" section to `src/components/Forms/TagEditorModal.tsx`, po
 Auto-assignment runs in `useTransaction.saveTransaction` (`src/hooks/useTransaction.ts`), only when `data.tagId` is empty.
 
 ### Pure helper: `src/utils/autoTag.ts`
-```ts
-export interface KeywordEntry { tagId: string; keyword: string; }
 
-export function findMatchingTagId(
-  description: string,
-  keywords: KeywordEntry[]
-): string | null {
+```ts
+export interface KeywordEntry {
+  tagId: string;
+  keyword: string;
+}
+
+export function findMatchingTagId(description: string, keywords: KeywordEntry[]): string | null {
   const lower = description.toLowerCase();
   for (const entry of keywords) {
     if (lower.includes(entry.keyword.toLowerCase())) {
@@ -100,6 +108,7 @@ export function findMatchingTagId(
 `keywords` is ordered by `tags.name ASC` by the caller, so first match wins deterministically.
 
 ### Integration in `useTransaction.saveTransaction`
+
 ```ts
 if (!data.tagId) {
   const description = (data.description || '').toLowerCase();
@@ -108,7 +117,7 @@ if (!data.tagId) {
       `SELECT tag_keywords.tag_id AS tag_id, keyword 
        FROM tag_keywords 
        JOIN tags ON tag_keywords.tag_id = tags.id 
-       ORDER BY tags.name ASC`
+       ORDER BY tags.name ASC`,
     );
     const matchId = findMatchingTagId(description, keywords);
     if (matchId) data.tagId = matchId;
@@ -117,6 +126,7 @@ if (!data.tagId) {
 ```
 
 ### Key decisions
+
 - **First match wins:** ordered by `tags.name ASC` for deterministic results. Renaming a tag shifts its priority.
 - **Substring, case-insensitive:** "uber" matches "Uber ride" and "UBER".
 - **Empty `tagId` only:** respects manual selection. Editing an existing tagged transaction is untouched.
@@ -126,9 +136,11 @@ if (!data.tagId) {
 ## Testing & Verification
 
 ### Pure helper extraction
+
 The matching algorithm is extracted into `src/utils/autoTag.ts` as a pure function, separating I/O (db query) from logic. This makes it unit-testable without a database.
 
 ### Unit tests: `src/utils/autoTag.test.ts`
+
 - Empty description → no match (returns null)
 - Empty keywords list → no match
 - Exact keyword match → returns tagId
@@ -138,12 +150,15 @@ The matching algorithm is extracted into `src/utils/autoTag.ts` as a pure functi
 - Tag with no keywords → never matched (absent from input)
 
 ### Vitest setup
+
 The AGENTS.md mandates Vitest tests, but no test infrastructure exists in this Expo project. This feature adds the minimal setup:
+
 - `vitest` as a dev dependency
 - `"test": "vitest run"` script in `package.json`
 - `src/setupTests.ts` already exists (referenced by AGENTS.md)
 
 ### Verification gate
+
 - `npm test` passes (new Vitest suite)
 - `npx tsc --noEmit` passes (existing project standard)
 - Manual: create a tag with a keyword, add a transaction with that keyword in the description, confirm the tag is auto-assigned without manual selection

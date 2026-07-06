@@ -13,21 +13,26 @@
 ### Task 1: Mapping Utilities
 
 **Files:**
+
 - Modify: `src/db/db.ts`
 
 - [ ] **Step 1: Implement snakeToCamel and camelToSnake utilities**
 
 ```typescript
-const toCamel = (str: string) => str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
+const toCamel = (str: string) =>
+  str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
 const toSnake = (str: string) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
 export function mapKeys<T>(obj: any, mapper: (s: string) => string): T {
-  if (Array.isArray(obj)) return obj.map(v => mapKeys(v, mapper)) as any;
+  if (Array.isArray(obj)) return obj.map((v) => mapKeys(v, mapper)) as any;
   if (obj !== null && typeof obj === 'object' && obj.constructor === Object) {
-    return Object.keys(obj).reduce((acc, key) => ({
-      ...acc,
-      [mapper(key)]: mapKeys(obj[key], mapper)
-    }), {}) as T;
+    return Object.keys(obj).reduce(
+      (acc, key) => ({
+        ...acc,
+        [mapper(key)]: mapKeys(obj[key], mapper),
+      }),
+      {},
+    ) as T;
   }
   return obj;
 }
@@ -43,6 +48,7 @@ git commit -m "db: add mapping utilities"
 ### Task 2: PGLite Initialization and Core Methods
 
 **Files:**
+
 - Modify: `src/db/db.ts`
 - Modify: `src/db/schema.sql` (if needed, but we read it)
 
@@ -62,7 +68,7 @@ class DB {
     this.initPromise = (async () => {
       this.pg = await PGlite.create({
         dataDir: 'idb://sheeting-db',
-        extensions: { live }
+        extensions: { live },
       });
       await this.pg.exec(schemaSql);
     })();
@@ -80,7 +86,9 @@ class DB {
     await this.pg!.query(sql, params);
   }
 
-  get instance() { return this.pg; }
+  get instance() {
+    return this.pg;
+  }
 }
 
 export const db = new DB();
@@ -96,6 +104,7 @@ git commit -m "db: implement PGLite core"
 ### Task 3: useSQL Hook
 
 **Files:**
+
 - Modify: `src/db/db.ts`
 
 - [ ] **Step 1: Implement useSQL hook**
@@ -118,7 +127,9 @@ export function useSQL<T>(query: string, params?: any[]): T[] {
       unsub = ret.unsubscribe;
     })();
 
-    return () => { if (unsub) unsub(); };
+    return () => {
+      if (unsub) unsub();
+    };
   }, [query, paramsStr]);
 
   return results;
@@ -135,6 +146,7 @@ git commit -m "db: add useSQL hook"
 ### Task 4: Compatibility Layer (Optional but Recommended)
 
 **Files:**
+
 - Modify: `src/db/db.ts`
 
 - [ ] **Step 1: Add legacy wrappers to db object**
@@ -153,6 +165,7 @@ git commit -m "db: add useSQL hook"
 ### Task 5: Testing and Verification
 
 **Files:**
+
 - Modify: `src/db/db.test.ts`
 
 - [ ] **Step 1: Update tests to use new query/exec API**

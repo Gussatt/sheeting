@@ -1,13 +1,16 @@
 ## Goal
+
 Implement Phase 1 (Project Setup & Foundation) of the Sheeting App. This includes installing required dependencies (Vitest, React Testing Library, Dexie.js), setting up the local-first database adapter using TDD, and establishing the global CSS design system (tokens, basic layout structure).
 
 ## Assumptions
-* The Vite React TypeScript environment is already initialized.
-* Dexie.js will be used as the IndexedDB wrapper for local-first storage.
-* The team prefers pure CSS variables over Tailwind (as per GEMINI.md defaults) for full customizability.
-* TDD is strictly enforced (Red-Green-Refactor).
+
+- The Vite React TypeScript environment is already initialized.
+- Dexie.js will be used as the IndexedDB wrapper for local-first storage.
+- The team prefers pure CSS variables over Tailwind (as per GEMINI.md defaults) for full customizability.
+- TDD is strictly enforced (Red-Green-Refactor).
 
 ## Plan
+
 1. Setup Testing Infrastructure
    - Files: `package.json`, `vite.config.ts`, `src/setupTests.ts`
    - Change: Install `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`. Configure Vite to use Vitest and include `setupTests.ts`.
@@ -29,11 +32,13 @@ Implement Phase 1 (Project Setup & Foundation) of the Sheeting App. This include
    - Verify: `npm run test` passes. `npm run dev` shows the updated layout on the screen.
 
 ## Risks & mitigations
-* **IndexedDB Testing:** Dexie interacts with the browser's IndexedDB, which can be tricky in Node.js test environments.
-  * *Mitigation:* Use `fake-indexeddb` to polyfill IndexedDB in our Vitest setup.
-* **Scope Creep:** Focusing too much on styling the layout before functionality.
-  * *Mitigation:* Stick strictly to defining variables and a barebones grid layout for now.
+
+- **IndexedDB Testing:** Dexie interacts with the browser's IndexedDB, which can be tricky in Node.js test environments.
+  - _Mitigation:_ Use `fake-indexeddb` to polyfill IndexedDB in our Vitest setup.
+- **Scope Creep:** Focusing too much on styling the layout before functionality.
+  - _Mitigation:_ Stick strictly to defining variables and a barebones grid layout for now.
 
 ## Rollback plan
-* If testing setup breaks the build, `git checkout -- vite.config.ts package.json` and reset `npm install`.
-* If `fake-indexeddb` causes issues with Dexie tests, mock Dexie entirely.
+
+- If testing setup breaks the build, `git checkout -- vite.config.ts package.json` and reset `npm install`.
+- If `fake-indexeddb` causes issues with Dexie tests, mock Dexie entirely.

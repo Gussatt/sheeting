@@ -13,40 +13,42 @@
 ### Task 1: Theme & Global Styles (Dark Mode)
 
 **Files:**
+
 - Modify: `src/index.css`
 - Modify: `src/App.css`
 
 - [ ] **Step 1: Define high-fidelity variables in index.css**
-Update `:root` with exact colors from screenshots.
+      Update `:root` with exact colors from screenshots.
 
 ```css
 :root {
   --color-bg: #121212;
-  --color-surface: #1E1E1E;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #AAAAAA;
-  --color-primary: #F97316;
-  
-  --status-green: #27AE60;
-  --status-yellow: #F1C40F;
-  --status-red: #E74C3C;
-  --status-pink: #E91E63;
-  --status-purple: #9B59B6;
-  --status-light-green: #2ECC71;
+  --color-surface: #1e1e1e;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #aaaaaa;
+  --color-primary: #f97316;
+
+  --status-green: #27ae60;
+  --status-yellow: #f1c40f;
+  --status-red: #e74c3c;
+  --status-pink: #e91e63;
+  --status-purple: #9b59b6;
+  --status-light-green: #2ecc71;
 }
 ```
 
 - [ ] **Step 2: Update body and layout styles**
-Ensure the app fills the viewport and has the correct background.
+      Ensure the app fills the viewport and has the correct background.
 
 ### Task 2: High-Fidelity Ledger Components
 
 **Files:**
+
 - Modify: `src/components/Ledger/LedgerRow.tsx`
 - Modify: `src/components/Ledger/LedgerRow.test.tsx`
 
 - [ ] **Step 1: Update LedgerRow for "Todas" view**
-Support an array of transaction totals/types. Add the "check-in" badge.
+      Support an array of transaction totals/types. Add the "check-in" badge.
 
 ```tsx
 interface LedgerRowProps {
@@ -60,6 +62,7 @@ interface LedgerRowProps {
 ### Task 3: PWA Setup
 
 **Files:**
+
 - Modify: `vite.config.ts`
 - Create: `public/manifest.json`
 

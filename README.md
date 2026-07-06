@@ -31,12 +31,14 @@ Sheeting is a local-first web application designed for financial predictability.
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/your-username/sheeting.git
    cd sheeting
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -49,6 +51,7 @@ Sheeting is a local-first web application designed for financial predictability.
 ### Building for Production
 
 To create a production build with PWA assets:
+
 ```bash
 npm run build
 npm run preview

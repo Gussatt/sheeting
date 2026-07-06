@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, TextInput, Modal, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  TextInput,
+  Modal,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import { X, ChevronDown, Check } from 'lucide-react-native';
 import { db } from '../../db/db';
 import type { Tag } from '../../db/db';
@@ -24,34 +33,37 @@ const TAG_COLORS = [
   { name: 'Marrom', color: '#D7CCC8' },
 ];
 
-const Toggle = ({ active, onChange }: { active: boolean, onChange: (val: boolean) => void }) => {
+const Toggle = ({ active, onChange }: { active: boolean; onChange: (val: boolean) => void }) => {
   const { colors } = useAppTheme();
   return (
-    <Pressable 
+    <Pressable
       onPress={() => onChange(!active)}
-      style={[styles.toggleContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}
+      style={[
+        styles.toggleContainer,
+        { backgroundColor: colors.surface, borderColor: colors.border },
+      ]}
     >
-      <View style={[
-        styles.toggleBtn, 
-        !active && { backgroundColor: colors.bg, shadowOpacity: 0.1 },
-      ]}>
-        <Text style={{ 
-          color: !active ? colors.textPrimary : colors.textSecondary,
-          fontWeight: !active ? 'bold' : 'normal',
-          fontSize: 13
-        }}>
+      <View
+        style={[styles.toggleBtn, !active && { backgroundColor: colors.bg, shadowOpacity: 0.1 }]}
+      >
+        <Text
+          style={{
+            color: !active ? colors.textPrimary : colors.textSecondary,
+            fontWeight: !active ? 'bold' : 'normal',
+            fontSize: 13,
+          }}
+        >
           Ignorar
         </Text>
       </View>
-      <View style={[
-        styles.toggleBtn, 
-        active && { backgroundColor: colors.primary },
-      ]}>
-        <Text style={{ 
-          color: active ? colors.bg : colors.textSecondary,
-          fontWeight: active ? 'bold' : 'normal',
-          fontSize: 13
-        }}>
+      <View style={[styles.toggleBtn, active && { backgroundColor: colors.primary }]}>
+        <Text
+          style={{
+            color: active ? colors.bg : colors.textSecondary,
+            fontWeight: active ? 'bold' : 'normal',
+            fontSize: 13,
+          }}
+        >
           Calcular
         </Text>
       </View>
@@ -64,7 +76,7 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
   const [name, setName] = useState('');
   const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0].color);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  
+
   const [calcSaldos, setCalcSaldos] = useState(true);
   const [calcPerformance, setCalcPerformance] = useState(true);
   const [calcEconomizado, setCalcEconomizado] = useState(true);
@@ -85,10 +97,9 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
       setCalcDiarioMedio(tag?.calcDiarioMedio ?? true);
       setKeywords([]);
       if (tag) {
-        db.query<{ keyword: string }>(
-          'SELECT keyword FROM tag_keywords WHERE tag_id = ?',
-          [tag.id]
-        ).then(rows => setKeywords(rows.map(r => r.keyword)));
+        db.query<{ keyword: string }>('SELECT keyword FROM tag_keywords WHERE tag_id = ?', [
+          tag.id,
+        ]).then((rows) => setKeywords(rows.map((r) => r.keyword)));
       }
     }
   }, [isOpen, tag]);
@@ -98,11 +109,11 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
   const addKeyword = (text: string) => {
     const trimmed = text.trim().toLowerCase();
     if (!trimmed || keywords.includes(trimmed)) return;
-    setKeywords(prev => [...prev, trimmed]);
+    setKeywords((prev) => [...prev, trimmed]);
   };
 
   const removeKeyword = (keyword: string) => {
-    setKeywords(prev => prev.filter(k => k !== keyword));
+    setKeywords((prev) => prev.filter((k) => k !== keyword));
   };
 
   const handleSave = async () => {
@@ -115,7 +126,16 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
           `UPDATE tags SET name = ?, color = ?, calc_saldos = ?, calc_performance = ?,
                   calc_economizado = ?, calc_custo_vida = ?, calc_diario_medio = ?
            WHERE id = ?`,
-          [name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio, tag.id]
+          [
+            name,
+            selectedColor,
+            calcSaldos,
+            calcPerformance,
+            calcEconomizado,
+            calcCustoVida,
+            calcDiarioMedio,
+            tag.id,
+          ],
         );
       } else {
         tagId = Crypto.randomUUID();
@@ -123,28 +143,41 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
           `INSERT INTO tags (id, name, color, calc_saldos, calc_performance, calc_economizado,
                            calc_custo_vida, calc_diario_medio)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [tagId, name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
+          [
+            tagId,
+            name,
+            selectedColor,
+            calcSaldos,
+            calcPerformance,
+            calcEconomizado,
+            calcCustoVida,
+            calcDiarioMedio,
+          ],
         );
       }
 
       const existing = await db.query<{ keyword: string }>(
         'SELECT keyword FROM tag_keywords WHERE tag_id = ?',
-        [tagId!]
+        [tagId!],
       );
-      const existingKeywords = existing.map(r => r.keyword);
-      const toDelete = existingKeywords.filter(k => !keywords.includes(k));
-      const toAdd = keywords.filter(k => !existingKeywords.includes(k));
+      const existingKeywords = existing.map((r) => r.keyword);
+      const toDelete = existingKeywords.filter((k) => !keywords.includes(k));
+      const toAdd = keywords.filter((k) => !existingKeywords.includes(k));
 
       if (toDelete.length > 0 || toAdd.length > 0) {
         await db.withTransactionAsync(async () => {
           for (const kw of toDelete) {
-            await db.exec('DELETE FROM tag_keywords WHERE tag_id = ? AND keyword = ?', [tagId!, kw]);
+            await db.exec('DELETE FROM tag_keywords WHERE tag_id = ? AND keyword = ?', [
+              tagId!,
+              kw,
+            ]);
           }
           for (const kw of toAdd) {
-            await db.exec(
-              'INSERT INTO tag_keywords (id, tag_id, keyword) VALUES (?, ?, ?)',
-              [Crypto.randomUUID(), tagId!, kw]
-            );
+            await db.exec('INSERT INTO tag_keywords (id, tag_id, keyword) VALUES (?, ?, ?)', [
+              Crypto.randomUUID(),
+              tagId!,
+              kw,
+            ]);
           }
         });
       }
@@ -164,8 +197,8 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
       `Excluir a tag "${tag.name}"? As transações vinculadas ficarão sem tag.`,
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Excluir', 
+        {
+          text: 'Excluir',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -177,19 +210,23 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
               console.error('Failed to delete tag:', error);
               Alert.alert('Erro', 'Erro ao excluir tag.');
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
-
 
   return (
     <Modal visible={isOpen} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <View style={[styles.sheet, { backgroundColor: colors.bg }]} onStartShouldSetResponder={() => true}>
+        <View
+          style={[styles.sheet, { backgroundColor: colors.bg }]}
+          onStartShouldSetResponder={() => true}
+        >
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.title, { color: colors.textPrimary }]}>{tag ? 'Editar tag' : 'Criar tag'}</Text>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>
+              {tag ? 'Editar tag' : 'Criar tag'}
+            </Text>
             <Pressable onPress={onClose} style={styles.closeBtn}>
               <X size={28} color={colors.textPrimary} />
             </Pressable>
@@ -198,12 +235,15 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
           <ScrollView style={styles.content}>
             <View style={styles.section}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Nome</Text>
-              <TextInput 
+              <TextInput
                 value={name}
                 onChangeText={setName}
                 placeholder="Ex: Alimentação"
                 placeholderTextColor={colors.textSecondary}
-                style={[styles.input, { color: colors.textPrimary, borderBottomColor: colors.border }]}
+                style={[
+                  styles.input,
+                  { color: colors.textPrimary, borderBottomColor: colors.border },
+                ]}
               />
             </View>
 
@@ -215,9 +255,12 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
                     key={c.color}
                     onPress={() => setSelectedColor(c.color)}
                     style={[
-                      styles.colorBtn, 
+                      styles.colorBtn,
                       { backgroundColor: c.color },
-                      selectedColor === c.color && { borderWidth: 2, borderColor: colors.textPrimary }
+                      selectedColor === c.color && {
+                        borderWidth: 2,
+                        borderColor: colors.textPrimary,
+                      },
                     ]}
                   >
                     <Text style={styles.colorName}>{c.name}</Text>
@@ -230,7 +273,8 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
             <View style={styles.section}>
               <Text style={[styles.labelBold, { color: colors.textPrimary }]}>Palavras-chave</Text>
               <Text style={[styles.label, { color: colors.textSecondary, marginBottom: 12 }]}>
-                A transação recebe esta tag automaticamente quando a descrição contém uma das palavras-chave.
+                A transação recebe esta tag automaticamente quando a descrição contém uma das
+                palavras-chave.
               </Text>
               <View style={styles.keywordInputRow}>
                 <TextInput
@@ -238,11 +282,20 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
                   onChangeText={setKeywordInput}
                   placeholder="Adicionar palavra-chave"
                   placeholderTextColor={colors.textSecondary}
-                  style={[styles.input, { color: colors.textPrimary, borderBottomColor: colors.border, flex: 1 }]}
-                  onSubmitEditing={() => { addKeyword(keywordInput); setKeywordInput(''); }}
+                  style={[
+                    styles.input,
+                    { color: colors.textPrimary, borderBottomColor: colors.border, flex: 1 },
+                  ]}
+                  onSubmitEditing={() => {
+                    addKeyword(keywordInput);
+                    setKeywordInput('');
+                  }}
                 />
                 <Pressable
-                  onPress={() => { addKeyword(keywordInput); setKeywordInput(''); }}
+                  onPress={() => {
+                    addKeyword(keywordInput);
+                    setKeywordInput('');
+                  }}
                   style={[styles.addKeywordBtn, { borderColor: colors.border }]}
                 >
                   <Text style={[styles.addKeywordText, { color: colors.textPrimary }]}>+</Text>
@@ -250,8 +303,14 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
               </View>
               {keywords.length > 0 && (
                 <View style={styles.chipsRow}>
-                  {keywords.map(kw => (
-                    <View key={kw} style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  {keywords.map((kw) => (
+                    <View
+                      key={kw}
+                      style={[
+                        styles.chip,
+                        { backgroundColor: colors.surface, borderColor: colors.border },
+                      ]}
+                    >
                       <Text style={[styles.chipText, { color: colors.textPrimary }]}>{kw}</Text>
                       <Pressable onPress={() => removeKeyword(kw)} style={styles.chipX}>
                         <X size={14} color={colors.textSecondary} />
@@ -263,15 +322,23 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
             </View>
 
             <View style={[styles.advancedSection, { borderTopColor: colors.border }]}>
-              <Pressable 
+              <Pressable
                 onPress={() => setIsAdvancedOpen(!isAdvancedOpen)}
                 style={styles.advancedHeader}
               >
                 <View style={styles.advancedTextCol}>
-                  <Text style={[styles.advancedTitle, { color: colors.textPrimary }]}>Configurações avançadas</Text>
-                  <Text style={[styles.advancedDesc, { color: colors.textSecondary }]}>Defina em quais partes do app as movimentações com essa tag serão calculadas.</Text>
+                  <Text style={[styles.advancedTitle, { color: colors.textPrimary }]}>
+                    Configurações avançadas
+                  </Text>
+                  <Text style={[styles.advancedDesc, { color: colors.textSecondary }]}>
+                    Defina em quais partes do app as movimentações com essa tag serão calculadas.
+                  </Text>
                 </View>
-                <ChevronDown size={24} color={colors.textPrimary} style={{ transform: [{ rotate: isAdvancedOpen ? '180deg' : '0deg' }] }} />
+                <ChevronDown
+                  size={24}
+                  color={colors.textPrimary}
+                  style={{ transform: [{ rotate: isAdvancedOpen ? '180deg' : '0deg' }] }}
+                />
               </Pressable>
 
               {isAdvancedOpen && (
@@ -281,19 +348,27 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
                     <Toggle active={calcSaldos} onChange={setCalcSaldos} />
                   </View>
                   <View style={styles.toggleRow}>
-                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Performance</Text>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>
+                      Performance
+                    </Text>
                     <Toggle active={calcPerformance} onChange={setCalcPerformance} />
                   </View>
                   <View style={styles.toggleRow}>
-                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Economizado</Text>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>
+                      Economizado
+                    </Text>
                     <Toggle active={calcEconomizado} onChange={setCalcEconomizado} />
                   </View>
                   <View style={styles.toggleRow}>
-                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Custo de vida</Text>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>
+                      Custo de vida
+                    </Text>
                     <Toggle active={calcCustoVida} onChange={setCalcCustoVida} />
                   </View>
                   <View style={styles.toggleRow}>
-                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>Diário médio</Text>
+                    <Text style={[styles.toggleLabel, { color: colors.textPrimary }]}>
+                      Diário médio
+                    </Text>
                     <Toggle active={calcDiarioMedio} onChange={setCalcDiarioMedio} />
                   </View>
                 </View>
@@ -302,7 +377,7 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
           </ScrollView>
 
           <View style={[styles.footer, { borderTopColor: colors.border }]}>
-            <Pressable 
+            <Pressable
               onPress={handleSave}
               style={[styles.saveBtn, { backgroundColor: colors.textPrimary }]}
             >
@@ -311,7 +386,7 @@ export const TagEditorModal: React.FC<Props> = ({ isOpen, onClose, onSave, tag }
               </Text>
             </Pressable>
             {tag && (
-              <Pressable 
+              <Pressable
                 onPress={handleDelete}
                 style={[styles.deleteBtn, { borderColor: colors.red }]}
               >
@@ -499,5 +574,5 @@ const styles = StyleSheet.create({
   deleteText: {
     fontSize: 18,
     fontWeight: 'bold',
-  }
+  },
 });

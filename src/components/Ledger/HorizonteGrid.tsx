@@ -17,7 +17,11 @@ export const HorizonteGrid: React.FC<Props> = ({ projections, checkedDates, onTo
   const maxDays = 31;
 
   return (
-    <ScrollView horizontal style={styles.horizontalScroll} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      horizontal
+      style={styles.horizontalScroll}
+      contentContainerStyle={styles.contentContainer}
+    >
       {projections.map((month, idx) => {
         const isCurrentMonth = idx === 0;
         const parsedDate = parse(month.monthName, 'MMM/yy', new Date());
@@ -25,25 +29,41 @@ export const HorizonteGrid: React.FC<Props> = ({ projections, checkedDates, onTo
         const month0 = parsedDate.getMonth();
 
         return (
-          <View key={month.monthName} style={[styles.monthCol, { backgroundColor: colors.bg, borderRightColor: colors.border }]}>
-            <View style={[styles.header, { 
-              backgroundColor: isCurrentMonth ? (isDark ? '#fff' : '#1a1a1a') : colors.surface,
-              borderBottomColor: colors.border 
-            }]}>
-              <Text style={[styles.headerText, { color: isCurrentMonth ? (isDark ? '#000' : '#fff') : colors.textPrimary }]}>
+          <View
+            key={month.monthName}
+            style={[
+              styles.monthCol,
+              { backgroundColor: colors.bg, borderRightColor: colors.border },
+            ]}
+          >
+            <View
+              style={[
+                styles.header,
+                {
+                  backgroundColor: isCurrentMonth ? (isDark ? '#fff' : '#1a1a1a') : colors.surface,
+                  borderBottomColor: colors.border,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.headerText,
+                  { color: isCurrentMonth ? (isDark ? '#000' : '#fff') : colors.textPrimary },
+                ]}
+              >
                 {month.monthName}
               </Text>
             </View>
-            
+
             <ScrollView style={styles.verticalScroll}>
               {Array.from({ length: maxDays }, (_, i) => {
-                const dayData = month.days.find(d => d.day === i + 1);
+                const dayData = month.days.find((d) => d.day === i + 1);
                 if (dayData) {
                   const dateKey = buildDateKey(year, month0, dayData.day);
                   return (
-                    <HorizonteCell 
-                      key={i} 
-                      day={dayData.day} 
+                    <HorizonteCell
+                      key={i}
+                      day={dayData.day}
                       balance={dayData.balance}
                       isChecked={checkedDates?.has(dateKey)}
                       onToggle={onToggleDay ? () => onToggleDay(dateKey) : undefined}
@@ -90,5 +110,5 @@ const styles = StyleSheet.create({
     height: 36,
     borderBottomWidth: 1,
     opacity: 0.1,
-  }
+  },
 });

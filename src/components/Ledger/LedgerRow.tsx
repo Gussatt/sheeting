@@ -1,5 +1,12 @@
 import React, { useLayoutEffect } from 'react';
-import { View, Text, Pressable, StyleSheet, LayoutAnimation, LayoutChangeEvent } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  LayoutAnimation,
+  LayoutChangeEvent,
+} from 'react-native';
 import type { Transaction } from '../../db/db';
 import { isWeekend, isToday } from 'date-fns';
 import { useAppTheme } from '../../styles/theme';
@@ -15,24 +22,23 @@ interface CellProps {
 
 const LedgerCell: React.FC<CellProps> = ({ type, total, transactions, onClick, onLongPress }) => {
   const { colors } = useAppTheme();
-  const isVirtual = transactions.some(t => t.id.startsWith('virtual-'));
+  const isVirtual = transactions.some((t) => t.id.startsWith('virtual-'));
 
   return (
-    <Pressable 
+    <Pressable
       onPress={() => onClick(type, transactions)}
       onLongPress={() => onLongPress(type)}
-      style={[
-        styles.cellContainer, 
-        { opacity: (total === 0) ? 0.3 : 1 }
-      ]}
+      style={[styles.cellContainer, { opacity: total === 0 ? 0.3 : 1 }]}
     >
       <View style={styles.cellLeft}>
         <TypeIcon type={type} />
       </View>
-      <Text style={{ 
-        color: (type === 'income' && total > 0) ? colors.green : colors.textPrimary,
-        fontSize: 16
-      }}>
+      <Text
+        style={{
+          color: type === 'income' && total > 0 ? colors.green : colors.textPrimary,
+          fontSize: 16,
+        }}
+      >
         R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
       </Text>
     </Pressable>
@@ -59,7 +65,7 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
   filter,
   onCellClick,
   onCellLongPress,
-  onLayout
+  onLayout,
 }) => {
   const { colors, isDark } = useAppTheme();
 
@@ -80,42 +86,64 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
   const isSingleFilter = filter !== 'all';
 
   return (
-    <View 
+    <View
       onLayout={onLayout}
-      style={[styles.rowContainer, { 
-      backgroundColor: isWeekendRow ? colors.surface : 'transparent',
-      borderBottomColor: colors.border
-    }]}>
+      style={[
+        styles.rowContainer,
+        {
+          backgroundColor: isWeekendRow ? colors.surface : 'transparent',
+          borderBottomColor: colors.border,
+        },
+      ]}
+    >
       {/* Date Column */}
-      <View style={[styles.dateCol, {
-        backgroundColor: isTodayRow ? colors.primary : 'transparent',
-        borderRightColor: colors.border,
-        alignItems: 'center',
-        justifyContent: isSingleFilter ? 'center' : 'flex-start',
-        paddingTop: isSingleFilter ? 0 : 10,
-      }]}>
-        <Text style={[styles.dateText, {
-          color: isTodayRow ? colors.bg : colors.textPrimary,
-        }]}>
+      <View
+        style={[
+          styles.dateCol,
+          {
+            backgroundColor: isTodayRow ? colors.primary : 'transparent',
+            borderRightColor: colors.border,
+            alignItems: 'center',
+            justifyContent: isSingleFilter ? 'center' : 'flex-start',
+            paddingTop: isSingleFilter ? 0 : 10,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.dateText,
+            {
+              color: isTodayRow ? colors.bg : colors.textPrimary,
+            },
+          ]}
+        >
           {date.getDate()}
         </Text>
         {isCheckedIn && (
-          <View style={[styles.checkDot, { backgroundColor: isTodayRow ? colors.bg : colors.textPrimary }]} />
+          <View
+            style={[
+              styles.checkDot,
+              { backgroundColor: isTodayRow ? colors.bg : colors.textPrimary },
+            ]}
+          />
         )}
       </View>
 
       {/* Data Column */}
       <View style={styles.dataCol}>
         {activeTypes.map((type, idx) => {
-          const typeTransactions = transactions.filter(t => t.type === type);
+          const typeTransactions = transactions.filter((t) => t.type === type);
           const total = typeTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
           return (
             <View
               key={type}
-              style={[styles.dataCellWrapper, {
-                borderBottomWidth: idx < activeTypes.length - 1 ? 1 : 0,
-                borderBottomColor: colors.border
-              }]}
+              style={[
+                styles.dataCellWrapper,
+                {
+                  borderBottomWidth: idx < activeTypes.length - 1 ? 1 : 0,
+                  borderBottomColor: colors.border,
+                },
+              ]}
             >
               <LedgerCell
                 type={type}
@@ -130,11 +158,16 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({
       </View>
 
       {/* Balance Column */}
-      <View style={[styles.balanceCol, {
-        backgroundColor: getBalanceBgColor(balance),
-        alignItems: isSingleFilter ? 'center' : 'flex-end',
-        paddingTop: isSingleFilter ? 0 : 10,
-      }]}>
+      <View
+        style={[
+          styles.balanceCol,
+          {
+            backgroundColor: getBalanceBgColor(balance),
+            alignItems: isSingleFilter ? 'center' : 'flex-end',
+            paddingTop: isSingleFilter ? 0 : 10,
+          },
+        ]}
+      >
         <Text style={styles.balanceText}>
           R$ {balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
         </Text>
@@ -200,5 +233,5 @@ const styles = StyleSheet.create({
     fontSize: 17,
     textAlign: 'right',
     width: '100%',
-  }
+  },
 });

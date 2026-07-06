@@ -4,7 +4,8 @@
 
 **Goal:** Implement a high-fidelity tag management system with advanced calculation overrides and fix theme consistency issues.
 
-**Architecture:** 
+**Architecture:**
+
 - Centralize transaction filtering logic into a `useFilteredTransactions` hook to respect tag-level overrides globally.
 - Update the PGLite schema to store per-metric calculation flags for each tag.
 - Use CSS `clip-path` for the custom trapezoid tag shape and CSS variables for all theme-dependent styling.
@@ -16,15 +17,18 @@
 ## File Structure
 
 ### Data Layer
+
 - `src/db/db.ts`: Update `Tag` interface.
 - `src/db/schema.sql`: Add boolean columns to `tags` table.
 - `src/hooks/useFilteredTransactions.ts`: **New** Centralized filtering logic.
 
 ### Components
+
 - `src/components/Ledger/TagTrapezoid.tsx`: **New** Reusable high-fidelity tag icon.
 - `src/components/Forms/TagEditorModal.tsx`: **New** Full-screen tag creation/edit sheet.
 
 ### Refactor Targets
+
 - `src/utils/projection.ts`: Update to support tag-based filtering.
 - `src/utils/budgetCalc.ts`: Update to support tag-based filtering.
 - `src/pages/Performance.tsx`: Update metrics to use filtered transactions.
@@ -38,6 +42,7 @@
 ### Task 1: Update Tag Schema & Interface
 
 **Files:**
+
 - Modify: `src/db/db.ts`
 - Modify: `src/db/schema.sql`
 
@@ -85,6 +90,7 @@ git commit -m "db: update tag schema for advanced calculations"
 ### Task 2: Implement Filtered Transactions Hook
 
 **Files:**
+
 - Create: `src/hooks/useFilteredTransactions.ts`
 - Create: `src/hooks/useFilteredTransactions.test.ts`
 
@@ -114,12 +120,17 @@ import { useMemo } from 'react';
 import { useSQL } from '../db/db';
 import type { Transaction, Tag } from '../db/db';
 
-export type MetricType = 'calcSaldos' | 'calcPerformance' | 'calcEconomizado' | 'calcCustoVida' | 'calcDiarioMedio';
+export type MetricType =
+  'calcSaldos' | 'calcPerformance' | 'calcEconomizado' | 'calcCustoVida' | 'calcDiarioMedio';
 
-export const filterTransactionsByMetric = (transactions: Transaction[], tags: Tag[], metric: MetricType) => {
-  return transactions.filter(t => {
+export const filterTransactionsByMetric = (
+  transactions: Transaction[],
+  tags: Tag[],
+  metric: MetricType,
+) => {
+  return transactions.filter((t) => {
     if (!t.tagId) return true;
-    const tag = tags.find(tag => tag.id === t.tagId);
+    const tag = tags.find((tag) => tag.id === t.tagId);
     if (!tag) return true;
     return tag[metric];
   });
@@ -127,7 +138,10 @@ export const filterTransactionsByMetric = (transactions: Transaction[], tags: Ta
 
 export const useFilteredTransactions = (transactions: Transaction[], metric: MetricType) => {
   const tags = useSQL<Tag>('SELECT * FROM tags');
-  return useMemo(() => filterTransactionsByMetric(transactions, tags, metric), [transactions, tags, metric]);
+  return useMemo(
+    () => filterTransactionsByMetric(transactions, tags, metric),
+    [transactions, tags, metric],
+  );
 };
 ```
 
@@ -144,6 +158,7 @@ git commit -m "feat: add global transaction filtering hook"
 ### Task 3: Refactor Calculation Utilities
 
 **Files:**
+
 - Modify: `src/utils/projection.ts`
 - Modify: `src/utils/budgetCalc.ts`
 
@@ -173,6 +188,7 @@ git commit -m "refactor: update calc utilities for tag filtering"
 ### Task 4: High-Fidelity Tag UI
 
 **Files:**
+
 - Create: `src/components/Ledger/TagTrapezoid.tsx`
 - Modify: `src/components/Ledger/LedgerRow.tsx`
 
@@ -183,11 +199,11 @@ git commit -m "refactor: update calc utilities for tag filtering"
 import React from 'react';
 
 export const TagTrapezoid = ({ color, size = 16 }: { color: string, size?: number }) => (
-  <div style={{ 
-    width: `${size}px`, 
-    height: `${size * 0.75}px`, 
-    backgroundColor: color, 
-    clipPath: 'polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%)' 
+  <div style={{
+    width: `${size}px`,
+    height: `${size * 0.75}px`,
+    backgroundColor: color,
+    clipPath: 'polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%)'
   }} />
 );
 ```
@@ -211,6 +227,7 @@ git commit -m "ui: implement high-fidelity tag trapezoid shape"
 ### Task 5: Tag Editor Modal
 
 **Files:**
+
 - Create: `src/components/Forms/TagEditorModal.tsx`
 
 - [ ] **Step 1: Implement Color Grid and Advanced Section**
@@ -234,6 +251,7 @@ git commit -m "feat: implement high-fidelity Tag Editor modal"
 ### Task 6: Theme Polish
 
 **Files:**
+
 - Modify: `src/index.css`
 - Modify: `src/components/Ledger/LedgerRow.tsx`
 
@@ -241,8 +259,12 @@ git commit -m "feat: implement high-fidelity Tag Editor modal"
 
 ```css
 /* src/index.css */
-:root { --color-weekend-bg: #1A1A1A; }
-[data-theme='light'] { --color-weekend-bg: #F9FAFB; }
+:root {
+  --color-weekend-bg: #1a1a1a;
+}
+[data-theme='light'] {
+  --color-weekend-bg: #f9fafb;
+}
 ```
 
 - [ ] **Step 2: Audit LedgerRow for hardcoded hex codes**
@@ -264,6 +286,7 @@ git commit -m "ui: fix light theme weekend background consistency"
 ### Task 7: Final Integration
 
 **Files:**
+
 - Modify: `src/pages/Tags.tsx`
 - Modify: `src/components/Forms/TransactionForm.tsx`
 

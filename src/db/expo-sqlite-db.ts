@@ -35,15 +35,19 @@ export interface Tag {
   calcDiarioMedio: boolean;
 }
 
-const toCamel = (str: string) => str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
+const toCamel = (str: string) =>
+  str.replace(/([-_][a-z])/g, (group) => group.toUpperCase().replace('-', '').replace('_', ''));
 
 export function mapKeys<T>(obj: any, mapper: (s: string) => string): T {
-  if (Array.isArray(obj)) return obj.map(v => mapKeys(v, mapper)) as any;
+  if (Array.isArray(obj)) return obj.map((v) => mapKeys(v, mapper)) as any;
   if (obj !== null && typeof obj === 'object' && obj.constructor === Object) {
-    return Object.keys(obj).reduce((acc, key) => ({
-      ...acc,
-      [mapper(key)]: mapKeys(obj[key], mapper)
-    }), {}) as T;
+    return Object.keys(obj).reduce(
+      (acc, key) => ({
+        ...acc,
+        [mapper(key)]: mapKeys(obj[key], mapper),
+      }),
+      {},
+    ) as T;
   }
   return obj;
 }
@@ -57,8 +61,8 @@ const dbEvents = {
     return { unsubscribe: () => listeners.delete(listener) };
   },
   next: () => {
-    listeners.forEach(l => l());
-  }
+    listeners.forEach((l) => l());
+  },
 };
 
 class SheetingSQLiteDB {
@@ -72,7 +76,7 @@ class SheetingSQLiteDB {
       console.log('Initializing Expo SQLite...');
       // @ts-ignore
       this.db = await SQLite.openDatabaseAsync('sheeting.db');
-      
+
       console.log('Applying SQLite schema...');
       await this.db.execAsync(`
         PRAGMA journal_mode = WAL;
@@ -143,12 +147,12 @@ class SheetingSQLiteDB {
     const sqliteQuery = this.convertSql(sql);
     // @ts-ignore
     const result = await this.db!.getAllAsync(sqliteQuery, params);
-    
+
     // SQLite returns booleans as 0/1, convert them back or map keys
     const mapped = mapKeys<T[]>(result, toCamel);
-    
+
     // Simple boolean mapping for specific known fields
-    return (mapped as any[]).map(row => {
+    return (mapped as any[]).map((row) => {
       const fixedRow = { ...row };
       if ('isRecurring' in fixedRow) fixedRow.isRecurring = !!fixedRow.isRecurring;
       if ('calcSaldos' in fixedRow) fixedRow.calcSaldos = !!fixedRow.calcSaldos;

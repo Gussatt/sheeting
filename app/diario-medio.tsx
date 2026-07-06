@@ -20,17 +20,17 @@ export default function DiarioMedioScreen() {
 
   const months = Array.from({ length: 6 }, (_, i) => new Date(currentYear, i, 1));
 
-  const monthData = months.map(date => {
+  const monthData = months.map((date) => {
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
     const dayOfMonth = getDaysInMonth(date);
-    
-    const currentMonthTransactions = allTransactions.filter(t => 
-      isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd })
+
+    const currentMonthTransactions = allTransactions.filter((t) =>
+      isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd }),
     );
 
     const dailyExpenses = currentMonthTransactions
-      .filter(t => t.type === 'daily')
+      .filter((t) => t.type === 'daily')
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
     const avgDaily = dailyExpenses / dayOfMonth;
@@ -42,7 +42,7 @@ export default function DiarioMedioScreen() {
       name: capitalizedMonthName,
       avg: avgDaily,
       total: dailyExpenses,
-      days: dayOfMonth
+      days: dayOfMonth,
     };
   });
 
@@ -58,28 +58,46 @@ export default function DiarioMedioScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={[styles.yearSelector, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Pressable onPress={() => setCurrentYear(y => y - 1)} style={styles.iconBtn}>
+        <View
+          style={[
+            styles.yearSelector,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Pressable onPress={() => setCurrentYear((y) => y - 1)} style={styles.iconBtn}>
             <ChevronLeft size={24} color={colors.textPrimary} />
           </Pressable>
           <Text style={[styles.yearText, { color: colors.textPrimary }]}>{currentYear}</Text>
-          <Pressable onPress={() => setCurrentYear(y => y + 1)} style={styles.iconBtn}>
+          <Pressable onPress={() => setCurrentYear((y) => y + 1)} style={styles.iconBtn}>
             <ChevronRight size={24} color={colors.textPrimary} />
           </Pressable>
         </View>
 
-        <View style={[styles.explanationSection, { borderBottomColor: colors.border, paddingBottom: showExplanation ? 24 : 16 }]}>
-          <Pressable 
+        <View
+          style={[
+            styles.explanationSection,
+            { borderBottomColor: colors.border, paddingBottom: showExplanation ? 24 : 16 },
+          ]}
+        >
+          <Pressable
             onPress={() => setShowExplanation(!showExplanation)}
             style={[styles.explanationHeader, { marginBottom: showExplanation ? 16 : 0 }]}
           >
-            <Text style={[styles.explanationTitle, { color: colors.textSecondary }]}>Como funciona o diário médio?</Text>
-            <ChevronDown size={20} color={colors.textSecondary} style={{ transform: [{ rotate: showExplanation ? '180deg' : '0deg' }] }} />
+            <Text style={[styles.explanationTitle, { color: colors.textSecondary }]}>
+              Como funciona o diário médio?
+            </Text>
+            <ChevronDown
+              size={20}
+              color={colors.textSecondary}
+              style={{ transform: [{ rotate: showExplanation ? '180deg' : '0deg' }] }}
+            />
           </Pressable>
-          
+
           {showExplanation && (
             <Text style={[styles.explanationText, { color: colors.textPrimary }]}>
-              É a soma de todos os gastos diários (sem considerar previsão futura) dividida pelo número de dias do mês. Assim você sabe, em média, quanto gasta por dia no seu estilo de vida.
+              É a soma de todos os gastos diários (sem considerar previsão futura) dividida pelo
+              número de dias do mês. Assim você sabe, em média, quanto gasta por dia no seu estilo
+              de vida.
             </Text>
           )}
         </View>
@@ -179,5 +197,5 @@ const styles = StyleSheet.create({
   },
   listDetail: {
     fontSize: 14,
-  }
+  },
 });

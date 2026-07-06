@@ -1,9 +1,11 @@
 # Sheeting Data Layer & Hooks Design Spec
 
 ## Goal
+
 Implement the complete local-first database schema and corresponding React hooks for the "Sheeting" application to support Transactions, Tags, Budgets, and Goals.
 
 ## Constraints
+
 - **Local-first only:** All data strictly lives in the browser's IndexedDB via `dexie`. No external network requests.
 - **Hook Strategy:** Entity-Specific CRUD Hooks using `dexie-react-hooks`.
 - **Database Migrations:** Dexie version must be bumped from `1` to `2` to preserve any existing transaction data while adding the new schemas.
@@ -12,6 +14,7 @@ Implement the complete local-first database schema and corresponding React hooks
 ## Architecture
 
 ### Database Schema (Dexie V2)
+
 The `src/db/db.ts` file will be updated with the following interfaces and Dexie stores:
 
 1. **Tags**
@@ -28,6 +31,7 @@ The `src/db/db.ts` file will be updated with the following interfaces and Dexie 
    - Store Indexes: `id, type, date, tagId, isRecurring` (unchanged)
 
 ### Entity-Specific React Hooks
+
 We will create four distinct hook files in `src/hooks/data/`:
 
 1. **`useTags`**
@@ -44,9 +48,11 @@ We will create four distinct hook files in `src/hooks/data/`:
    - `addGoal`, `updateGoal`, `deleteGoal`
 
 ### Testing Approach
+
 Each hook will have a `<hookName>.test.tsx` file asserting the hook's ability to mutate the in-memory database and return updated data via `useLiveQuery`.
 
 ## Spec Self-Review Checklist
+
 - **Placeholders:** None. The schema definitions are explicitly laid out.
 - **Internal Consistency:** The Hook names match the DB schema.
 - **Scope:** Sufficiently bound. It covers the data layer, leaving UI concerns to a separate implementation plan.

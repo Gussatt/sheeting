@@ -7,6 +7,7 @@ We're glad you're interested in helping out! To maintain the quality and consist
 Sheeting uses a mobile-first, high-fidelity design. Always use the standardized CSS variables for status colors and theme elements.
 
 ### Status Colors
+
 - `--status-green`: #27AE60 (Healthy balance >= R$ 100,00)
 - `--status-yellow`: #F1C40F (Warning balance < 100)
 - `--status-red`: #E74C3C (Negative balance)
@@ -15,12 +16,14 @@ Sheeting uses a mobile-first, high-fidelity design. Always use the standardized 
 - `--status-light-green`: #2ECC71
 
 ### Layout Mandates
+
 - **Bottom Navigation:** The main navigation bar must always be 70px in height and pinned to the bottom.
 - **FAB:** The central (+) Floating Action Button should be a white circular button.
 
 ## 🧪 Testing Mandates
 
 A change is not complete until it has been verified with tests.
+
 - **Coverage:** Aim for >90% coverage on all business logic and UI components.
 - **Framework:** Use **Vitest** + **React Testing Library**.
 - **Commands:**

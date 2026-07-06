@@ -13,6 +13,7 @@
 ### Task 1: Database Schema Expansion
 
 **Files:**
+
 - Modify: `src/db/db.ts`
 - Modify: `src/db/db.test.ts`
 
@@ -89,7 +90,7 @@ export class SheetingDB extends Dexie {
     this.version(2).stores({
       transactions: 'id, type, date, tagId, isRecurring',
       budgetCategories: 'id, userId',
-      tags: 'id, userId'
+      tags: 'id, userId',
     });
   }
 }
@@ -112,6 +113,7 @@ git commit -m "feat: expand db schema with budget categories and tags"
 ### Task 2: Ledger Row Component
 
 **Files:**
+
 - Create: `src/components/Ledger/LedgerRow.tsx`
 - Create: `src/components/Ledger/LedgerRow.test.tsx`
 
@@ -166,8 +168,13 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({ day, type, total, balance,
   };
 
   return (
-    <div data-testid="ledger-row" style={{ display: 'flex', backgroundColor: getBgColor(balance), padding: '8px' }}>
-      <div>{day} {isCheckedIn && '✅'}</div>
+    <div
+      data-testid="ledger-row"
+      style={{ display: 'flex', backgroundColor: getBgColor(balance), padding: '8px' }}
+    >
+      <div>
+        {day} {isCheckedIn && '✅'}
+      </div>
       <div>{type}</div>
       <div>R$ {total.toFixed(2)}</div>
       <div>R$ {balance.toFixed(2)}</div>
