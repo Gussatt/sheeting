@@ -25,29 +25,32 @@
 
 ## File Structure
 
-| Action | Path | Responsibility |
-|--------|------|----------------|
-| Create | `src/utils/autoTag.ts` | Pure matching function + `KeywordEntry` interface |
-| Create | `src/utils/autoTag.test.ts` | Unit tests for the pure matching function |
-| Modify | `src/db/expo-sqlite-db.ts` | Add `tag_keywords` table, `PRAGMA foreign_keys`, `keywords?` field on `Tag` |
-| Modify | `src/components/Forms/TagEditorModal.tsx` | Add "Palavras-chave" section with chip add/remove UI + persistence |
-| Modify | `src/hooks/useTransaction.ts` | Call `findMatchingTagId` at save time when `tagId` is empty |
-| Modify | `package.json` | Add `vitest` dev dependency, `"test"` script |
+| Action | Path                                      | Responsibility                                                              |
+| ------ | ----------------------------------------- | --------------------------------------------------------------------------- |
+| Create | `src/utils/autoTag.ts`                    | Pure matching function + `KeywordEntry` interface                           |
+| Create | `src/utils/autoTag.test.ts`               | Unit tests for the pure matching function                                   |
+| Modify | `src/db/expo-sqlite-db.ts`                | Add `tag_keywords` table, `PRAGMA foreign_keys`, `keywords?` field on `Tag` |
+| Modify | `src/components/Forms/TagEditorModal.tsx` | Add "Palavras-chave" section with chip add/remove UI + persistence          |
+| Modify | `src/hooks/useTransaction.ts`             | Call `findMatchingTagId` at save time when `tagId` is empty                 |
+| Modify | `package.json`                            | Add `vitest` dev dependency, `"test"` script                                |
 
 ---
 
 ### Task 1: Add Vitest infrastructure
 
 **Files:**
+
 - Modify: `package.json` (scripts + devDependencies)
 - Test: `src/utils/autoTag.test.ts` (smoke test to prove vitest runs)
 
 **Interfaces:**
+
 - Produces: `npm test` command that runs `vitest run` over the repo
 
 - [ ] **Step 1: Install vitest as a dev dependency**
 
 Run:
+
 ```bash
 npm install --save-dev vitest
 ```
@@ -120,9 +123,11 @@ git commit -m "chore: add vitest test infrastructure and smoke test"
 ### Task 2: Add `tag_keywords` table and extend `Tag` interface
 
 **Files:**
+
 - Modify: `src/db/expo-sqlite-db.ts:76-118` (schema block inside `init()`), `src/db/expo-sqlite-db.ts:26-36` (`Tag` interface)
 
 **Interfaces:**
+
 - Produces: `Tag.keywords?: string[]` field on the `Tag` interface; `tag_keywords` table available for queries by later tasks.
 
 - [ ] **Step 1: Add `keywords` field to the `Tag` interface**
@@ -146,7 +151,7 @@ export interface Tag {
 
 - [ ] **Step 2: Add `PRAGMA foreign_keys = ON;` and the `tag_keywords` table to the schema**
 
-In `src/db/expo-sqlite-db.ts`, inside the `init()` method's `this.db.execAsync(\`...\`)` template string (lines 76-118), add `PRAGMA foreign_keys = ON;` after `PRAGMA journal_mode = WAL;` and append the new table + indexes after the `daily_status` table. The full schema block becomes:
+In `src/db/expo-sqlite-db.ts`, inside the `init()` method's `this.db.execAsync(\`...\`)`template string (lines 76-118), add`PRAGMA foreign_keys = ON;`after`PRAGMA journal_mode = WAL;`and append the new table + indexes after the`daily_status` table. The full schema block becomes:
 
 ```sql
 PRAGMA journal_mode = WAL;
@@ -225,10 +230,12 @@ git commit -m "feat: add tag_keywords table and keywords field on Tag interface"
 ### Task 3: Implement and test the pure matching helper
 
 **Files:**
+
 - Create: `src/utils/autoTag.ts`
 - Modify: `src/utils/autoTag.test.ts` (replace smoke test with real tests)
 
 **Interfaces:**
+
 - Produces: `KeywordEntry` interface, `findMatchingTagId(description: string, keywords: KeywordEntry[]): string | null`
 - Consumes: nothing (pure function)
 
@@ -308,10 +315,7 @@ export interface KeywordEntry {
   keyword: string;
 }
 
-export function findMatchingTagId(
-  description: string,
-  keywords: KeywordEntry[]
-): string | null {
+export function findMatchingTagId(description: string, keywords: KeywordEntry[]): string | null {
   const lower = description.toLowerCase();
   for (const entry of keywords) {
     if (lower.includes(entry.keyword.toLowerCase())) {
@@ -344,9 +348,11 @@ git commit -m "feat: add pure findMatchingTagId helper with unit tests"
 ### Task 4: Wire auto-tagging into `useTransaction.saveTransaction`
 
 **Files:**
+
 - Modify: `src/hooks/useTransaction.ts:1-4` (imports), `src/hooks/useTransaction.ts:52-91` (`saveTransaction` body)
 
 **Interfaces:**
+
 - Consumes: `findMatchingTagId` from `src/utils/autoTag.ts`, `db.query` from `../db/db`
 - Produces: `saveTransaction` now auto-assigns `tagId` when empty and a keyword matches
 
@@ -416,9 +422,11 @@ git commit -m "feat: auto-assign tag in useTransaction when tagId is empty"
 ### Task 5: Add keyword chips UI to `TagEditorModal`
 
 **Files:**
+
 - Modify: `src/components/Forms/TagEditorModal.tsx:1-7` (imports), `:62-115` (component state + `handleSave`), `:144-248` (JSX), `:250-386` (styles)
 
 **Interfaces:**
+
 - Consumes: `db.query`/`db.exec` from `../../db/db`, `Crypto.randomUUID` from `expo-crypto`, `X` icon from `lucide-react-native` (already imported)
 - Produces: a "Palavras-chave" section in the tag editor that persists keyword rows to `tag_keywords`
 
@@ -445,10 +453,9 @@ useEffect(() => {
     setCalcDiarioMedio(tag?.calcDiarioMedio ?? true);
     setKeywords([]);
     if (tag) {
-      db.query<{ keyword: string }>(
-        'SELECT keyword FROM tag_keywords WHERE tag_id = ?',
-        [tag.id]
-      ).then(rows => setKeywords(rows.map(r => r.keyword)));
+      db.query<{ keyword: string }>('SELECT keyword FROM tag_keywords WHERE tag_id = ?', [
+        tag.id,
+      ]).then((rows) => setKeywords(rows.map((r) => r.keyword)));
     }
   }
 }, [isOpen, tag]);
@@ -462,11 +469,11 @@ Add these functions after the `useEffect` (before `if (!isOpen) return null;`):
 const addKeyword = (text: string) => {
   const trimmed = text.trim().toLowerCase();
   if (!trimmed || keywords.includes(trimmed)) return;
-  setKeywords(prev => [...prev, trimmed]);
+  setKeywords((prev) => [...prev, trimmed]);
 };
 
 const removeKeyword = (keyword: string) => {
-  setKeywords(prev => prev.filter(k => k !== keyword));
+  setKeywords((prev) => prev.filter((k) => k !== keyword));
 };
 ```
 
@@ -491,7 +498,16 @@ const handleSave = async () => {
         `UPDATE tags SET name = ?, color = ?, calc_saldos = ?, calc_performance = ?,
                 calc_economizado = ?, calc_custo_vida = ?, calc_diario_medio = ?
          WHERE id = ?`,
-        [name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio, tag.id]
+        [
+          name,
+          selectedColor,
+          calcSaldos,
+          calcPerformance,
+          calcEconomizado,
+          calcCustoVida,
+          calcDiarioMedio,
+          tag.id,
+        ],
       );
     } else {
       tagId = Crypto.randomUUID();
@@ -499,26 +515,36 @@ const handleSave = async () => {
         `INSERT INTO tags (id, name, color, calc_saldos, calc_performance, calc_economizado,
                          calc_custo_vida, calc_diario_medio)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [tagId, name, selectedColor, calcSaldos, calcPerformance, calcEconomizado, calcCustoVida, calcDiarioMedio]
+        [
+          tagId,
+          name,
+          selectedColor,
+          calcSaldos,
+          calcPerformance,
+          calcEconomizado,
+          calcCustoVida,
+          calcDiarioMedio,
+        ],
       );
     }
 
     const existing = await db.query<{ keyword: string }>(
       'SELECT keyword FROM tag_keywords WHERE tag_id = ?',
-      [tagId!]
+      [tagId!],
     );
-    const existingKeywords = existing.map(r => r.keyword);
-    const toDelete = existingKeywords.filter(k => !keywords.includes(k));
-    const toAdd = keywords.filter(k => !existingKeywords.includes(k));
+    const existingKeywords = existing.map((r) => r.keyword);
+    const toDelete = existingKeywords.filter((k) => !keywords.includes(k));
+    const toAdd = keywords.filter((k) => !existingKeywords.includes(k));
 
     for (const kw of toDelete) {
       await db.exec('DELETE FROM tag_keywords WHERE tag_id = ? AND keyword = ?', [tagId!, kw]);
     }
     for (const kw of toAdd) {
-      await db.exec(
-        'INSERT INTO tag_keywords (id, tag_id, keyword) VALUES (?, ?, ?)',
-        [Crypto.randomUUID(), tagId!, kw]
-      );
+      await db.exec('INSERT INTO tag_keywords (id, tag_id, keyword) VALUES (?, ?, ?)', [
+        Crypto.randomUUID(),
+        tagId!,
+        kw,
+      ]);
     }
 
     onSave();
@@ -546,11 +572,20 @@ In the JSX, insert the new section after the color-grid `View` (which ends aroun
       onChangeText={setKeywordInput}
       placeholder="Adicionar palavra-chave"
       placeholderTextColor={colors.textSecondary}
-      style={[styles.input, { color: colors.textPrimary, borderBottomColor: colors.border, flex: 1 }]}
-      onSubmitEditing={() => { addKeyword(keywordInput); setKeywordInput(''); }}
+      style={[
+        styles.input,
+        { color: colors.textPrimary, borderBottomColor: colors.border, flex: 1 },
+      ]}
+      onSubmitEditing={() => {
+        addKeyword(keywordInput);
+        setKeywordInput('');
+      }}
     />
     <Pressable
-      onPress={() => { addKeyword(keywordInput); setKeywordInput(''); }}
+      onPress={() => {
+        addKeyword(keywordInput);
+        setKeywordInput('');
+      }}
       style={[styles.addKeywordBtn, { borderColor: colors.border }]}
     >
       <Text style={[styles.addKeywordText, { color: colors.textPrimary }]}>+</Text>
@@ -558,8 +593,11 @@ In the JSX, insert the new section after the color-grid `View` (which ends aroun
   </View>
   {keywords.length > 0 && (
     <View style={styles.chipsRow}>
-      {keywords.map(kw => (
-        <View key={kw} style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      {keywords.map((kw) => (
+        <View
+          key={kw}
+          style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        >
           <Text style={[styles.chipText, { color: colors.textPrimary }]}>{kw}</Text>
           <Pressable onPress={() => removeKeyword(kw)} style={styles.chipX}>
             <X size={14} color={colors.textSecondary} />
@@ -655,6 +693,7 @@ Expected: exit 0.
 - [ ] **Step 3: Manual verification checklist (for the human)**
 
 On a device or simulator:
+
 1. Create a tag named "Transporte" with color blue. Add keyword "uber". Save.
 2. Reopen "Transporte" — confirm "uber" chip appears.
 3. Add another keyword "99". Save. Reopen — both chips present.

@@ -16,5 +16,5 @@ export const translations = {
     'menu.language.en': 'English',
     'menu.logout': 'Logout',
     'menu.user_default': 'User',
-  }
+  },
 };

@@ -13,6 +13,7 @@
 ### Task 1: Update CSS Variables
 
 **Files:**
+
 - Modify: `src/index.css`
 
 - [ ] **Step 1: Add status colors to `:root`**
@@ -20,11 +21,11 @@
 ```css
 :root {
   /* ... existing ... */
-  --status-green: #96D87D;
-  --status-light-green: #95FDB8;
-  --status-yellow: #FCE9B5;
-  --status-pink: #F8BEBF;
-  --status-red: #F26D70;
+  --status-green: #96d87d;
+  --status-light-green: #95fdb8;
+  --status-yellow: #fce9b5;
+  --status-pink: #f8bebf;
+  --status-red: #f26d70;
 }
 ```
 
@@ -38,6 +39,7 @@ git commit -m "style: add status color variables to index.css"
 ### Task 2: Refactor LedgerRow
 
 **Files:**
+
 - Modify: `src/components/Ledger/LedgerRow.tsx`
 - Test: `src/components/Ledger/LedgerRow.test.tsx`
 
@@ -52,7 +54,10 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({ day, type, total, balance,
   };
 
   return (
-    <div data-testid="ledger-row" style={{ display: 'flex', backgroundColor: getBgColor(balance), padding: '8px' }}>
+    <div
+      data-testid="ledger-row"
+      style={{ display: 'flex', backgroundColor: getBgColor(balance), padding: '8px' }}
+    >
       {/* ... */}
     </div>
   );
@@ -62,11 +67,11 @@ export const LedgerRow: React.FC<LedgerRowProps> = ({ day, type, total, balance,
 - [ ] **Step 2: Add test case for yellow/warning threshold to LedgerRow.test.tsx**
 
 ```tsx
-  it('renders yellow background for balance between 0 and 100', () => {
-    render(<LedgerRow day={3} type="expense" total={10} balance={50} isCheckedIn={false} />);
-    const row = screen.getByTestId('ledger-row');
-    expect(row.style.backgroundColor).toBe('var(--status-yellow)');
-  });
+it('renders yellow background for balance between 0 and 100', () => {
+  render(<LedgerRow day={3} type="expense" total={10} balance={50} isCheckedIn={false} />);
+  const row = screen.getByTestId('ledger-row');
+  expect(row.style.backgroundColor).toBe('var(--status-yellow)');
+});
 ```
 
 - [ ] **Step 3: Update existing tests to check for variable names**
@@ -85,6 +90,7 @@ git commit -m "refactor: use status color variables in LedgerRow"
 ### Task 3: Integrate Bottom Navigation in Layout
 
 **Files:**
+
 - Modify: `src/components/Layout/Layout.tsx`
 - Delete: `src/components/Layout/BottomNav.tsx`
 - Delete: `src/components/Layout/BottomNav.test.tsx`
@@ -113,6 +119,7 @@ git commit -m "feat: integrate bottom navigation in Layout and remove redundant 
 ### Task 4: Fix FilterSheet
 
 **Files:**
+
 - Modify: `src/components/Ledger/FilterSheet.tsx`
 - Modify: `src/components/Ledger/FilterSheet.test.tsx`
 - Modify: `src/index.css` (Add .filter-sheet styles if needed)
@@ -139,6 +146,7 @@ git commit -m "refactor: improve FilterSheet accessibility and add 'Todos' optio
 ### Task 5: Refactor HorizonteCell
 
 **Files:**
+
 - Modify: `src/components/Ledger/HorizonteCell.tsx`
 
 - [ ] **Step 1: Update HorizonteCell.tsx to use CSS variables**

@@ -10,17 +10,21 @@ interface UseTransactionReturn {
   deleteTransaction: () => Promise<void>;
 }
 
-export const useTransaction = (id?: string, typeParam?: string | null, dateParam?: string | null): UseTransactionReturn => {
+export const useTransaction = (
+  id?: string,
+  typeParam?: string | null,
+  dateParam?: string | null,
+): UseTransactionReturn => {
   const [dbData, setDbData] = useState<Partial<Transaction> | undefined>(undefined);
   const [dbLoading, setDbLoading] = useState(!!id);
 
   useEffect(() => {
     if (id) {
-      db.query<Transaction>('SELECT * FROM transactions WHERE id = $1', [id]).then(rows => {
+      db.query<Transaction>('SELECT * FROM transactions WHERE id = $1', [id]).then((rows) => {
         if (rows.length > 0) {
           setDbData({
             ...rows[0],
-            date: new Date(rows[0].date)
+            date: new Date(rows[0].date),
           });
         }
         setDbLoading(false);
@@ -36,7 +40,7 @@ export const useTransaction = (id?: string, typeParam?: string | null, dateParam
       const [y, m, d] = dateParam.split('-').map(Number);
       initialDate = new Date(y, m - 1, d);
     }
-    
+
     if (typeParam || dateParam) {
       return {
         type: (typeParam as Transaction['type']) || 'expense',
@@ -44,7 +48,7 @@ export const useTransaction = (id?: string, typeParam?: string | null, dateParam
         amount: 0,
         description: '',
         tagId: '',
-        isRecurring: false
+        isRecurring: false,
       };
     }
     return undefined;
@@ -60,7 +64,7 @@ export const useTransaction = (id?: string, typeParam?: string | null, dateParam
           `SELECT tag_keywords.tag_id AS tag_id, keyword
            FROM tag_keywords
            JOIN tags ON tag_keywords.tag_id = tags.id
-           ORDER BY tags.name ASC`
+           ORDER BY tags.name ASC`,
         );
         const matchId = findMatchingTagId(description, keywords);
         if (matchId) data.tagId = matchId;
@@ -80,7 +84,7 @@ export const useTransaction = (id?: string, typeParam?: string | null, dateParam
       data.isRecurring || false,
       data.recurringFrequency || null,
       data.recurringIndefinite ?? true,
-      data.recurringCount || null
+      data.recurringCount || null,
     ];
 
     if (id) {
@@ -89,18 +93,19 @@ export const useTransaction = (id?: string, typeParam?: string | null, dateParam
          SET amount = $1, type = $2, date = $3, description = $4, tag_id = $5, is_recurring = $6, 
              recurring_frequency = $7, recurring_indefinite = $8, recurring_count = $9 
          WHERE id = $10`,
-        [...params, id]
+        [...params, id],
       );
     } else {
-      const newId = typeof crypto !== 'undefined' && crypto.randomUUID 
-        ? crypto.randomUUID() 
-        : Math.random().toString(36).substring(2) + Date.now().toString(36);
+      const newId =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
       await db.exec(
         `INSERT INTO transactions (id, amount, type, date, description, tag_id, is_recurring, 
                                  recurring_frequency, recurring_indefinite, recurring_count) 
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-        [newId, ...params]
+        [newId, ...params],
       );
     }
   };

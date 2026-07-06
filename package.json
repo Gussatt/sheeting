@@ -41,7 +41,19 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "vitest run",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "private": true
 }

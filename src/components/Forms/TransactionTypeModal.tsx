@@ -10,12 +10,48 @@ interface Props {
   onClose: () => void;
 }
 
-const ADD_OPTIONS: { type: string; label: string; description: string; iconName: AppIconName; color: string }[] = [
-  { type: 'income', label: 'Entrada', description: 'Salário, comissão, vales', iconName: 'entradas', color: '#27AE60' },
-  { type: 'expense', label: 'Saída', description: 'Gastos fixos, boletos, aluguel', iconName: 'saidas', color: '#E74C3C' },
-  { type: 'daily', label: 'Diário', description: 'Gastos variáveis, compras', iconName: 'diario', color: '#FFFFFF' },
-  { type: 'savings', label: 'Economia', description: 'Reserva, investimento', iconName: 'economia', color: '#F1C40F' },
-  { type: 'credit', label: 'Gasto com cartão', description: 'Gastos ou total da fatura', iconName: 'cartao', color: '#9B59B6' },
+const ADD_OPTIONS: {
+  type: string;
+  label: string;
+  description: string;
+  iconName: AppIconName;
+  color: string;
+}[] = [
+  {
+    type: 'income',
+    label: 'Entrada',
+    description: 'Salário, comissão, vales',
+    iconName: 'entradas',
+    color: '#27AE60',
+  },
+  {
+    type: 'expense',
+    label: 'Saída',
+    description: 'Gastos fixos, boletos, aluguel',
+    iconName: 'saidas',
+    color: '#E74C3C',
+  },
+  {
+    type: 'daily',
+    label: 'Diário',
+    description: 'Gastos variáveis, compras',
+    iconName: 'diario',
+    color: '#FFFFFF',
+  },
+  {
+    type: 'savings',
+    label: 'Economia',
+    description: 'Reserva, investimento',
+    iconName: 'economia',
+    color: '#F1C40F',
+  },
+  {
+    type: 'credit',
+    label: 'Gasto com cartão',
+    description: 'Gastos ou total da fatura',
+    iconName: 'cartao',
+    color: '#9B59B6',
+  },
 ];
 
 export const TransactionTypeModal: React.FC<Props> = ({ isOpen, onClose }) => {
@@ -23,12 +59,7 @@ export const TransactionTypeModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { colors } = useAppTheme();
 
   return (
-    <Modal
-      visible={isOpen}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={isOpen} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <View style={[styles.sheet, { backgroundColor: colors.bg }]}>
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
@@ -53,7 +84,9 @@ export const TransactionTypeModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 </View>
                 <View style={styles.textCol}>
                   <Text style={[styles.label, { color: colors.textPrimary }]}>{opt.label}</Text>
-                  <Text style={[styles.description, { color: colors.textSecondary }]}>{opt.description}</Text>
+                  <Text style={[styles.description, { color: colors.textSecondary }]}>
+                    {opt.description}
+                  </Text>
                 </View>
               </Pressable>
             ))}
@@ -117,5 +150,5 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-  }
+  },
 });

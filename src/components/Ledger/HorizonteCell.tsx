@@ -10,9 +10,14 @@ interface HorizonteCellProps {
   onToggle?: () => void;
 }
 
-export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance, isChecked, onToggle }) => {
+export const HorizonteCell: React.FC<HorizonteCellProps> = ({
+  day,
+  balance,
+  isChecked,
+  onToggle,
+}) => {
   const { colors } = useAppTheme();
-  
+
   const getCellColor = (val: number) => {
     if (val < 0) return colors.pink;
     if (val < 1000) return colors.yellow;
@@ -51,9 +56,7 @@ export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance, isCh
         )}
       </Pressable>
       <View style={[styles.balanceCol, { backgroundColor: getCellColor(balance) }]}>
-        <Text style={[styles.balanceText, { color: colors.bg }]}>
-          {formatBalance(balance)}
-        </Text>
+        <Text style={[styles.balanceText, { color: colors.bg }]}>{formatBalance(balance)}</Text>
       </View>
     </View>
   );

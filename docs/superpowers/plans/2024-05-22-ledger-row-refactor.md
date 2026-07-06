@@ -13,6 +13,7 @@
 ### Task 1: Refactor LedgerRow Component
 
 **Files:**
+
 - Modify: `src/components/Ledger/LedgerRow.tsx`
 
 - [ ] **Step 1: Update LedgerRowProps and TransactionType**
@@ -30,6 +31,7 @@
 ### Task 2: Update SheetView Page
 
 **Files:**
+
 - Modify: `src/pages/SheetView.tsx`
 
 - [ ] **Step 1: Implement navigation on long press**
@@ -42,6 +44,7 @@
 ### Task 3: Verification and Testing
 
 **Files:**
+
 - Modify: `src/App.test.tsx` or create new tests.
 - Test: `src/components/Ledger/LedgerRow.test.tsx` (create)
 

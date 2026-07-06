@@ -1,7 +1,16 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useSQL, db, type Transaction, type BudgetCategory } from '../../src/db/db';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, startOfDay, isAfter } from 'date-fns';
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameDay,
+  isToday,
+  startOfDay,
+  isAfter,
+} from 'date-fns';
 import { LedgerRow, type TransactionType } from '../../src/components/Ledger/LedgerRow';
 import { FilterSheet } from '../../src/components/Ledger/FilterSheet';
 import type { FilterType } from '../../src/components/Ledger/FilterSheet';
@@ -22,7 +31,7 @@ export default function LedgerScreen() {
   const { t } = useLanguage();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [filter, setFilter] = useState<FilterType>('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -32,17 +41,20 @@ export default function LedgerScreen() {
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
-  const daysInMonth = useMemo(() => eachDayOfInterval({ start: monthStart, end: monthEnd }), [monthStart, monthEnd]);
+  const daysInMonth = useMemo(
+    () => eachDayOfInterval({ start: monthStart, end: monthEnd }),
+    [monthStart, monthEnd],
+  );
 
   const transactions = useSQL<Transaction>(
     `SELECT * FROM transactions 
      WHERE date >= ? AND date <= ? 
      ORDER BY date ASC`,
-    useMemo(() => [monthStart.toISOString(), monthEnd.toISOString()], [monthStart, monthEnd])
+    useMemo(() => [monthStart.toISOString(), monthEnd.toISOString()], [monthStart, monthEnd]),
   );
 
   const filteredTransactions = useFilteredTransactions(transactions, 'calcSaldos');
-  const statuses = useSQL<{ date: string, isChecked: boolean }>(`SELECT * FROM daily_status`);
+  const statuses = useSQL<{ date: string; isChecked: boolean }>(`SELECT * FROM daily_status`);
   const categories = useSQL<BudgetCategory>('SELECT * FROM budget_categories');
   const { daily: dailyPredictionValue } = calculateDailyBudget(categories, 30);
 
@@ -50,15 +62,15 @@ export default function LedgerScreen() {
     let runningBalance = 0;
     const result = [];
     const today = startOfDay(new Date());
-    
+
     for (const date of daysInMonth) {
       const dateStr = date.toISOString().split('T')[0];
-      let dayTransactions = filteredTransactions.filter(t => isSameDay(new Date(t.date), date));
-      const status = statuses.find(s => s.date === dateStr);
-      
+      let dayTransactions = filteredTransactions.filter((t) => isSameDay(new Date(t.date), date));
+      const status = statuses.find((s) => s.date === dateStr);
+
       const isFuture = isAfter(startOfDay(date), today);
-      const hasRealDaily = dayTransactions.some(t => t.type === 'daily');
-      const virtualDaily = (isFuture && !hasRealDaily) ? dailyPredictionValue : 0;
+      const hasRealDaily = dayTransactions.some((t) => t.type === 'daily');
+      const virtualDaily = isFuture && !hasRealDaily ? dailyPredictionValue : 0;
 
       if (virtualDaily > 0) {
         dayTransactions = [
@@ -68,8 +80,8 @@ export default function LedgerScreen() {
             amount: virtualDaily,
             type: 'daily',
             date: date.toISOString(),
-            description: 'Previsão de diário'
-          } as Transaction
+            description: 'Previsão de diário',
+          } as Transaction,
         ];
       }
 
@@ -78,14 +90,14 @@ export default function LedgerScreen() {
         if (t.type === 'income') return sum + amount;
         return sum - amount;
       }, 0);
-      
+
       runningBalance += dayTotalAll;
 
       result.push({
         date,
         dayTransactions,
         balance: runningBalance,
-        isChecked: status?.isChecked || false
+        isChecked: status?.isChecked || false,
       });
     }
     return result;
@@ -103,15 +115,21 @@ export default function LedgerScreen() {
     return result;
   }, [dailyData, dailyPredictionValue]);
 
-  const handleCellClick = useCallback((type: TransactionType, date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    router.push(`/transactions?type=${type}&date=${dateStr}`);
-  }, [router]);
+  const handleCellClick = useCallback(
+    (type: TransactionType, date: Date) => {
+      const dateStr = date.toISOString().split('T')[0];
+      router.push(`/transactions?type=${type}&date=${dateStr}`);
+    },
+    [router],
+  );
 
-  const handleCellLongPress = useCallback((type: TransactionType, date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    router.push(`/add?type=${type}&date=${dateStr}`);
-  }, [router]);
+  const handleCellLongPress = useCallback(
+    (type: TransactionType, date: Date) => {
+      const dateStr = date.toISOString().split('T')[0];
+      router.push(`/add?type=${type}&date=${dateStr}`);
+    },
+    [router],
+  );
 
   const changeMonth = (offset: number) => {
     const next = new Date(currentDate);
@@ -121,8 +139,12 @@ export default function LedgerScreen() {
 
   const getFilterLabel = (type: FilterType) => {
     const labels: Record<FilterType, string> = {
-      all: t('filter.all'), income: t('filter.income'), expense: t('filter.expense'), 
-      daily: 'Diário', savings: 'Economia', credit: 'Cartão'
+      all: t('filter.all'),
+      income: t('filter.income'),
+      expense: t('filter.expense'),
+      daily: 'Diário',
+      savings: 'Economia',
+      credit: 'Cartão',
     };
     return labels[type];
   };
@@ -150,7 +172,9 @@ export default function LedgerScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
-      <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
+      <View
+        style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}
+      >
         <Pressable onPress={jumpToToday} style={styles.todayContainer}>
           <View style={styles.calendarIcon}>
             {/* Calendar top bar with pins */}
@@ -171,7 +195,9 @@ export default function LedgerScreen() {
           <Pressable onPress={() => changeMonth(-1)}>
             <ChevronLeft size={24} color={colors.textPrimary} />
           </Pressable>
-          <Text style={[styles.monthText, { color: colors.textPrimary }]}>{formatMonth(currentDate)}</Text>
+          <Text style={[styles.monthText, { color: colors.textPrimary }]}>
+            {formatMonth(currentDate)}
+          </Text>
           <Pressable onPress={() => changeMonth(1)}>
             <ChevronRight size={24} color={colors.textPrimary} />
           </Pressable>
@@ -182,13 +208,25 @@ export default function LedgerScreen() {
         </Pressable>
       </View>
 
-      <View style={[styles.columnsHeader, { backgroundColor: colors.surface, borderBottomColor: colors.border, borderTopColor: colors.border }]}>
+      <View
+        style={[
+          styles.columnsHeader,
+          {
+            backgroundColor: colors.surface,
+            borderBottomColor: colors.border,
+            borderTopColor: colors.border,
+          },
+        ]}
+      >
         <Text style={[styles.colText, { width: '12%', paddingLeft: 16 }]}>Dia</Text>
-        
+
         <View style={{ flex: 1, paddingHorizontal: 4 }}>
-          <Pressable 
-            onPress={() => setIsFilterOpen(true)} 
-            style={[styles.filterBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          <Pressable
+            onPress={() => setIsFilterOpen(true)}
+            style={[
+              styles.filterBtn,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
           >
             <View style={styles.filterIconWrapper}>
               {filter === 'all' ? (
@@ -201,17 +239,21 @@ export default function LedgerScreen() {
                 <TypeIcon type={filter as TransactionType} size={16} />
               )}
             </View>
-            <Text style={[styles.filterText, { color: colors.textPrimary }]}>{getFilterLabel(filter)}</Text>
+            <Text style={[styles.filterText, { color: colors.textPrimary }]}>
+              {getFilterLabel(filter)}
+            </Text>
             <ChevronDown size={14} color={colors.textSecondary} />
           </Pressable>
         </View>
 
-        <Text style={[styles.colText, { width: '44%', textAlign: 'right', paddingRight: 16 }]}>Saldos</Text>
+        <Text style={[styles.colText, { width: '44%', textAlign: 'right', paddingRight: 16 }]}>
+          Saldos
+        </Text>
       </View>
 
       <ScrollView ref={scrollViewRef} style={styles.ledgerList}>
         {dailyData.map(({ date, dayTransactions, balance, isChecked }) => (
-          <LedgerRow 
+          <LedgerRow
             key={date.toISOString()}
             date={date}
             transactions={dayTransactions}
@@ -220,15 +262,24 @@ export default function LedgerScreen() {
             filter={filter}
             onCellClick={(type) => handleCellClick(type, date)}
             onCellLongPress={(type) => handleCellLongPress(type, date)}
-            onLayout={isToday(date) ? (e) => { todayRowY.current = e.nativeEvent.layout.y; } : undefined}
+            onLayout={
+              isToday(date)
+                ? (e) => {
+                    todayRowY.current = e.nativeEvent.layout.y;
+                  }
+                : undefined
+            }
           />
         ))}
       </ScrollView>
 
-      <FilterSheet 
-        isOpen={isFilterOpen} 
-        onSelect={(t) => { setFilter(t); setIsFilterOpen(false); }} 
-        onClose={() => setIsFilterOpen(false)} 
+      <FilterSheet
+        isOpen={isFilterOpen}
+        onSelect={(t) => {
+          setFilter(t);
+          setIsFilterOpen(false);
+        }}
+        onClose={() => setIsFilterOpen(false)}
       />
     </View>
   );
@@ -333,5 +384,5 @@ const styles = StyleSheet.create({
   },
   ledgerList: {
     flex: 1,
-  }
+  },
 });

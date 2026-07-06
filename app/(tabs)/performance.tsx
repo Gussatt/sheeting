@@ -26,18 +26,25 @@ const MetricItem = ({ label, value, subvalue, color, math, secondaryValue }: Met
     <View style={[styles.metricContainer, { borderBottomColor: colors.border }]}>
       <View style={styles.metricLeft}>
         <Text style={[styles.metricLabel, { color: colors.textPrimary }]}>{label}</Text>
-        <View style={styles.metricMath}>
-          {math}
-        </View>
+        <View style={styles.metricMath}>{math}</View>
       </View>
       <View style={styles.metricRight}>
         <View style={styles.metricValueRow}>
-          {secondaryValue ? <Text style={[styles.metricSecondary, { color: colors.pink }]}>{secondaryValue}</Text> : null}
-          <Text style={[
-            styles.metricValue,
-            { color: typeof value === 'number' && value < 0 ? colors.red : color || colors.textPrimary }
-          ]}>
-            {typeof value === 'number' ? `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : value}
+          {secondaryValue ? (
+            <Text style={[styles.metricSecondary, { color: colors.pink }]}>{secondaryValue}</Text>
+          ) : null}
+          <Text
+            style={[
+              styles.metricValue,
+              {
+                color:
+                  typeof value === 'number' && value < 0 ? colors.red : color || colors.textPrimary,
+              },
+            ]}
+          >
+            {typeof value === 'number'
+              ? `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+              : value}
           </Text>
         </View>
         <Text style={[styles.metricSubvalue, { color: colors.textSecondary }]}>{subvalue}</Text>
@@ -46,7 +53,15 @@ const MetricItem = ({ label, value, subvalue, color, math, secondaryValue }: Met
   );
 };
 
-const MovementItem = ({ label, value, iconName }: { label: string; value: number; iconName: string }) => {
+const MovementItem = ({
+  label,
+  value,
+  iconName,
+}: {
+  label: string;
+  value: number;
+  iconName: string;
+}) => {
   const { colors } = useAppTheme();
   return (
     <View style={[styles.movementContainer, { borderBottomColor: colors.border }]}>
@@ -73,15 +88,25 @@ export default function PerformanceScreen() {
   const transactions = useSQL<Transaction>('SELECT * FROM transactions');
   const budgets = useSQL<BudgetCategory>('SELECT * FROM budget_categories');
 
-  const monthTransactions = transactions.filter(t =>
-    isWithinInterval(new Date(t.date), { start, end })
+  const monthTransactions = transactions.filter((t) =>
+    isWithinInterval(new Date(t.date), { start, end }),
   );
 
-  const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
-  const expense = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0);
-  const daily = monthTransactions.filter(t => t.type === 'daily').reduce((sum, t) => sum + Number(t.amount), 0);
-  const savings = monthTransactions.filter(t => t.type === 'savings').reduce((sum, t) => sum + Number(t.amount), 0);
-  const credit = monthTransactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + Number(t.amount), 0);
+  const income = monthTransactions
+    .filter((t) => t.type === 'income')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const expense = monthTransactions
+    .filter((t) => t.type === 'expense')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const daily = monthTransactions
+    .filter((t) => t.type === 'daily')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const savings = monthTransactions
+    .filter((t) => t.type === 'savings')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const credit = monthTransactions
+    .filter((t) => t.type === 'credit')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
   const daysInMonth = getDaysInMonth(currentDate);
   const { daily: dailyPlanned } = calculateDailyBudget(budgets, daysInMonth);
 
@@ -110,11 +135,21 @@ export default function PerformanceScreen() {
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]} contentContainerStyle={{ paddingBottom: 100 }}>
-      <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
+      <View
+        style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}
+      >
         <View style={styles.todayContainer}>
           <Calendar size={28} color={colors.textPrimary} strokeWidth={2} />
-          <Text style={[styles.todayText, { color: colors.textPrimary, position: 'absolute', top: 12, fontSize: 10 }]}>
+          <Text
+            style={[
+              styles.todayText,
+              { color: colors.textPrimary, position: 'absolute', top: 12, fontSize: 10 },
+            ]}
+          >
             {new Date().getDate()}
           </Text>
         </View>
@@ -123,7 +158,9 @@ export default function PerformanceScreen() {
           <Pressable onPress={() => changeMonth(-1)}>
             <ChevronLeft size={24} color={colors.textPrimary} />
           </Pressable>
-          <Text style={[styles.monthText, { color: colors.textPrimary }]}>{format(currentDate, 'MMM/yy')}</Text>
+          <Text style={[styles.monthText, { color: colors.textPrimary }]}>
+            {format(currentDate, 'MMM/yy')}
+          </Text>
           <Pressable onPress={() => changeMonth(1)}>
             <ChevronRight size={24} color={colors.textPrimary} />
           </Pressable>
@@ -138,7 +175,7 @@ export default function PerformanceScreen() {
         <MetricItem
           label="Performance"
           value={performance}
-          subvalue={performance < 0 ? "Faltou dinheiro" : "Dentro da meta"}
+          subvalue={performance < 0 ? 'Faltou dinheiro' : 'Dentro da meta'}
           math={
             <View style={styles.mathRow}>
               <AppIcon name="entradas" size={16} />
@@ -162,8 +199,18 @@ export default function PerformanceScreen() {
           math={
             <View style={styles.mathRow}>
               <AppIcon name="economia" size={16} />
-              <View style={[styles.progressTrack, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <View style={[styles.progressFill, { width: `${savedPercent}%`, backgroundColor: colors.lightGreen }]} />
+              <View
+                style={[
+                  styles.progressTrack,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.progressFill,
+                    { width: `${savedPercent}%`, backgroundColor: colors.lightGreen },
+                  ]}
+                />
               </View>
               <AppIcon name="entradas" size={16} />
             </View>
@@ -173,7 +220,7 @@ export default function PerformanceScreen() {
         <MetricItem
           label="Custo de vida"
           value={costOfLiving}
-          subvalue={costOfLiving > income ? "Acima da renda" : "Dentro da renda"}
+          subvalue={costOfLiving > income ? 'Acima da renda' : 'Dentro da renda'}
           math={
             <View style={styles.mathRow}>
               <AppIcon name="saidas" size={16} />
@@ -208,7 +255,9 @@ export default function PerformanceScreen() {
       </View>
 
       <View style={styles.movementsSection}>
-        <Text style={[styles.movementsTitle, { color: colors.textSecondary }]}>Movimentações do mês</Text>
+        <Text style={[styles.movementsTitle, { color: colors.textSecondary }]}>
+          Movimentações do mês
+        </Text>
         <MovementItem label="Entradas" value={income} iconName="entradas" />
         <MovementItem label="Saídas" value={expense} iconName="saidas" />
         <MovementItem label="Diários" value={daily} iconName="diario" />

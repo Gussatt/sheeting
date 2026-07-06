@@ -24,13 +24,13 @@ export const colors = {
     pink: '#E91E63',
     purple: '#9B59B6',
     lightGreen: '#2ECC71',
-  }
+  },
 };
 
 export const useAppTheme = () => {
   const { theme } = useTheme();
   return {
     colors: { ...colors[theme], ...colors.status },
-    isDark: theme === 'dark'
+    isDark: theme === 'dark',
   };
 };

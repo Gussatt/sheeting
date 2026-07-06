@@ -13,6 +13,7 @@
 ### Task 1: Create failing test for AddTransaction
 
 **Files:**
+
 - Create: `src/pages/AddTransaction.test.tsx`
 
 - [ ] **Step 1: Write the failing test**
@@ -44,7 +45,7 @@ describe('AddTransaction', () => {
         <Routes>
           <Route path="/add" element={<AddTransaction />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // Fill form (assuming TransactionForm handles inputs)
@@ -62,6 +63,7 @@ Expected: FAIL (due to type errors or missing implementation)
 ### Task 2: Refactor fetch logic in AddTransaction.tsx
 
 **Files:**
+
 - Modify: `src/pages/AddTransaction.tsx`
 
 - [ ] **Step 1: Replace useLiveQuery with useSQL for tags**
@@ -73,19 +75,20 @@ const tags = useSQL<Tag>('SELECT * FROM tags');
 - [ ] **Step 2: Replace db.transactions.get with db.query**
 
 ```tsx
-  useEffect(() => {
-    if (id) {
-      db.query<Transaction>('SELECT * FROM transactions WHERE id = $1', [id]).then(rows => {
-        if (rows.length > 0) setInitialData(rows[0]);
-        setLoading(false);
-      });
-    }
-  }, [id]);
+useEffect(() => {
+  if (id) {
+    db.query<Transaction>('SELECT * FROM transactions WHERE id = $1', [id]).then((rows) => {
+      if (rows.length > 0) setInitialData(rows[0]);
+      setLoading(false);
+    });
+  }
+}, [id]);
 ```
 
 ### Task 3: Refactor handleSubmit in AddTransaction.tsx
 
 **Files:**
+
 - Modify: `src/pages/AddTransaction.tsx`
 
 - [ ] **Step 1: Update Insert logic**
@@ -128,17 +131,18 @@ const tags = useSQL<Tag>('SELECT * FROM tags');
 ### Task 4: Refactor handleDelete in AddTransaction.tsx
 
 **Files:**
+
 - Modify: `src/pages/AddTransaction.tsx`
 
 - [ ] **Step 1: Update Delete logic**
 
 ```tsx
-  const handleDelete = async () => {
-    if (id && confirm('Deseja realmente excluir esta transação?')) {
-      await db.exec('DELETE FROM transactions WHERE id = $1', [id]);
-      navigate('/');
-    }
-  };
+const handleDelete = async () => {
+  if (id && confirm('Deseja realmente excluir esta transação?')) {
+    await db.exec('DELETE FROM transactions WHERE id = $1', [id]);
+    navigate('/');
+  }
+};
 ```
 
 ### Task 5: Final verification

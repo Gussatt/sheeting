@@ -3,10 +3,7 @@ export interface KeywordEntry {
   keyword: string;
 }
 
-export function findMatchingTagId(
-  description: string,
-  keywords: KeywordEntry[]
-): string | null {
+export function findMatchingTagId(description: string, keywords: KeywordEntry[]): string | null {
   const lower = description.toLowerCase();
   for (const entry of keywords) {
     if (lower.includes(entry.keyword.toLowerCase())) {

@@ -23,19 +23,25 @@ export default function HorizonteScreen() {
 
   const categories = useSQL<BudgetCategory>('SELECT * FROM budget_categories');
   const allTransactions = useSQL<Transaction>('SELECT * FROM transactions');
-  
+
   const filteredTransactions = useFilteredTransactions(allTransactions, 'calcSaldos');
 
   const balanceAtStartOfMonth = filteredTransactions
-    .filter(t => new Date(t.date) < monthStart)
+    .filter((t) => new Date(t.date) < monthStart)
     .reduce((sum, t) => {
       const amount = Number(t.amount);
       return t.type === 'income' ? sum + amount : sum - amount;
     }, 0);
 
   const { daily: dailyPlanned } = calculateDailyBudget(categories, 30);
-  
-  const projections = calculateProjection(now, balanceAtStartOfMonth, dailyPlanned, filteredTransactions, 3);
+
+  const projections = calculateProjection(
+    now,
+    balanceAtStartOfMonth,
+    dailyPlanned,
+    filteredTransactions,
+    3,
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
@@ -78,5 +84,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-  }
+  },
 });

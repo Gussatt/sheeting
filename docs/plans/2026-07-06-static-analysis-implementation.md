@@ -13,6 +13,7 @@
 ### Task 1: Install Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Install tools**
@@ -35,6 +36,7 @@ git commit -m "build: install static analysis dependencies and initialize husky"
 ### Task 2: Configure ESLint and Prettier
 
 **Files:**
+
 - Create: `eslint.config.js`
 - Create: `.prettierrc`
 - Create: `.eslintignore`
@@ -66,6 +68,7 @@ module.exports = {
 **Step 3: Write Ignore Files**
 
 For `.eslintignore`:
+
 ```text
 node_modules/
 .expo/
@@ -75,6 +78,7 @@ ios/
 ```
 
 For `.prettierignore`:
+
 ```text
 node_modules/
 .expo/
@@ -93,12 +97,14 @@ git commit -m "chore: configure eslint and prettier"
 ### Task 3: Setup NPM Scripts and Lint-Staged
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `.husky/pre-commit`
 
 **Step 1: Add NPM scripts to `package.json`**
 
 Update the `scripts` section to include:
+
 ```json
 "lint": "eslint .",
 "lint:fix": "eslint . --fix",
@@ -106,6 +112,7 @@ Update the `scripts` section to include:
 ```
 
 Add `lint-staged` configuration to the root of `package.json`:
+
 ```json
 "lint-staged": {
   "*.{js,jsx,ts,tsx}": [
@@ -121,6 +128,7 @@ Add `lint-staged` configuration to the root of `package.json`:
 **Step 2: Update `.husky/pre-commit`**
 
 Replace the contents with:
+
 ```sh
 npx lint-staged
 ```
@@ -142,6 +150,7 @@ git commit -m "chore: add linting scripts and configure lint-staged"
 ### Task 4: Editor Integration
 
 **Files:**
+
 - Create: `.vscode/settings.json`
 
 **Step 1: Create VS Code Settings**

@@ -13,6 +13,7 @@
 ### Task 1: Setup Testing Infrastructure
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `vite.config.ts`
 - Create: `src/setupTests.ts`
@@ -31,8 +32,8 @@ Update `vite.config.ts` to include the test environment.
 ```typescript
 // vite.config.ts
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -40,9 +41,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
-    globals: true
-  }
-})
+    globals: true,
+  },
+});
 ```
 
 - [ ] **Step 3: Update `package.json` Test Script**
@@ -76,6 +77,7 @@ git commit -m "chore: setup vitest testing infrastructure"
 ### Task 2: Implement Dexie Database Adapter
 
 **Files:**
+
 - Create: `src/db/db.ts`
 - Create: `src/db/db.test.ts`
 
@@ -100,7 +102,7 @@ describe('Database Adapter', () => {
       date: new Date('2026-05-20'),
       tagId: 'tag-1',
       isRecurring: false,
-      description: 'Test Income'
+      description: 'Test Income',
     };
 
     await db.transactions.add(tx);
@@ -139,7 +141,7 @@ export class SheetingDB extends Dexie {
   constructor() {
     super('SheetingDB');
     this.version(1).stores({
-      transactions: 'id, type, date, tagId, isRecurring'
+      transactions: 'id, type, date, tagId, isRecurring',
     });
   }
 }
@@ -164,6 +166,7 @@ git commit -m "feat: implement Dexie database adapter"
 ### Task 3: Create Global CSS Variables and Scaffold Layout
 
 **Files:**
+
 - Modify: `src/index.css`
 - Modify: `src/App.tsx`
 - Create: `src/components/Layout/Layout.tsx`
@@ -193,7 +196,11 @@ Replace contents of `src/index.css`:
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
 }
