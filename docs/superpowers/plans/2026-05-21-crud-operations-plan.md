@@ -13,17 +13,19 @@
 ### Task 1: High-Fidelity Transaction Form
 
 **Files:**
+
 - Modify: `src/pages/AddTransaction.tsx`
 - Create: `src/components/Forms/TransactionForm.tsx`
 
 - [ ] **Step 1: Create reusable TransactionForm**
-Support all types (Entrada, Saída, etc.) with correct icons and colors.
+      Support all types (Entrada, Saída, etc.) with correct icons and colors.
 - [ ] **Step 2: Add validation**
-Prevent saving without amount or type.
+      Prevent saving without amount or type.
 
 ### Task 2: Edit & Delete Functionality
 
 **Files:**
+
 - Modify: `src/pages/SheetView.tsx`
 - Modify: `src/db/db.ts`
 

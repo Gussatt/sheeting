@@ -15,11 +15,20 @@ interface TransactionListSheetProps {
 }
 
 const TYPE_LABELS: Record<string, string> = {
-  all: 'Todas', income: 'Entradas', expense: 'Saídas',
-  daily: 'Diários', savings: 'Economias', credit: 'Gastos com cartão'
+  all: 'Todas',
+  income: 'Entradas',
+  expense: 'Saídas',
+  daily: 'Diários',
+  savings: 'Economias',
+  credit: 'Gastos com cartão',
 };
 
-export const TransactionListSheet: React.FC<TransactionListSheetProps> = ({ isOpen, initialDate, initialType, onClose }) => {
+export const TransactionListSheet: React.FC<TransactionListSheetProps> = ({
+  isOpen,
+  initialDate,
+  initialType,
+  onClose,
+}) => {
   const { colors } = useAppTheme();
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState(initialDate);
@@ -36,21 +45,23 @@ export const TransactionListSheet: React.FC<TransactionListSheetProps> = ({ isOp
 
   const dayTransactions = useSQL<Transaction>(
     `SELECT * FROM transactions WHERE date LIKE ? ORDER BY date ASC`,
-    useMemo(() => [`${dateStr}%`], [dateStr])
+    useMemo(() => [`${dateStr}%`], [dateStr]),
   );
 
-  const filteredTransactions = filter === 'all'
-    ? dayTransactions
-    : dayTransactions.filter(t => t.type === filter);
+  const filteredTransactions =
+    filter === 'all' ? dayTransactions : dayTransactions.filter((t) => t.type === filter);
 
   const changeDay = (offset: number) => {
-    setCurrentDate(prev => addDays(prev, offset));
+    setCurrentDate((prev) => addDays(prev, offset));
   };
 
   return (
     <Modal visible={isOpen} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <View style={[styles.sheet, { backgroundColor: colors.bg }]} onStartShouldSetResponder={() => true}>
+        <View
+          style={[styles.sheet, { backgroundColor: colors.bg }]}
+          onStartShouldSetResponder={() => true}
+        >
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <Pressable onPress={onClose} style={styles.closeBtn}>
               <ChevronLeft size={24} color={colors.textSecondary} />
@@ -69,7 +80,9 @@ export const TransactionListSheet: React.FC<TransactionListSheetProps> = ({ isOp
             </View>
 
             <Pressable
-              onPress={() => router.push(`/add?type=${filter === 'all' ? 'expense' : filter}&date=${dateStr}`)}
+              onPress={() =>
+                router.push(`/add?type=${filter === 'all' ? 'expense' : filter}&date=${dateStr}`)
+              }
               style={styles.addBtn}
             >
               <Plus size={24} color={colors.textSecondary} />
@@ -78,7 +91,10 @@ export const TransactionListSheet: React.FC<TransactionListSheetProps> = ({ isOp
 
           <View style={styles.filterRow}>
             <View style={[styles.filterChip, { borderColor: colors.border }]}>
-              <TypeIcon type={(filter === 'all' ? 'income' : filter) as TransactionType} size={16} />
+              <TypeIcon
+                type={(filter === 'all' ? 'income' : filter) as TransactionType}
+                size={16}
+              />
               <Text style={[styles.filterText, { color: colors.textPrimary }]}>
                 {TYPE_LABELS[filter] || filter}
               </Text>

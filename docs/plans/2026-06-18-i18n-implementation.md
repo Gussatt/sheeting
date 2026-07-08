@@ -13,6 +13,7 @@
 ### Task 1: Create Translation Dictionary
 
 **Files:**
+
 - Create: `src/context/translations.ts`
 
 **Step 1: Write minimal dictionary**
@@ -35,7 +36,7 @@ export const translations = {
     'menu.language.pt': 'Portuguese',
     'menu.language.en': 'English',
     'menu.logout': 'Logout',
-  }
+  },
 };
 ```
 
@@ -49,6 +50,7 @@ git commit -m "feat: add initial translations dictionary"
 ### Task 2: Create LanguageContext
 
 **Files:**
+
 - Create: `src/context/LanguageContext.tsx`
 - Modify: `app/_layout.tsx`
 
@@ -127,6 +129,7 @@ git commit -m "feat: create LanguageContext and wrap app"
 ### Task 3: Update Menu to Include Language Toggle
 
 **Files:**
+
 - Modify: `app/(tabs)/menu.tsx`
 
 **Step 1: Add language toggle UI**
@@ -161,6 +164,7 @@ git commit -m "feat: add language toggle to menu"
 ### Task 4: Translate Main Components
 
 **Files:**
+
 - Modify: `app/(tabs)/index.tsx`
 - Modify: `app/(tabs)/tags.tsx`
 - Modify: `app/transactions.tsx`

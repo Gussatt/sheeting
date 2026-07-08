@@ -16,12 +16,13 @@ export default function AddBudgetCategoryScreen() {
 
   const handleSave = async () => {
     if (amount <= 0 || !description) return;
-    
+
     const id = Crypto.randomUUID();
-    await db.exec(
-      'INSERT INTO budget_categories (id, name, monthly_amount) VALUES (?, ?, ?)',
-      [id, description, amount]
-    );
+    await db.exec('INSERT INTO budget_categories (id, name, monthly_amount) VALUES (?, ?, ?)', [
+      id,
+      description,
+      amount,
+    ]);
     router.back();
   };
 
@@ -52,8 +53,8 @@ export default function AddBudgetCategoryScreen() {
             value={formatAmount(amount)}
             onChangeText={handleAmountChange}
             style={[
-              styles.amountInput, 
-              { color: amount === 0 ? colors.textSecondary : colors.textPrimary }
+              styles.amountInput,
+              { color: amount === 0 ? colors.textSecondary : colors.textPrimary },
             ]}
           />
         </View>
@@ -66,7 +67,7 @@ export default function AddBudgetCategoryScreen() {
       <View style={styles.descContainer}>
         <View style={[styles.descRow, { borderBottomColor: colors.border }]}>
           <Pencil size={24} color={colors.textSecondary} />
-          <TextInput 
+          <TextInput
             placeholder="Descrição"
             placeholderTextColor={colors.textSecondary}
             value={description}
@@ -80,18 +81,17 @@ export default function AddBudgetCategoryScreen() {
 
       {/* CTA Button */}
       <View style={styles.footer}>
-        <Pressable 
+        <Pressable
           onPress={handleSave}
           disabled={!isComplete}
           style={[
-            styles.submitBtn, 
-            { backgroundColor: isComplete ? colors.textPrimary : colors.surface }
+            styles.submitBtn,
+            { backgroundColor: isComplete ? colors.textPrimary : colors.surface },
           ]}
         >
-          <Text style={[
-            styles.submitText, 
-            { color: isComplete ? colors.bg : colors.textSecondary }
-          ]}>
+          <Text
+            style={[styles.submitText, { color: isComplete ? colors.bg : colors.textSecondary }]}
+          >
             Adicionar gasto mensal
           </Text>
         </Pressable>
@@ -155,5 +155,5 @@ const styles = StyleSheet.create({
   submitText: {
     fontSize: 18,
     fontWeight: 'bold',
-  }
+  },
 });

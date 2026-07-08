@@ -13,6 +13,7 @@
 ### Task 1: Restore TagTrapezoid Component
 
 **Files:**
+
 - Create: `src/components/Ledger/TagTrapezoid.tsx`
 - Modify: `app/(tabs)/tags.tsx`
 
@@ -31,7 +32,7 @@ interface TagTrapezoidProps {
 
 export const TagTrapezoid: React.FC<TagTrapezoidProps> = ({ color, size = 16 }) => {
   const width = size * 1.33; // maintaining aspect ratio
-  
+
   return (
     <Svg width={width} height={size} viewBox="0 0 100 75" style={{ flexShrink: 0 }}>
       <Polygon points="0,0 75,0 100,37.5 75,75 0,75" fill={color} />
@@ -44,6 +45,7 @@ export const TagTrapezoid: React.FC<TagTrapezoidProps> = ({ color, size = 16 }) 
 In `app/(tabs)/tags.tsx`, replace the basic `tagColorBlock` view with the `<TagTrapezoid>` component.
 
 **Step 3: Commit**
+
 ```bash
 git add src/components/Ledger/TagTrapezoid.tsx app/(tabs)/tags.tsx
 git commit -m "feat: restore custom TagTrapezoid component using react-native-svg"
@@ -54,6 +56,7 @@ git commit -m "feat: restore custom TagTrapezoid component using react-native-sv
 ### Task 2: Restore High-Fidelity Custom Calendar
 
 **Files:**
+
 - Modify: `src/components/Forms/TransactionForm.tsx`
 
 **Step 1: Remove generic DateTimePicker**
@@ -64,6 +67,7 @@ Remove the `DateTimePicker` code and imports from `TransactionForm.tsx`.
 Recreate the exact grid logic used in the Web version (using `date-fns`) but with Native `View`, `Text`, and `Pressable` inside the `Modal` for `activeModal === 'date'`. Make sure to implement the `subMonths` and `addMonths` chevrons.
 
 **Step 3: Commit**
+
 ```bash
 npm uninstall @react-native-community/datetimepicker
 git add src/components/Forms/TransactionForm.tsx package.json
@@ -75,12 +79,14 @@ git commit -m "feat: restore custom calendar picker in transaction form"
 ### Task 3: Implement Layout Animations
 
 **Files:**
+
 - Modify: `app/_layout.tsx`
 - Modify: `src/components/Ledger/LedgerRow.tsx`
 - Modify: `src/components/Forms/TransactionForm.tsx`
 
 **Step 1: Global Enable on Android**
 In `app/_layout.tsx` (or inside a boot hook), ensure UIManager enables LayoutAnimation for Android:
+
 ```tsx
 import { Platform, UIManager } from 'react-native';
 
@@ -93,6 +99,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 In `LedgerRow.tsx` (when filtering changes) and `TransactionForm.tsx` (when opening the repeat logic or switching modals), call `LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)` right before setting the new state.
 
 **Step 3: Commit**
+
 ```bash
 git add app/_layout.tsx src/components/Ledger/LedgerRow.tsx src/components/Forms/TransactionForm.tsx
 git commit -m "feat: introduce LayoutAnimation for fluid UI transitions"

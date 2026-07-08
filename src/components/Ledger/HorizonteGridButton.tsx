@@ -23,7 +23,9 @@ export const HorizonteGridButton = ({ balances }: Props) => {
           key={i}
           style={[
             styles.cell,
-            { backgroundColor: cells[i] !== undefined ? getColor(cells[i], colors) : colors.surface }
+            {
+              backgroundColor: cells[i] !== undefined ? getColor(cells[i], colors) : colors.surface,
+            },
           ]}
         />
       ))}

@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Image, TextInput, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Image,
+  TextInput,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import { useSQL, db } from '../../src/db/db';
 import type { Tag, Transaction } from '../../src/db/db';
-import { Search, ChevronLeft, ChevronRight, Edit2, Plus, Trash2, Calendar } from 'lucide-react-native';
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Edit2,
+  Plus,
+  Trash2,
+  Calendar,
+} from 'lucide-react-native';
 import { startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../src/styles/theme';
@@ -19,7 +36,7 @@ export default function TagsScreen() {
   const [selectedTag, setSelectedTag] = useState<Tag | undefined>(undefined);
   const [isEditing, setIsEditing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
 
@@ -30,13 +47,14 @@ export default function TagsScreen() {
     setIsEditing(false);
   }
 
-  const currentMonthTransactions = transactions.filter(t => 
-    isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd })
+  const currentMonthTransactions = transactions.filter((t) =>
+    isWithinInterval(new Date(t.date), { start: monthStart, end: monthEnd }),
   );
 
-  const getTagTotal = (tagId: string) => currentMonthTransactions
-    .filter(t => t.tagId === tagId)
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const getTagTotal = (tagId: string) =>
+    currentMonthTransactions
+      .filter((t) => t.tagId === tagId)
+      .reduce((sum, t) => sum + Number(t.amount), 0);
 
   const changeMonth = (offset: number) => {
     const next = new Date(currentDate);
@@ -52,20 +70,31 @@ export default function TagsScreen() {
   const handleDeleteTag = (tagId: string) => {
     Alert.alert('Confirmação', 'Deseja realmente excluir esta tag?', [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: async () => {
-        await db.exec('DELETE FROM tags WHERE id = ?', [tagId]);
-      }}
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: async () => {
+          await db.exec('DELETE FROM tags WHERE id = ?', [tagId]);
+        },
+      },
     ]);
   };
 
-  const filteredTags = tags.filter(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredTags = tags.filter((t) => t.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: insets.top }]}>
-      <View style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}>
+      <View
+        style={[styles.header, { backgroundColor: colors.bg, borderBottomColor: colors.border }]}
+      >
         <View style={styles.todayContainer}>
           <Calendar size={28} color={colors.textPrimary} strokeWidth={2} />
-          <Text style={[styles.todayText, { color: colors.textPrimary, position: 'absolute', top: 12, fontSize: 10 }]}>
+          <Text
+            style={[
+              styles.todayText,
+              { color: colors.textPrimary, position: 'absolute', top: 12, fontSize: 10 },
+            ]}
+          >
             {new Date().getDate()}
           </Text>
         </View>
@@ -74,7 +103,9 @@ export default function TagsScreen() {
           <Pressable onPress={() => changeMonth(-1)}>
             <ChevronLeft size={24} color={colors.textPrimary} />
           </Pressable>
-          <Text style={[styles.monthText, { color: colors.textPrimary }]}>{formatMonth(currentDate)}</Text>
+          <Text style={[styles.monthText, { color: colors.textPrimary }]}>
+            {formatMonth(currentDate)}
+          </Text>
           <Pressable onPress={() => changeMonth(1)}>
             <ChevronRight size={24} color={colors.textPrimary} />
           </Pressable>
@@ -86,22 +117,32 @@ export default function TagsScreen() {
       <View style={styles.subheader}>
         <Text style={[styles.subheaderTitle, { color: colors.textPrimary }]}>Tags</Text>
         <View style={styles.actionButtons}>
-          <Pressable 
+          <Pressable
             onPress={() => tags.length > 0 && setIsEditing(!isEditing)}
             style={{ opacity: tags.length > 0 ? 1 : 0.3, marginRight: 16 }}
           >
             <Edit2 size={24} color={colors.textPrimary} />
           </Pressable>
-          <Pressable onPress={() => { setSelectedTag(undefined); setIsModalOpen(true); }}>
+          <Pressable
+            onPress={() => {
+              setSelectedTag(undefined);
+              setIsModalOpen(true);
+            }}
+          >
             <Plus size={24} color={colors.textPrimary} />
           </Pressable>
         </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={[styles.searchContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.searchContainer,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
           <Search size={18} color={colors.textSecondary} style={styles.searchIcon} />
-          <TextInput 
+          <TextInput
             style={[styles.searchInput, { color: colors.textPrimary }]}
             placeholder="Filtrar tags"
             placeholderTextColor={colors.textSecondary}
@@ -112,11 +153,13 @@ export default function TagsScreen() {
 
         <View style={styles.tagsList}>
           {filteredTags.length === 0 && (
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Nenhuma tag encontrada.</Text>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              Nenhuma tag encontrada.
+            </Text>
           )}
-          {filteredTags.map(tag => (
-            <Pressable 
-              key={tag.id} 
+          {filteredTags.map((tag) => (
+            <Pressable
+              key={tag.id}
               onPress={() => {
                 if (!isEditing) {
                   setSelectedTag(tag);
@@ -137,7 +180,7 @@ export default function TagsScreen() {
                 )}
                 {isEditing && (
                   <View style={styles.editActions}>
-                    <Pressable 
+                    <Pressable
                       onPress={(e) => {
                         e.stopPropagation();
                         setSelectedTag(tag);
@@ -147,7 +190,7 @@ export default function TagsScreen() {
                     >
                       <Edit2 size={20} color={colors.textSecondary} />
                     </Pressable>
-                    <Pressable 
+                    <Pressable
                       onPress={(e) => {
                         e.stopPropagation();
                         handleDeleteTag(tag.id);
@@ -276,5 +319,5 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     padding: 4,
-  }
+  },
 });

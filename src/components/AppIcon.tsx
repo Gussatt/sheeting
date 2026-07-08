@@ -29,26 +29,26 @@ import TotaisNight from '../assets/icons/totais_night.svg';
 import Trash from '../assets/icons/trash.svg';
 import User from '../assets/icons/user.svg';
 
-export type AppIconName = 
-  | 'add_tags' 
-  | 'adicao' 
-  | 'cartao' 
-  | 'checkin' 
-  | 'config' 
-  | 'diario_totais' 
-  | 'diario' 
-  | 'economia' 
-  | 'edit' 
-  | 'entradas' 
-  | 'filtro' 
-  | 'generic_tag' 
-  | 'ledger' 
-  | 'navegacao' 
-  | 'previsao_diario' 
-  | 'saidas' 
-  | 'tags' 
-  | 'totais' 
-  | 'trash' 
+export type AppIconName =
+  | 'add_tags'
+  | 'adicao'
+  | 'cartao'
+  | 'checkin'
+  | 'config'
+  | 'diario_totais'
+  | 'diario'
+  | 'economia'
+  | 'edit'
+  | 'entradas'
+  | 'filtro'
+  | 'generic_tag'
+  | 'ledger'
+  | 'navegacao'
+  | 'previsao_diario'
+  | 'saidas'
+  | 'tags'
+  | 'totais'
+  | 'trash'
   | 'user';
 
 const ICONS: Record<AppIconName, { default: React.FC<any>; dark?: React.FC<any> }> = {
@@ -88,22 +88,24 @@ export interface AppIconProps {
  * A templated Icon component that automatically resolves to the correct SVG asset
  * based on the current theme (light vs dark mode).
  */
-export const AppIcon: React.FC<AppIconProps> = ({ 
-  name, size = 24, width, height, color, style, forceTheme 
+export const AppIcon: React.FC<AppIconProps> = ({
+  name,
+  size = 24,
+  width,
+  height,
+  color,
+  style,
+  forceTheme,
 }) => {
   const { isDark } = useAppTheme();
   const themeToUse = forceTheme || (isDark ? 'dark' : 'light');
-  
+
   const iconSet = ICONS[name];
-  const IconComponent = (themeToUse === 'dark' && iconSet.dark) ? iconSet.dark : iconSet.default;
+  const IconComponent = themeToUse === 'dark' && iconSet.dark ? iconSet.dark : iconSet.default;
 
   return (
     <View style={style}>
-      <IconComponent 
-        width={width || size} 
-        height={height || size} 
-        color={color} 
-      />
+      <IconComponent width={width || size} height={height || size} color={color} />
     </View>
   );
 };

@@ -10,19 +10,20 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode, initialTheme?: Theme }> = ({ children, initialTheme }) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode; initialTheme?: Theme }> = ({
+  children,
+  initialTheme,
+}) => {
   const systemTheme = Appearance.getColorScheme();
-  const [theme, setTheme] = useState<Theme>(initialTheme || (systemTheme === 'light' ? 'light' : 'dark'));
+  const [theme, setTheme] = useState<Theme>(
+    initialTheme || (systemTheme === 'light' ? 'light' : 'dark'),
+  );
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => {

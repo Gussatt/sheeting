@@ -10,15 +10,22 @@ import { TypeIcon, type TransactionType } from '../src/components/Ledger/TypeIco
 import { FilterSheet, type FilterType } from '../src/components/Ledger/FilterSheet';
 
 const TYPE_LABELS: Record<string, string> = {
-  all: 'Todas', income: 'Entradas', expense: 'Saídas',
-  daily: 'Diários', savings: 'Economias', credit: 'Gastos com cartão'
+  all: 'Todas',
+  income: 'Entradas',
+  expense: 'Saídas',
+  daily: 'Diários',
+  savings: 'Economias',
+  credit: 'Gastos com cartão',
 };
 
 export default function TransactionsPage() {
   const { colors } = useAppTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { date: dateParam, type: typeParam } = useLocalSearchParams<{ date: string; type: string }>();
+  const { date: dateParam, type: typeParam } = useLocalSearchParams<{
+    date: string;
+    type: string;
+  }>();
 
   const [currentDate, setCurrentDate] = useState(() => {
     if (dateParam) {
@@ -34,15 +41,14 @@ export default function TransactionsPage() {
 
   const dayTransactions = useSQL<Transaction>(
     `SELECT * FROM transactions WHERE date LIKE ? ORDER BY date ASC`,
-    useMemo(() => [`${dateStr}%`], [dateStr])
+    useMemo(() => [`${dateStr}%`], [dateStr]),
   );
 
-  const filteredTransactions = filter === 'all'
-    ? dayTransactions
-    : dayTransactions.filter(t => t.type === filter);
+  const filteredTransactions =
+    filter === 'all' ? dayTransactions : dayTransactions.filter((t) => t.type === filter);
 
   const changeDay = (offset: number) => {
-    setCurrentDate(prev => addDays(prev, offset));
+    setCurrentDate((prev) => addDays(prev, offset));
   };
 
   return (
@@ -65,7 +71,9 @@ export default function TransactionsPage() {
         </View>
 
         <Pressable
-          onPress={() => router.push(`/add?type=${filter === 'all' ? 'expense' : filter}&date=${dateStr}`)}
+          onPress={() =>
+            router.push(`/add?type=${filter === 'all' ? 'expense' : filter}&date=${dateStr}`)
+          }
           style={styles.addBtn}
         >
           <Plus size={24} color={colors.textSecondary} />
@@ -73,13 +81,21 @@ export default function TransactionsPage() {
       </View>
 
       <View style={styles.filterRow}>
-        <Pressable 
+        <Pressable
           onPress={() => setIsFilterOpen(true)}
           style={[styles.filterChip, { borderColor: colors.border }]}
         >
           <View style={styles.filterChipLeft}>
             {filter === 'all' ? (
-              <View style={{ flexDirection: 'row', gap: 2, alignItems: 'center', justifyContent: 'center', width: 24 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  gap: 2,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 24,
+                }}
+              >
                 <View style={[styles.dot, { backgroundColor: colors.green }]} />
                 <View style={[styles.dot, { backgroundColor: colors.red }]} />
                 <View style={[styles.dot, { backgroundColor: colors.pink }]} />
@@ -131,7 +147,7 @@ export default function TransactionsPage() {
         )}
       </ScrollView>
 
-      <FilterSheet 
+      <FilterSheet
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onSelect={(t) => {

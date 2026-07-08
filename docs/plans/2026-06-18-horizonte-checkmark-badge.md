@@ -13,6 +13,7 @@
 ### Task 1: Create `useDailyStatus` hook
 
 **Files:**
+
 - Create: `src/hooks/useDailyStatus.ts`
 - Create: `src/hooks/useDailyStatus.test.ts`
 
@@ -63,26 +64,22 @@ interface DailyStatusRow {
  * returns a Set<string> of date keys plus a toggle function.
  */
 export function useDailyStatus() {
-  const rows = useSQL<DailyStatusRow>('SELECT date, is_checked FROM daily_status WHERE is_checked = 1');
-  const checkedDates = new Set(rows.map(r => r.date));
+  const rows = useSQL<DailyStatusRow>(
+    'SELECT date, is_checked FROM daily_status WHERE is_checked = 1',
+  );
+  const checkedDates = new Set(rows.map((r) => r.date));
 
   const toggleDate = useCallback(async (dateKey: string) => {
     const existing = await db.query<DailyStatusRow>(
       'SELECT is_checked FROM daily_status WHERE date = $1',
-      [dateKey]
+      [dateKey],
     );
 
     if (existing.length === 0) {
-      await db.exec(
-        'INSERT INTO daily_status (date, is_checked) VALUES ($1, 1)',
-        [dateKey]
-      );
+      await db.exec('INSERT INTO daily_status (date, is_checked) VALUES ($1, 1)', [dateKey]);
     } else {
       const newVal = existing[0].isChecked ? 0 : 1;
-      await db.exec(
-        'UPDATE daily_status SET is_checked = $1 WHERE date = $2',
-        [newVal, dateKey]
-      );
+      await db.exec('UPDATE daily_status SET is_checked = $1 WHERE date = $2', [newVal, dateKey]);
     }
   }, []);
 
@@ -107,11 +104,13 @@ git commit -m "feat: useDailyStatus hook with buildDateKey helper"
 ### Task 2: Add checkmark badge to HorizonteCell
 
 **Files:**
+
 - Modify: `src/components/Ledger/HorizonteCell.tsx`
 
 **Step 1: Update HorizonteCell to accept `isChecked` and `onToggle` props**
 
 Add new props to the interface:
+
 ```typescript
 interface HorizonteCellProps {
   day: number;
@@ -142,7 +141,12 @@ interface HorizonteCellProps {
   onToggle?: () => void;
 }
 
-export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance, isChecked, onToggle }) => {
+export const HorizonteCell: React.FC<HorizonteCellProps> = ({
+  day,
+  balance,
+  isChecked,
+  onToggle,
+}) => {
   const { colors } = useAppTheme();
 
   const getCellColor = (val: number) => {
@@ -183,9 +187,7 @@ export const HorizonteCell: React.FC<HorizonteCellProps> = ({ day, balance, isCh
         )}
       </Pressable>
       <View style={[styles.balanceCol, { backgroundColor: getCellColor(balance) }]}>
-        <Text style={[styles.balanceText, { color: colors.bg }]}>
-          {formatBalance(balance)}
-        </Text>
+        <Text style={[styles.balanceText, { color: colors.bg }]}>{formatBalance(balance)}</Text>
       </View>
     </View>
   );
@@ -238,6 +240,7 @@ git commit -m "feat: checkmark triangle badge on HorizonteCell day column"
 ### Task 3: Wire HorizonteGrid to pass check state down
 
 **Files:**
+
 - Modify: `src/components/Ledger/HorizonteGrid.tsx`
 
 **Step 1: Add props for checkedDates and onToggleDay**
@@ -255,6 +258,7 @@ interface Props {
 Inside the map, derive the year and month from `month.monthName` using `parse` from `date-fns`. Then for each day cell, build the date key and check membership.
 
 Updated render for each `HorizonteCell`:
+
 ```tsx
 import { parse } from 'date-fns';
 import { buildDateKey } from '../../hooks/useDailyStatus';
@@ -272,7 +276,7 @@ const dateKey = buildDateKey(year, month0, dayData.day);
   balance={dayData.balance}
   isChecked={checkedDates?.has(dateKey)}
   onToggle={onToggleDay ? () => onToggleDay(dateKey) : undefined}
-/>
+/>;
 ```
 
 **Step 3: Commit**
@@ -287,6 +291,7 @@ git commit -m "feat: wire checkedDates and onToggleDay through HorizonteGrid"
 ### Task 4: Wire horizonte.tsx page to the hook
 
 **Files:**
+
 - Modify: `app/horizonte.tsx`
 
 **Step 1: Import and use `useDailyStatus` hook**

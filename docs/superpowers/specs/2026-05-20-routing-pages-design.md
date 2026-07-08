@@ -1,29 +1,32 @@
 # Sheeting Routing & Pages Design
 
 ## Goal
+
 Establish the application routing and page skeletons for the "Sheeting" personal finance web application, incorporating the specific page functions and navigation elements requested by the user.
 
 ## Architecture
+
 - **Router:** `react-router-dom` using `<BrowserRouter>`.
 - **Layout Integration:** The `Layout` component will provide a bottom navigation bar for mobile-first interaction and a top app bar that might house the global dropdown navigation.
 
 ## Route Structure
+
 Based on the required features:
 
 1.  **`/` (Root / Sheet Visualization):** The main dashboard displaying a sheet-like visualization combining:
-    *   Diário (Daily budget based on 'previsão de diário')
-    *   Cartão (Credit Card expenses)
-    *   Saídas (Recurring expenses/outflows)
-    *   Entradas (Earnings/inflows)
-    *   Economias (Savings)
-    *   *Navigation:* A dropdown will be available (in the header or top of the page) to navigate to specific detailed pages for each of these 5 categories.
+    - Diário (Daily budget based on 'previsão de diário')
+    - Cartão (Credit Card expenses)
+    - Saídas (Recurring expenses/outflows)
+    - Entradas (Earnings/inflows)
+    - Economias (Savings)
+    - _Navigation:_ A dropdown will be available (in the header or top of the page) to navigate to specific detailed pages for each of these 5 categories.
 
 2.  **Specific Category Pages (accessible via Dropdown):**
-    *   `/category/diario`
-    *   `/category/cartao`
-    *   `/category/saidas`
-    *   `/category/entradas`
-    *   `/category/economias`
+    - `/category/diario`
+    - `/category/cartao`
+    - `/category/saidas`
+    - `/category/entradas`
+    - `/category/economias`
 
 3.  **`/performance` (Totais/Performance):** A page showing performance metrics, money saved, cost of living, and average daily cost (as seen in IMG_7083).
 
@@ -40,14 +43,18 @@ Based on the required features:
     - Daily Calculation (`/daily-calculation`)
 
 ## Page Skeletons
+
 For each route, a dedicated React component will be created.
+
 - Each skeleton will contain a distinct header.
 - The Root page will feature the dropdown component to switch between the specific views (Diário, Cartão, etc.).
 
 ## Testing Strategy
+
 - Unit tests for the routing setup to verify correct components render for paths.
 - Layout tests to verify the bottom navigation and dropdown structure.
 
 ## Dependencies
+
 - `react-router-dom`
 - `lucide-react` (for icons)

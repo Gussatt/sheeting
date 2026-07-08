@@ -14,13 +14,13 @@ export default function AddTransactionScreen() {
   const { id, type, date } = useLocalSearchParams();
   const { colors } = useAppTheme();
   const insets = useSafeAreaInsets();
-  
+
   const tags = useSQL<Tag>('SELECT * FROM tags');
 
   const { initialData, loading, saveTransaction, deleteTransaction } = useTransaction(
     id as string,
     type as string,
-    date as string
+    date as string,
   );
 
   const handleSubmit = async (data: Partial<Transaction>) => {
@@ -37,8 +37,8 @@ export default function AddTransactionScreen() {
     if (id) {
       Alert.alert('Confirmação', 'Deseja realmente excluir esta transação?', [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Excluir', 
+        {
+          text: 'Excluir',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -48,15 +48,20 @@ export default function AddTransactionScreen() {
               console.error('Failed to delete transaction:', error);
               Alert.alert('Erro', 'Erro ao excluir transação.');
             }
-          }
-        }
+          },
+        },
       ]);
     }
   };
 
   if (loading) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' },
+        ]}
+      >
         <Text style={{ color: colors.textPrimary }}>Carregando...</Text>
       </View>
     );
@@ -73,10 +78,10 @@ export default function AddTransactionScreen() {
         </Text>
       </View>
 
-      <TransactionForm 
-        initialData={initialData} 
-        tags={tags} 
-        onSubmit={handleSubmit} 
+      <TransactionForm
+        initialData={initialData}
+        tags={tags}
+        onSubmit={handleSubmit}
         onDelete={id ? handleDelete : undefined}
       />
     </View>
@@ -96,5 +101,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-  }
+  },
 });

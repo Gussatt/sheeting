@@ -13,6 +13,7 @@
 ### Task 1: Bottom Navigation Layout
 
 **Files:**
+
 - Create: `src/components/Layout/BottomNav.tsx`
 - Create: `src/components/Layout/BottomNav.test.tsx`
 
@@ -31,7 +32,7 @@ describe('BottomNav', () => {
     render(
       <MemoryRouter>
         <BottomNav />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
     expect(screen.getByText('Saldos')).toBeDefined();
     expect(screen.getByText('Totais')).toBeDefined();
@@ -56,10 +57,21 @@ import { Link } from 'react-router-dom';
 
 export const BottomNav: React.FC = () => {
   return (
-    <nav style={{ display: 'flex', justifyContent: 'space-around', position: 'fixed', bottom: 0, width: '100%', background: '#fff' }}>
+    <nav
+      style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+        position: 'fixed',
+        bottom: 0,
+        width: '100%',
+        background: '#fff',
+      }}
+    >
       <Link to="/">Saldos</Link>
       <Link to="/performance">Totais</Link>
-      <Link to="/add" style={{ fontSize: '24px', fontWeight: 'bold' }}>+</Link>
+      <Link to="/add" style={{ fontSize: '24px', fontWeight: 'bold' }}>
+        +
+      </Link>
       <Link to="/category">Tags</Link>
       <Link to="/menu">Menu</Link>
     </nav>
@@ -82,6 +94,7 @@ git commit -m "feat: add persistent bottom navigation"
 ### Task 2: Budgeting Calculations (Previsão de diário)
 
 **Files:**
+
 - Create: `src/utils/budgetCalc.ts`
 - Create: `src/utils/budgetCalc.test.ts`
 
@@ -97,9 +110,9 @@ describe('calculateDailyBudget', () => {
   it('sums categories and divides by days', () => {
     const categories: BudgetCategory[] = [
       { id: '1', userId: '1', name: 'Comida', monthlyAmount: 200 },
-      { id: '2', userId: '1', name: 'Transporte', monthlyAmount: 500 }
+      { id: '2', userId: '1', name: 'Transporte', monthlyAmount: 500 },
     ];
-    
+
     const result = calculateDailyBudget(categories, 30);
     expect(result.total).toBe(700);
     expect(result.daily).toBe(23.33); // 700 / 30 rounded to 2 decimals

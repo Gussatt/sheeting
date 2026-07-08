@@ -13,6 +13,7 @@
 ### Task 1: Install Dependencies & Update Global CSS
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `src/index.css`
 
@@ -24,6 +25,7 @@ Expected: Installation completes.
 - [ ] **Step 2: Update CSS for layout with bottom navigation**
 
 Edit `src/index.css` to add layout classes:
+
 ```css
 /* Add at the end of the file */
 .layout-container {
@@ -82,12 +84,14 @@ git commit -m "chore: install router and update global css for mobile layout"
 ### Task 2: Create Layout Component
 
 **Files:**
+
 - Modify: `src/components/Layout/Layout.tsx`
 - Modify: `src/components/Layout/Layout.test.tsx`
 
 - [ ] **Step 1: Write/Update Layout Test**
 
 Edit `src/components/Layout/Layout.test.tsx`:
+
 ```tsx
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
@@ -101,7 +105,7 @@ describe('Layout', () => {
         <Layout>
           <div data-testid="test-child">Child Content</div>
         </Layout>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByTestId('test-child')).toBeInTheDocument();
@@ -121,6 +125,7 @@ Expected: Layout tests fail.
 - [ ] **Step 3: Refactor Layout Implementation**
 
 Edit `src/components/Layout/Layout.tsx`:
+
 ```tsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -129,27 +134,34 @@ import { Grid, Wallet, Activity, Calculator } from 'lucide-react';
 export const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="layout-container">
-      <main className="layout-main">
-        {children}
-      </main>
-      
+      <main className="layout-main">{children}</main>
+
       <nav className="bottom-nav">
         <NavLink to="/" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
           <Grid size={20} />
           <span>Planilha</span>
         </NavLink>
-        
-        <NavLink to="/balances" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
+
+        <NavLink
+          to="/balances"
+          className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
+        >
           <Wallet size={20} />
           <span>Saldos</span>
         </NavLink>
 
-        <NavLink to="/performance" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
+        <NavLink
+          to="/performance"
+          className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
+        >
           <Activity size={20} />
           <span>Desempenho</span>
         </NavLink>
 
-        <NavLink to="/daily-calculation" className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}>
+        <NavLink
+          to="/daily-calculation"
+          className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
+        >
           <Calculator size={20} />
           <span>Diário</span>
         </NavLink>
@@ -174,6 +186,7 @@ git commit -m "refactor: update layout for bottom navigation"
 ### Task 3: Create Page Skeletons
 
 **Files:**
+
 - Create: `src/pages/SheetView.tsx`
 - Create: `src/pages/Balances.tsx`
 - Create: `src/pages/Performance.tsx`
@@ -183,6 +196,7 @@ git commit -m "refactor: update layout for bottom navigation"
 - [ ] **Step 1: Create SheetView (Root)**
 
 Create `src/pages/SheetView.tsx`:
+
 ```tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -201,9 +215,20 @@ export const SheetView = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1rem',
+        }}
+      >
         <h1>Planilha</h1>
-        <select value={selectedCategory} onChange={handleNavigation} style={{ padding: '0.5rem', borderRadius: '4px' }}>
+        <select
+          value={selectedCategory}
+          onChange={handleNavigation}
+          style={{ padding: '0.5rem', borderRadius: '4px' }}
+        >
           <option value="">Detalhes...</option>
           <option value="diario">Diário</option>
           <option value="cartao">Cartão</option>
@@ -212,7 +237,7 @@ export const SheetView = () => {
           <option value="economias">Economias</option>
         </select>
       </div>
-      
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: '8px' }}>
           <h3>Visão Geral</h3>
@@ -233,6 +258,7 @@ export const SheetView = () => {
 - [ ] **Step 2: Create CategoryDetail Page**
 
 Create `src/pages/CategoryDetail.tsx`:
+
 ```tsx
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -240,10 +266,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 export const CategoryDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   return (
     <div>
-      <button onClick={() => navigate('/')} style={{ marginBottom: '1rem' }}>&larr; Voltar</button>
+      <button onClick={() => navigate('/')} style={{ marginBottom: '1rem' }}>
+        &larr; Voltar
+      </button>
       <h1 style={{ textTransform: 'capitalize' }}>Detalhes: {id}</h1>
       <div style={{ background: 'var(--color-surface)', padding: '1rem', borderRadius: '8px' }}>
         <p>Visualização detalhada para {id} será renderizada aqui.</p>
@@ -256,21 +284,39 @@ export const CategoryDetail = () => {
 - [ ] **Step 3: Create Balances, Performance, and Daily Calculation Pages**
 
 Create `src/pages/Balances.tsx`:
+
 ```tsx
 import React from 'react';
-export const Balances = () => <div><h1>Saldos</h1><p>Carteira, Bancos...</p></div>;
+export const Balances = () => (
+  <div>
+    <h1>Saldos</h1>
+    <p>Carteira, Bancos...</p>
+  </div>
+);
 ```
 
 Create `src/pages/Performance.tsx`:
+
 ```tsx
 import React from 'react';
-export const Performance = () => <div><h1>Desempenho</h1><p>Performance, Economizado...</p></div>;
+export const Performance = () => (
+  <div>
+    <h1>Desempenho</h1>
+    <p>Performance, Economizado...</p>
+  </div>
+);
 ```
 
 Create `src/pages/DailyCalculation.tsx`:
+
 ```tsx
 import React from 'react';
-export const DailyCalculation = () => <div><h1>Cálculo de Diário</h1><p>Previsão de diário...</p></div>;
+export const DailyCalculation = () => (
+  <div>
+    <h1>Cálculo de Diário</h1>
+    <p>Previsão de diário...</p>
+  </div>
+);
 ```
 
 - [ ] **Step 4: Commit**
@@ -283,12 +329,14 @@ git commit -m "feat: add root sheet visualization, specific category pages, and 
 ### Task 4: Setup Router in App.tsx
 
 **Files:**
+
 - Modify: `src/App.test.tsx`
 - Modify: `src/App.tsx`
 
 - [ ] **Step 1: Write/Update App.test.tsx**
 
 Edit `src/App.test.tsx`:
+
 ```tsx
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
@@ -311,6 +359,7 @@ Expected: Fails because routing is not setup.
 - [ ] **Step 3: Setup Router in App.tsx**
 
 Edit `src/App.tsx`:
+
 ```tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout/Layout';

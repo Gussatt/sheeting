@@ -13,6 +13,7 @@
 ### Task 1: Refactor useLongPress Hook
 
 **Files:**
+
 - Modify: `src/hooks/useLongPress.ts`
 - Modify: `src/hooks/useLongPress.test.tsx`
 
@@ -21,33 +22,35 @@
 ```typescript
 import { useCallback, useRef } from 'react';
 
-export const useLongPress = (
-  onClick: () => void,
-  onLongPress: () => void,
-  ms: number = 500
-) => {
+export const useLongPress = (onClick: () => void, onLongPress: () => void, ms: number = 500) => {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isLongPressActive = useRef(false);
 
-  const start = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    isLongPressActive.current = false;
-    timerRef.current = setTimeout(() => {
-      isLongPressActive.current = true;
-      onLongPress();
-    }, ms);
-  }, [onLongPress, ms]);
+  const start = useCallback(
+    (e: React.MouseEvent | React.TouchEvent) => {
+      isLongPressActive.current = false;
+      timerRef.current = setTimeout(() => {
+        isLongPressActive.current = true;
+        onLongPress();
+      }, ms);
+    },
+    [onLongPress, ms],
+  );
 
-  const stop = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    
-    if (!isLongPressActive.current) {
-      onClick();
-    }
-    isLongPressActive.current = false;
-  }, [onClick]);
+  const stop = useCallback(
+    (e: React.MouseEvent | React.TouchEvent) => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+
+      if (!isLongPressActive.current) {
+        onClick();
+      }
+      isLongPressActive.current = false;
+    },
+    [onClick],
+  );
 
   const clear = useCallback(() => {
     if (timerRef.current) {
@@ -77,27 +80,27 @@ export const useLongPress = (
 
 ```typescript
 // ... existing imports
-  it('clears timer on touch move', () => {
-    const onClick = vi.fn();
-    const onLongPress = vi.fn();
-    const { result } = renderHook(() => useLongPress(onClick, onLongPress));
+it('clears timer on touch move', () => {
+  const onClick = vi.fn();
+  const onLongPress = vi.fn();
+  const { result } = renderHook(() => useLongPress(onClick, onLongPress));
 
-    act(() => {
-      result.current.onTouchStart({} as any);
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(200);
-      result.current.onTouchMove();
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(400);
-    });
-
-    expect(onLongPress).not.toHaveBeenCalled();
-    expect(onClick).not.toHaveBeenCalled();
+  act(() => {
+    result.current.onTouchStart({} as any);
   });
+
+  act(() => {
+    vi.advanceTimersByTime(200);
+    result.current.onTouchMove();
+  });
+
+  act(() => {
+    vi.advanceTimersByTime(400);
+  });
+
+  expect(onLongPress).not.toHaveBeenCalled();
+  expect(onClick).not.toHaveBeenCalled();
+});
 // ...
 ```
 
@@ -110,6 +113,7 @@ Run: `npm test src/hooks/useLongPress.test.tsx`
 ### Task 2: Refactor LedgerRow for Dense 5-Cell Stack
 
 **Files:**
+
 - Modify: `src/components/Ledger/LedgerRow.tsx`
 - Modify: `src/components/Ledger/LedgerRow.test.tsx`
 
@@ -132,12 +136,12 @@ const LedgerCell: React.FC<{
   );
 
   return (
-    <div 
+    <div
       {...handlers}
-      style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '8px', 
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
         height: '24px', // Dense height
         cursor: 'pointer',
         opacity: isEmpty ? 0.3 : 1,
@@ -170,15 +174,19 @@ Run: `npm test src/components/Ledger/LedgerRow.test.tsx`
 ### Task 3: Update SheetView Navigation
 
 **Files:**
+
 - Modify: `src/pages/SheetView.tsx`
 
 - [ ] **Step 1: Update handleCellLongPress to use state for navigation**
 
 ```typescript
-  const handleCellLongPress = useCallback((type: TransactionType, date: Date) => {
+const handleCellLongPress = useCallback(
+  (type: TransactionType, date: Date) => {
     const dateStr = date.toISOString().split('T')[0];
     navigate('/add', { state: { type, date: dateStr } });
-  }, [navigate]);
+  },
+  [navigate],
+);
 ```
 
 - [ ] **Step 2: Verify props passed to LedgerRow**
@@ -188,6 +196,7 @@ Run: `npm test src/components/Ledger/LedgerRow.test.tsx`
 ### Task 4: Update AddTransaction to consume state
 
 **Files:**
+
 - Modify: `src/pages/AddTransaction.tsx`
 - Modify: `src/pages/AddTransaction.test.tsx`
 
@@ -204,7 +213,7 @@ export const AddTransaction = () => {
   // ...
   const [initialData, setInitialData] = useState<Partial<Transaction> | undefined>(() => {
     if (id) return undefined;
-    
+
     const queryType = searchParams.get('type');
     const queryDate = searchParams.get('date');
     const type = state?.type || queryType;
